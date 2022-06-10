@@ -39,15 +39,20 @@ public class CrankRunner
 
     private void ExecuteRuns()
     {
+        var outputKeep = new List<string>();
+        var resultsParser = new ResultsParser();
         _logger.Write("\nStarting sending to crank...\n");
 
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
+            resultsParser.RunName = cr.Name;
+
             _logger.Write($"\nRunning config ({i+1}/{_cranks.Count})...\n");
 
             for (int j = 0; j < _iterations; j++)
             {
+                outputKeep.Clear();
                 _logger.Write($"\nIteration ({j+1}/{_iterations})...\n\n");
 
                 using (Process crank = new Process())
@@ -68,11 +73,15 @@ public class CrankRunner
                     {
                         string line = crank.StandardOutput.ReadLine()!;
                         _logger.Write($"{line}\n");
+                        outputKeep.Add(line);
                     }
                     crank.WaitForExit();
                 }
+                resultsParser.ParseAndStoreIterationResults(j + 1, outputKeep);
             }
+            resultsParser.StoreRunResults();
         }
+        resultsParser.SerializeToJSON();
         _logger.Write("\nFinished with the tests!\n");
     }
 
