@@ -1,0 +1,10 @@
+# Files to not upload to the remote repository in Github.
+
+# Vim Temp Files
+*.swp
+*~
+
+# .NET Build Files
+bin/*
+obj/*
+
