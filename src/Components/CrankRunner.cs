@@ -9,12 +9,14 @@ public class CrankRunner
     // Class definition goes here.
     private List<CrankRun> _cranks;
     private List<Configuration> _configs;
+    private int _iterations;
     private MultiIOLogger _logger;
 
-    public CrankRunner(List<Configuration> configs)
+    public CrankRunner(List<Configuration> configs, int numIters = 1)
     {
         _cranks = new List<CrankRun>();
         _configs = configs;
+        _iterations = numIters;
         _logger = new MultiIOLogger("log.txt");
     }
 
@@ -42,28 +44,33 @@ public class CrankRunner
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
-            _logger.Write($"\nRunning config ({i+1}/{_cranks.Count})...\n\n");
+            _logger.Write($"\nRunning config ({i+1}/{_cranks.Count})...\n");
 
-            using (Process crank = new Process())
+            for (int j = 0; j < _iterations; j++)
             {
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "crank",
-                    Arguments = cr.Args,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                };
+                _logger.Write($"\nIteration ({j+1}/{_iterations})...\n\n");
 
-                crank.StartInfo = startInfo;
-                crank.Start();
-
-                while (!crank.StandardOutput.EndOfStream)
+                using (Process crank = new Process())
                 {
-                    string line = crank.StandardOutput.ReadLine()!;
-                    _logger.Write($"{line}\n");
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = "crank",
+                        Arguments = cr.Args,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false
+                    };
+
+                    crank.StartInfo = startInfo;
+                    crank.Start();
+
+                    while (!crank.StandardOutput.EndOfStream)
+                    {
+                        string line = crank.StandardOutput.ReadLine()!;
+                        _logger.Write($"{line}\n");
+                    }
+                    crank.WaitForExit();
                 }
-                crank.WaitForExit();
             }
         }
         _logger.Write("\nFinished with the tests!\n");

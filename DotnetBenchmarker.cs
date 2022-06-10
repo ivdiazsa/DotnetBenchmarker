@@ -1,7 +1,4 @@
 ﻿// File: DotnetBenchmarker.cs
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Text;
 
 // Class: DotnetBenchmarker
 // This is our little script :)
@@ -12,7 +9,8 @@ internal class DotnetBenchmarker
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
 
-        var runner = new CrankRunner(optsBank.AppDesc.Configurations);
+        var runner = new CrankRunner(optsBank.AppDesc.Configurations,
+                                     optsBank.Iterations);
         runner.Execute();
     }
 }
