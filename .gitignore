@@ -8,3 +8,5 @@
 bin/*
 obj/*
 
+# Results and Logs Files
+Logs/*

@@ -17,7 +17,7 @@ public class CrankRunner
         _cranks = new List<CrankRun>();
         _configs = configs;
         _iterations = numIters;
-        _logger = new MultiIOLogger("log.txt");
+        _logger = new MultiIOLogger($"{Constants.LogsPath}/run-log-{Constants.Timestamp}.txt");
     }
 
     public void Execute()
@@ -81,7 +81,7 @@ public class CrankRunner
     {
         var cmdSb = new StringBuilder();
         string osCode = config.Os.Substring(0, 3);
-        RunEnvironmentDescription runEnv = config.RunEnvironment;
+        RunPhaseDescription runEnv = config.RunPhase;
 
         cmdSb.Append(" --config https://raw.githubusercontent.com/"
                    + "aspnet/Benchmarks/main/scenarios/plaintext.benchmarks.yml");

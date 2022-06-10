@@ -1,10 +1,10 @@
-// File: src/Models/RunEnvironment.cs
+// File: src/Models/RunPhaseDescription.cs
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-// Class: RunEnvironmentDescription
-public class RunEnvironmentDescription
+// Class: RunPhaseDescription
+public class RunPhaseDescription
 {
     public List<string> Params { get; set; }
 
@@ -12,7 +12,7 @@ public class RunEnvironmentDescription
     public bool EnvReadyToRun { get; set; }
     public bool EnvTieredCompilation { get; set; }
 
-    public RunEnvironmentDescription()
+    public RunPhaseDescription()
     {
         Params = new List<string>();
         AppR2R = false;
