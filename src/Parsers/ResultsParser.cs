@@ -61,11 +61,6 @@ public class ResultsParser
         var jOptions = new JsonSerializerOptions { WriteIndented = true };
         string jString = JsonSerializer.Serialize(_allStats, jOptions);
         // System.Console.WriteLine($"\n{jString}\n");
-
-        using (var fileWriter = new StreamWriter(ResultsFilename))
-        {
-            fileWriter.AutoFlush = true;
-            fileWriter.WriteLine(jString);
-        }
+        File.WriteAllText(ResultsFilename, jString);
     }
 }

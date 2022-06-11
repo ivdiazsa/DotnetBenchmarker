@@ -1,5 +1,6 @@
 // File: src/AppOptionsBank.cs
 using System;
+using System.Collections.Generic;
 
 // Class: AppOptionsBank
 public class AppOptionsBank
@@ -27,5 +28,22 @@ public class AppOptionsBank
         }
 
         YamlConfigFileParser.ParseIntoOptsBank(this);
+    }
+
+    public Dictionary<string, Runtime> GetRuntimesGroupedByOS()
+    {
+        var runtimesByOs = new Dictionary<string, Runtime>();
+
+        foreach (Runtime r in AppDesc.Runtimes)
+        {
+            runtimesByOs.Add(r.Os, r);
+        }
+
+        return runtimesByOs;
+    }
+
+    public List<Configuration> GetConfigurations()
+    {
+        return AppDesc.Configurations;
     }
 }

@@ -16,6 +16,7 @@ public static class YamlConfigFileParser
         AppDescription appDesc = deserializer.Deserialize<AppDescription>(yaml);
         foreach (Configuration cfg in appDesc.Configurations)
         {
+            cfg.BuildPhase.InitFromParamsList();
             cfg.RunPhase.InitFromParamsList();
         }
         bank.AppDesc = appDesc;
