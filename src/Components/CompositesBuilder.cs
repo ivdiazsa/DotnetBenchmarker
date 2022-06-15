@@ -8,6 +8,7 @@ using System.Net;
 // using System.Net.Http;
 
 // Class: CompositesBuilder
+// TODO: Move all the binaries getting stuff to a class of its own.
 public partial class CompositesBuilder
 {
     private Dictionary<string, Runtime> _runtimes { get; }
@@ -86,11 +87,11 @@ public partial class CompositesBuilder
             }
             else
             {
+                // TODO: Add support to completely omit the "runtimes" info
+                //       in the YAML file when a nightly build will be requested.
                 DownloadNightlyRuntime(destPath, os);
             }
 
-            // TODO: Handle getting the binaries from the runtime repo, or a
-            //       nightly build.
             runtimeDesc.Value.BinariesPath = destPath;
         }
     }

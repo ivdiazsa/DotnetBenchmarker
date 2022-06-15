@@ -12,6 +12,7 @@ public class BuildPhaseDescription
     public bool FrameworkComposite { get; set; }
     public bool BundleAspNet { get; set; }
     public bool AspNetComposite { get; set; }
+    public bool UseAvx2 { get; set; }
 
     private string _fxResultName = string.Empty;
 
@@ -21,6 +22,7 @@ public class BuildPhaseDescription
         FrameworkComposite = false;
         BundleAspNet = false;
         AspNetComposite = false;
+        UseAvx2 = false;
     }
 
     internal void InitFromParamsList()
@@ -48,6 +50,9 @@ public class BuildPhaseDescription
 
         var resultNameSb = new StringBuilder("framework");
 
+        if (UseAvx2)
+            resultNameSb.Append("-avx2");
+
         if (FrameworkComposite && BundleAspNet)
             resultNameSb.Append("-aspnet-bundle");
 
@@ -65,7 +70,7 @@ public class BuildPhaseDescription
 
     public bool NeedsRecompilation()
     {
-        return (FrameworkComposite || AspNetComposite);
+        return (FrameworkComposite || AspNetComposite || UseAvx2);
     }
 
     public override string ToString()
@@ -79,6 +84,9 @@ public class BuildPhaseDescription
 
         strBuilder.AppendFormat("ASP.NET Separate Composite: {0}\n",
                                  AspNetComposite.ToString());
+
+        strBuilder.AppendFormat("Build With AVX2 Enabled: {0}\n",
+                                 UseAvx2.ToString());
         return strBuilder.ToString();
     }
 }
