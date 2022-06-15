@@ -41,6 +41,7 @@ internal static partial class DockerLauncher
                 Arguments = dockerRunArgs,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
                 UseShellExecute = false
             };
 
@@ -88,6 +89,7 @@ internal static partial class DockerLauncher
                 Arguments = dockerBuildArgs,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
                 UseShellExecute = false
             };
 
@@ -123,6 +125,7 @@ internal static partial class DockerLauncher
                 Arguments = "image ls --all",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
                 UseShellExecute = false
             };
 

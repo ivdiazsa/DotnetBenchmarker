@@ -49,6 +49,7 @@ public class CrankRunner
             resultsParser.RunName = cr.Name;
 
             _logger.Write($"\nRunning config ({i+1}/{_cranks.Count})...\n");
+            _logger.Write($"\ncrank {cr.Args}\n");
 
             for (int j = 0; j < _iterations; j++)
             {
@@ -63,6 +64,7 @@ public class CrankRunner
                         Arguments = cr.Args,
                         CreateNoWindow = true,
                         RedirectStandardOutput = true,
+                        StandardOutputEncoding = Encoding.UTF8,
                         UseShellExecute = false
                     };
 
@@ -101,6 +103,12 @@ public class CrankRunner
 
         cmdSb.Append($" --{appName}.buildArguments"
                    + $" -p:PublishReadyToRun={runEnv.AppR2R.ToString()}");
+
+        if (config.BuildPhase.NeedsRecompilation())
+        {
+            cmdSb.Append($" --{appName}.options.outputFiles"
+                       + $" {config.ProcessedAssembliesPath}/*");
+        }
 
         cmdSb.Append($" --{appName}.environmentVariables"
                    + $" COMPlus_ReadyToRun={(runEnv.EnvReadyToRun ? "1" : "0")}");

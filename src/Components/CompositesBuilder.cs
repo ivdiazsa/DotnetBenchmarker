@@ -150,7 +150,8 @@ public partial class CompositesBuilder
                 continue;
 
             string osCode = config.Os.Substring(0, 3);
-            string destPath = $"{Constants.ResourcesPath}/{osCode}-output-{buildParams.FxResultName}";
+            string destPath = $"{Constants.ResourcesPath}/"
+                            + $"{osCode}-output-{buildParams.FxResultName()}";
 
             if (HasValidProcessedAssemblies(destPath))
             {
