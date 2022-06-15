@@ -60,6 +60,12 @@ public partial class CompositesBuilder
         
             // TODO: Add check to skip if we already have the runtime binaries
             //       for this OS :)
+            if (Directory.Exists(destPath))
+            {
+                _logger.Write("\nFound a ready to use .NET runtime for"
+                            + $" {os.Capitalize()}. Continuing...\n");
+                continue;
+            }
 
             if (!string.IsNullOrEmpty(runtimeDesc.Value.BinariesPath))
             {
@@ -88,8 +94,14 @@ public partial class CompositesBuilder
             string srcPath = crossgen2Desc.Value.Path;
             string destPath = $"{Constants.ResourcesPath}/Crossgen2{os.Capitalize()}";
 
-            // TODO: Add check to skip if we already have the runtime binaries
+            // TODO: Add check to skip if we already have the crossgen2 binaries
             //       for this OS :)
+            if (Directory.Exists(destPath))
+            {
+                _logger.Write("\nFound a ready to use crossgen2 build for"
+                            + $" {os.Capitalize()}. Continuing...\n");
+                continue;
+            }
 
             _logger.Write($"Copying crossgen2 binaries from {srcPath}"
                         + $" to {destPath}...\n");
