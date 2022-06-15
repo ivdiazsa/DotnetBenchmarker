@@ -15,7 +15,6 @@ internal class DotnetBenchmarker
         var builder = new CompositesBuilder(optsBank.GetRuntimesGroupedByOS(),
                                             optsBank.GetCrossgen2sGroupedByOS(),
                                             optsBank.GetConfigurations());
-
         builder.Run();
 
         if (optsBank.BuildOnly)
@@ -27,5 +26,10 @@ internal class DotnetBenchmarker
         var runner = new CrankRunner(optsBank.GetConfigurations(),
                                      optsBank.Iterations);
         runner.Execute();
+    }
+
+    static void TestExit()
+    {
+        System.Environment.Exit(3);
     }
 }

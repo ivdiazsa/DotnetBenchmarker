@@ -5,6 +5,9 @@ if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir $OUTPUT_DIR
 fi
 
+# TODO: Rename these DOTNET_* variables, since they can potentially conflict
+#       with the ones of the same names from the .NET installation.
+
 DOTNET_ROOT="DotnetLinux/dotnet$DOTNET_VERSION"
 CORELIB_PATH=$(find $DOTNET_ROOT/shared -name System.Private.CoreLib.dll)
 ASPNET_PATH=$(find $DOTNET_ROOT/shared -name Microsoft.AspNetCore.dll)
@@ -21,6 +24,12 @@ if [[ ${USE_AVX2,,} == "true" ]]; then
   echo "Will apply AVX2 Instruction Set..."
   BASE_CMD+=" --instruction-set:avx2"
   BASE_CMD+=" --inputbubble"
+fi
+
+# At least for the time being, we expect the optimization data MIBC file to be
+# in the same directory as the Crossgen2 build.
+if [ -f "Crossgen2Linux/StandardOptimizationData.mibc" ]; then
+  BASE_CMD+=" --mibc Crossgen2Linux/StandardOptimizationData.mibc"
 fi
 
 if [[ ${FRAMEWORK_COMPOSITE,,} == "true" ]]; then

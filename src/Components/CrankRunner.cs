@@ -48,7 +48,7 @@ public class CrankRunner
             CrankRun cr = _cranks[i];
             resultsParser.RunName = cr.Name;
 
-            _logger.Write($"\nRunning config ({i+1}/{_cranks.Count})...\n");
+            _logger.Write($"\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
             _logger.Write($"\ncrank {cr.Args}\n");
 
             for (int j = 0; j < _iterations; j++)

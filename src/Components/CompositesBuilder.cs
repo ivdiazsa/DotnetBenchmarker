@@ -1,8 +1,11 @@
 // File: src/Components/CompositesBuilder.cs
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+// using System.Net.Http;
 
 // Class: CompositesBuilder
 public partial class CompositesBuilder
@@ -77,6 +80,14 @@ public partial class CompositesBuilder
 
                 CopyBinariesFromPath(srcPath, destPath, true);
             }
+            else if (!string.IsNullOrEmpty(runtimeDesc.Value.RepoPath))
+            {
+                // TODO: Handle getting the stuff from the runtime repo.
+            }
+            else
+            {
+                DownloadNightlyRuntime(destPath, os);
+            }
 
             // TODO: Handle getting the binaries from the runtime repo, or a
             //       nightly build.
@@ -135,6 +146,69 @@ public partial class CompositesBuilder
             }
         }
         return ;
+    }
+
+    private void DownloadNightlyRuntime(string destPath, string os)
+    {
+        string sdkFilename = string.Empty;
+
+        switch (os)
+        {
+            case "linux":
+                sdkFilename = "linux-x64.tar.gz";
+                break;
+            case "windows":
+                sdkFilename = "win-x64.zip";
+                break;
+            default:
+                throw new NotSupportedException($"Invalid OS {os}."
+                                               + " How did this get here?");
+        }
+
+        if (!Directory.Exists(destPath))
+            Directory.CreateDirectory(destPath);
+
+        string url = $"https://aka.ms/dotnet/7.0.1xx/daily/dotnet-sdk-{sdkFilename}";
+        _logger.Write($"\nDownloading latest {os.Capitalize()} .NET nightly build...\n");
+
+        var webClient = new WebClient();
+        webClient.DownloadFile(url, $"{destPath}/dotnet-sdk-{sdkFilename}");
+
+        string srcDir = Environment.CurrentDirectory;
+        Directory.SetCurrentDirectory(destPath);
+        _logger.Write($"Extracting latest {os.Capitalize()} .NET nightly build...\n");
+
+        using (Process tar = new Process())
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "tar",
+                Arguments = $"-xf dotnet-sdk-{sdkFilename}",
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            tar.StartInfo = startInfo;
+            tar.Start();
+            tar.WaitForExit();
+        }
+        Directory.SetCurrentDirectory(srcDir);
+
+        // Will use the code below instead when I finally figure out how the
+        // stupid async commands work. They just ignore me at the moment.
+
+        // // The reason we are using a 'using' statement here is because we don't
+        // // need to download any other stuff throughout the app's lifespan. If
+        // // that changes in the future, then we would take a more global approach
+        // // for the sake of conserving resources.
+        // using (HttpClient webClient = new HttpClient())
+        // using (Stream s = await webClient.GetStreamAsync(url))
+        // using (FileStream fs = new FileStream($"{destPath}/{sdkFilename}",
+        //                                         FileMode.CreateNew))
+        // {
+        //     await s.CopyToAsync(fs);
+        // }
     }
 
     private void BuildComposites()
