@@ -181,16 +181,9 @@ public partial class CompositesBuilder
 
         using (Process tar = new Process())
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "tar",
-                Arguments = $"-xf dotnet-sdk-{sdkFilename}",
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false
-            };
-
-            tar.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo();
+            tar.StartInfo = startInfo.BaseTemplate("tar",
+                                                  $"-xf dotnet-sdk-{sdkFilename}");
             tar.Start();
             tar.WaitForExit();
         }

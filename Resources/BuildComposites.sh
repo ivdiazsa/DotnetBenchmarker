@@ -29,6 +29,7 @@ fi
 # At least for the time being, we expect the optimization data MIBC file to be
 # in the same directory as the Crossgen2 build.
 if [ -f "Crossgen2Linux/StandardOptimizationData.mibc" ]; then
+  echo "Will use StandardOptimizationData.mibc..."
   BASE_CMD+=" --mibc Crossgen2Linux/StandardOptimizationData.mibc"
 fi
 

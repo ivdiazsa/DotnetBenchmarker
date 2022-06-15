@@ -3,13 +3,14 @@
 // Class: DotnetBenchmarker
 // This is our little script :)
 
-// NOTE: Might be beneficial to make a ProcessStartInfo template class, since
-//       all spawned Process objects in this app follow that same pattern.
-
 // NEXT STEPS:
 // 1) Implement the numeric calculations.
 // 2) Implement non-composites Crossgen2'ing.
 // 3) Refactor this mess before it becomes an actually serious issue.
+//      * Removal of Control Characters from process stdout logging
+//      * Extraction of binaries search from the Composites Builder
+// 4) Implementation of a fully functional RunBenchmarker.cmd script
+// 5) Addition of partial composites support
 
 internal class DotnetBenchmarker
 {
@@ -34,6 +35,7 @@ internal class DotnetBenchmarker
         runner.Execute();
     }
 
+    // This functionie is only used for testing individual components :)
     static void TestExit()
     {
         System.Environment.Exit(3);

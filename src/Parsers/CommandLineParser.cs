@@ -4,7 +4,6 @@ using System.CommandLine;
 // Class: CommandLineParser
 public static class CommandLineParser
 {
-    // Class goes here.
     public static void ParseIntoOptsBank(AppOptionsBank bank, string[] args)
     {
         var configFileOption = new Option<string>(

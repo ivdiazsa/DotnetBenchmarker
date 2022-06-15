@@ -35,17 +35,8 @@ internal static partial class DockerLauncher
 
         using (Process docker = new Process())
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "docker",
-                Arguments = dockerRunArgs,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                UseShellExecute = false
-            };
-
-            docker.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo();
+            docker.StartInfo = startInfo.BaseTemplate("docker", dockerRunArgs);
             docker.Start();
 
             while (!docker.StandardOutput.EndOfStream)
@@ -83,17 +74,8 @@ internal static partial class DockerLauncher
 
         using (Process docker = new Process())
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "docker",
-                Arguments = dockerBuildArgs,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                UseShellExecute = false
-            };
-
-            docker.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo();
+            docker.StartInfo = startInfo.BaseTemplate("docker", dockerBuildArgs);
             docker.Start();
 
             while (!docker.StandardOutput.EndOfStream)
@@ -113,23 +95,17 @@ internal static partial class DockerLauncher
                                               System.StringComparison.OrdinalIgnoreCase));
     }
 
+    // NOTE: We might opt to change this to use the Docker Dotnet API instead,
+    //       IF THE STUPID ASYNC CALLS DECIDE TO WORK! And if that fits our needs
+    //       of course.
     private static void FetchInstalledImages()
     {
         string[] imagesList;
 
         using (Process docker = new Process())
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "docker",
-                Arguments = "image ls --all",
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                UseShellExecute = false
-            };
-
-            docker.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo();
+            docker.StartInfo = startInfo.BaseTemplate("docker", "image ls --all");
             docker.Start();
 
             // We skip the first and last rows for the following reasons:

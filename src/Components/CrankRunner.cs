@@ -6,7 +6,6 @@ using System.Text;
 // Class: CrankRunner
 public class CrankRunner
 {
-    // Class definition goes here.
     private List<CrankRun> _cranks;
     private List<Configuration> _configs;
     private int _iterations;
@@ -58,17 +57,8 @@ public class CrankRunner
 
                 using (Process crank = new Process())
                 {
-                    var startInfo = new ProcessStartInfo
-                    {
-                        FileName = "crank",
-                        Arguments = cr.Args,
-                        CreateNoWindow = true,
-                        RedirectStandardOutput = true,
-                        StandardOutputEncoding = Encoding.UTF8,
-                        UseShellExecute = false
-                    };
-
-                    crank.StartInfo = startInfo;
+                    var startInfo = new ProcessStartInfo();
+                    crank.StartInfo = startInfo.BaseTemplate("crank", cr.Args);
                     crank.Start();
 
                     while (!crank.StandardOutput.EndOfStream)
