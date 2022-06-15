@@ -64,15 +64,17 @@ public class CrankRunner
                     while (!crank.StandardOutput.EndOfStream)
                     {
                         string line = crank.StandardOutput.ReadLine()!;
-                        _logger.Write($"{line}\n");
+                        _logger.Write($"{line.CleanControlChars()}\n");
                         outputKeep.Add(line);
                     }
+
                     crank.WaitForExit();
                 }
                 resultsParser.ParseAndStoreIterationResults(j + 1, outputKeep);
             }
             resultsParser.StoreRunResults();
         }
+
         resultsParser.SerializeToJSON();
         _logger.Write("\nFinished with the tests!\n");
     }

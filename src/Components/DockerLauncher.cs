@@ -42,7 +42,7 @@ internal static partial class DockerLauncher
             while (!docker.StandardOutput.EndOfStream)
             {
                 string line = docker.StandardOutput.ReadLine()!;
-                logger.Write($"{line}\n");
+                logger.Write($"{line.CleanControlChars()}\n");
             }
             docker.WaitForExit();
         }
@@ -81,7 +81,7 @@ internal static partial class DockerLauncher
             while (!docker.StandardOutput.EndOfStream)
             {
                 string line = docker.StandardOutput.ReadLine()!;
-                logger.Write($"{line}\n");
+                logger.Write($"{line.CleanControlChars()}\n");
             }
             docker.WaitForExit();
         }
@@ -113,6 +113,7 @@ internal static partial class DockerLauncher
             // - Last: Docker prints an empty line at the end of the output,
             //         which we don't require either.
             imagesList = docker.StandardOutput.ReadToEnd()
+                                              .CleanControlChars()
                                               .Split("\n")
                                               .Skip(1)
                                               .SkipLast(1)
