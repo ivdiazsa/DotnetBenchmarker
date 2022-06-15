@@ -10,3 +10,10 @@ obj/*
 
 # Results and Logs Files
 Logs/*
+Results/*
+
+# Dotnet, Crossgen2, and Processed Binaries
+Resources/Crossgen2*
+Resources/Dotnet*
+Resources/*output*
+

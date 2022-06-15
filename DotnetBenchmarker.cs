@@ -2,12 +2,27 @@
 
 // Class: DotnetBenchmarker
 // This is our little script :)
+
+// NOTE: Might be beneficial to make a ProcessStartInfo template class, since
+//       all spawned Process objects in this app follow that same pattern.
 internal class DotnetBenchmarker
 {
     static void Main(string[] args)
     {
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
+
+        var builder = new CompositesBuilder(optsBank.GetRuntimesGroupedByOS(),
+                                            optsBank.GetCrossgen2sGroupedByOS(),
+                                            optsBank.GetConfigurations());
+
+        builder.Run();
+
+        if (optsBank.BuildOnly)
+        {
+            System.Console.WriteLine("Assemblies generated successfully. Exiting now...");
+            System.Environment.Exit(0);
+        }
 
         var runner = new CrankRunner(optsBank.GetConfigurations(),
                                      optsBank.Iterations);

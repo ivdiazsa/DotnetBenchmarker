@@ -1,10 +1,11 @@
 // File: src/Components/CompositesBuilder.cs
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 // Class: CompositesBuilder
-public class CompositesBuilder
+public partial class CompositesBuilder
 {
     private Dictionary<string, Runtime> _runtimes { get; }
     private Dictionary<string, Crossgen2> _crossgen2s { get; }
@@ -38,6 +39,7 @@ public class CompositesBuilder
         // Phases classes, these two methods are really similar :)
         SearchAndFetchRuntimes();
         SearchAndFetchCrossgen2s();
+        BuildComposites();
     }
 
     private bool HasEnoughBuildResources(string[] osRequired)
@@ -67,7 +69,7 @@ public class CompositesBuilder
                 _logger.Write($"Copying runtime binaries from {srcPath}"
                             + $" to {destPath}...\n");
 
-                CopyBinariesFromPath(srcPath, destPath);
+                CopyBinariesFromPath(srcPath, destPath, true);
             }
 
             // TODO: Handle getting the binaries from the runtime repo, or a
@@ -92,13 +94,12 @@ public class CompositesBuilder
             _logger.Write($"Copying crossgen2 binaries from {srcPath}"
                         + $" to {destPath}...\n");
 
-            CopyBinariesFromPath(srcPath, destPath);
+            CopyBinariesFromPath(srcPath, destPath, false);
             crossgen2Desc.Value.Path = destPath;
         }
     }
 
-    // This function does a recursive copy by design.
-    private void CopyBinariesFromPath(string srcPath, string destPath)
+    private void CopyBinariesFromPath(string srcPath, string destPath, bool recurse)
     {
         var srcDirInfo = new DirectoryInfo(srcPath);
         DirectoryInfo[] dirsToCopy = srcDirInfo.GetDirectories();
@@ -113,10 +114,13 @@ public class CompositesBuilder
             f.CopyTo(destFilepath);
         }
 
-        foreach (DirectoryInfo d in dirsToCopy)
+        if (recurse)
         {
-            string destSubDirPath = Path.Combine(destPath, d.Name);
-            CopyBinariesFromPath(d.FullName, destSubDirPath);
+            foreach (DirectoryInfo d in dirsToCopy)
+            {
+                string destSubDirPath = Path.Combine(destPath, d.Name);
+                CopyBinariesFromPath(d.FullName, destSubDirPath, true);
+            }
         }
         return ;
     }
@@ -127,20 +131,43 @@ public class CompositesBuilder
         {
             var config = _configurations[i];
             var buildParams = config.BuildPhase;
+
             _logger.Write($"\nSetting up for {config.Name} ({i+1}/{total})...\n");
 
-            // TODO: Add check for recompilation needed, and skip in that case :)
+            if (!buildParams.NeedsRecompilation())
+                continue;
 
             string osCode = config.Os.Substring(0, 3);
-            // TODO: Replace 'results' with the name of the builds generated :)
-            string destPath = $"{Constants.ResourcesPath}/{osCode}-output-results";
+            string destPath = $"{Constants.ResourcesPath}/{osCode}-output-{buildParams.FxResultName}";
 
-            // TODO: Add check to skip if we already have the composite images
-            //       for this configuration :)
+            if (HasValidProcessedAssemblies(destPath))
+            {
+                config.ProcessedAssembliesPath = destPath;
+                _logger.Write("\nFound assemblies ready for this configuration in"
+                            + $" {destPath}...\n");
+                continue;
+            }
 
-            // Apply Crossgen2 here. Also, don't forget to add a property to
-            // record the composites resulting path in the configuration object.
+            if (config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
+                LinuxCrossgen2er.Apply(config, _logger);
+
+            else if (config.Os.Equals("windows", StringComparison.OrdinalIgnoreCase))
+                WindowsCrossgen2er.Apply(config, _logger);
+
+            else
+                throw new NotSupportedException($"Invalid OS {config.Os}."
+                                               + " How did this get here?");
+            config.ProcessedAssembliesPath = destPath;
         }
         return ;
+    }
+
+    private bool HasValidProcessedAssemblies(string path)
+    {
+        if (!Directory.Exists(path))
+            return false;
+
+        return (File.Exists($"{path}/System.Private.CoreLib.dll")
+             && File.Exists($"{path}/System.Runtime.dll"));
     }
 }

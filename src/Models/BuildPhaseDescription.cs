@@ -13,6 +13,8 @@ public class BuildPhaseDescription
     public bool BundleAspNet { get; set; }
     public bool AspNetComposite { get; set; }
 
+    private string _fxResultName = string.Empty;
+
     public BuildPhaseDescription()
     {
         Params = new List<string>();
@@ -31,6 +33,39 @@ public class BuildPhaseDescription
                                   | BindingFlags.Public)!
                 .SetValue(this, true);
         }
+    }
+
+    public string FxResultName()
+    {
+        if (!string.IsNullOrEmpty(_fxResultName))
+            return _fxResultName;
+        
+        if (!NeedsRecompilation())
+        {
+            _fxResultName = "vanilla";
+            return _fxResultName;
+        }
+
+        var resultNameSb = new StringBuilder("framework");
+
+        if (FrameworkComposite && BundleAspNet)
+            resultNameSb.Append("-aspnet-bundle");
+
+        if (AspNetComposite && !BundleAspNet)
+        {
+            if (FrameworkComposite)
+                resultNameSb.Append("-aspnet-separated");
+            else
+                resultNameSb.Append("-aspnet");
+        }
+
+        _fxResultName = resultNameSb.ToString();
+        return _fxResultName;
+    }
+
+    public bool NeedsRecompilation()
+    {
+        return (FrameworkComposite || AspNetComposite);
     }
 
     public override string ToString()

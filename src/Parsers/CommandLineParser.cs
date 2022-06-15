@@ -19,17 +19,26 @@ public static class CommandLineParser
             getDefaultValue: () => 1
         );
 
+        var buildOnlyOption = new Option<bool>(
+            name: "--build-only",
+            description: "Just generate the configuration(s) binaries.",
+            getDefaultValue: () => false
+        );
+
         var rootCommand = new RootCommand();
         rootCommand.Add(configFileOption);
         rootCommand.Add(iterationsOption);
+        rootCommand.Add(buildOnlyOption);
 
         rootCommand.SetHandler((configFileOptionValue,
-                                iterationsOptionValue) =>
+                                iterationsOptionValue,
+                                buildOnlyOptionValue) =>
         {
             bank.ConfigFile = configFileOptionValue;
             bank.Iterations = iterationsOptionValue;
+            bank.BuildOnly = buildOnlyOptionValue;
         },
-        configFileOption, iterationsOption);
+        configFileOption, iterationsOption, buildOnlyOption);
 
         rootCommand.Invoke(args);
     }

@@ -7,12 +7,14 @@ public class AppOptionsBank
 {
     public string ConfigFile { get; set; }
     public int Iterations { get; set; }
+    public bool BuildOnly { get; set; }
     public AppDescription AppDesc { get; set; }
 
     public AppOptionsBank()
     {
         ConfigFile = String.Empty;
         Iterations = 1;
+        BuildOnly = false;
         AppDesc = new AppDescription();
     }
 
@@ -40,6 +42,18 @@ public class AppOptionsBank
         }
 
         return runtimesByOs;
+    }
+
+    public Dictionary<string, Crossgen2> GetCrossgen2sGroupedByOS()
+    {
+        var crossgen2sByOs = new Dictionary<string, Crossgen2>();
+
+        foreach (Crossgen2 c in AppDesc.Crossgen2s)
+        {
+            crossgen2sByOs.Add(c.Os, c);
+        }
+
+        return crossgen2sByOs;
     }
 
     public List<Configuration> GetConfigurations()

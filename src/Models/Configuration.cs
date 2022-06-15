@@ -9,6 +9,20 @@ public class Configuration
     public string Os { get; set; }
     public BuildPhaseDescription BuildPhase { get; set; }
     public RunPhaseDescription RunPhase { get; set; }
+    public string ProcessedAssembliesPath { get; set; }
+
+    private string _buildResultsName;
+    public string BuildResultsName
+    { 
+        get
+        {
+            if (!string.IsNullOrEmpty(_buildResultsName))
+                return _buildResultsName;
+
+            _buildResultsName = BuildPhase.FxResultName();
+            return _buildResultsName;
+        }
+    }
 
     public Configuration()
     {
@@ -16,5 +30,7 @@ public class Configuration
         Os = "linux";
         BuildPhase = new BuildPhaseDescription();
         RunPhase = new RunPhaseDescription();
+        ProcessedAssembliesPath = string.Empty;
+        _buildResultsName = string.Empty;
     }
 }
