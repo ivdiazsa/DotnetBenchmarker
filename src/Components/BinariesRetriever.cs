@@ -9,7 +9,6 @@ using System.Net;
 // Class: BinariesRetriever
 public class BinariesRetriever
 {
-    // Implement class here.
     public void SearchAndFetchRuntimes(Dictionary<string, Runtime> runtimes,
                                        MultiIOLogger logger)
     {

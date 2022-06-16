@@ -16,4 +16,4 @@ Results/*
 Resources/Crossgen2*
 Resources/Dotnet*
 Resources/*output*
-
+Resources/*.txt

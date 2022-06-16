@@ -6,11 +6,9 @@
 // NEXT STEPS:
 // 1) Implement the numeric calculations.
 // 2) Implement non-composites Crossgen2'ing.
-// 3) Refactor this mess before it becomes an actually serious issue.
-//      * Extraction of binaries search from the Composites Builder
-// 4) Implementation of a fully functional RunBenchmarker.cmd script
-// 5) Addition of partial composites support
-// 6) Creation of missing Logs and Results folders at launch if necessary
+// 3) Implementation of a fully functional RunBenchmarker.cmd script
+// 4) Creation of missing Logs and Results folders at launch if necessary
+// 5) Windows Composites Implementation
 
 internal class DotnetBenchmarker
 {

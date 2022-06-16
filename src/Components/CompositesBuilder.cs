@@ -62,7 +62,7 @@ public partial class CompositesBuilder
 
             string osCode = config.Os.Substring(0, 3);
             string destPath = $"{Constants.ResourcesPath}/"
-                            + $"{osCode}-output-{buildParams.FxResultName()}";
+                            + $"{osCode}-output-{config.BuildResultsName}";
 
             if (HasValidProcessedAssemblies(destPath))
             {
@@ -70,6 +70,18 @@ public partial class CompositesBuilder
                 _logger.Write("\nFound assemblies ready for this configuration in"
                             + $" {destPath}...\n");
                 continue;
+            }
+
+            if (!string.IsNullOrEmpty(config.PartialComposites))
+            {
+                string partialCompositesFile = Path.GetFileName(config.PartialComposites);
+                string copyPath = $"{Constants.ResourcesPath}/{partialCompositesFile}";
+
+                if (!File.Exists(copyPath))
+                {
+                    File.Copy(config.PartialComposites, copyPath, true);
+                }
+                config.PartialComposites = copyPath;
             }
 
             if (config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
@@ -83,7 +95,6 @@ public partial class CompositesBuilder
                                                + " How did this get here?");
             config.ProcessedAssembliesPath = destPath;
         }
-        return ;
     }
 
     private bool HasValidProcessedAssemblies(string path)

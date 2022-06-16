@@ -41,12 +41,12 @@ if [[ ${FRAMEWORK_COMPOSITE,,} == "true" ]]; then
   BUILDFX_CMD+=" --composite"
 
   ASSEMBLIES_TO_COMPOSITE=''
-  if [[ ${CUSTOM_COMPOSITES,,} != "0" ]]; then
+  if [[ ${PARTIAL_COMPOSITES,,} != "0" ]]; then
     while read -r line
     do
       ASSEMBLIES_TO_COMPOSITE+=" $FX_PATH/$line"
-    done < "$CUSTOM_COMPOSITES"
-    COMPOSITE_FILE+='-custom'
+    done < "$PARTIAL_COMPOSITES"
+    COMPOSITE_FILE+='-partial'
   else
     ASSEMBLIES_TO_COMPOSITE=" $FX_PATH/*.dll"
   fi

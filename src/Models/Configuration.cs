@@ -1,4 +1,5 @@
 // File: src/Models/Configuration.cs
+using System.IO;
 
 // Class: Configuration
 // Might be worth experimenting with an abstract base class, since both,
@@ -7,8 +8,10 @@ public class Configuration
 {
     public string Name { get; set; }
     public string Os { get; set; }
+    public string PartialComposites { get; set; }
     public BuildPhaseDescription BuildPhase { get; set; }
     public RunPhaseDescription RunPhase { get; set; }
+
     public string ProcessedAssembliesPath { get; set; }
 
     private string _buildResultsName;
@@ -19,7 +22,16 @@ public class Configuration
             if (!string.IsNullOrEmpty(_buildResultsName))
                 return _buildResultsName;
 
-            _buildResultsName = BuildPhase.FxResultName();
+            if (!string.IsNullOrEmpty(PartialComposites))
+            {
+                _buildResultsName = $"{BuildPhase.FxResultName()}"
+                                  + $"-{Path.GetFileName(PartialComposites).ToLower()}"
+                                  + "-partial";
+            }
+            else
+            {
+                _buildResultsName = BuildPhase.FxResultName();
+            }
             return _buildResultsName;
         }
     }
@@ -28,8 +40,10 @@ public class Configuration
     {
         Name = "unnamed-funny-configuration";
         Os = "linux";
+        PartialComposites = string.Empty;
         BuildPhase = new BuildPhaseDescription();
         RunPhase = new RunPhaseDescription();
+
         ProcessedAssembliesPath = string.Empty;
         _buildResultsName = string.Empty;
     }

@@ -16,6 +16,7 @@ public partial class CompositesBuilder
                 $"COMPOSITES_TYPE_ARG={config.BuildResultsName}",
                 $"DOTNET_VERSION_ARG=7.0",
                 $"FRAMEWORK_COMPOSITE_ARG={buildMode.FrameworkComposite}",
+                $"PARTIAL_COMPOSITES_ARG={System.IO.Path.GetFileName(config.PartialComposites)}",
                 $"USE_AVX2_ARG={buildMode.UseAvx2}",
             };
 
