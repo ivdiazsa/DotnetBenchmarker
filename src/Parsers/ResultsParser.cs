@@ -23,6 +23,9 @@ public class ResultsParser
 
     public ResultsParser()
     {
+        if (!Directory.Exists(Constants.ResultsPath))
+            Directory.CreateDirectory(Constants.ResultsPath);
+
         ResultsFilename = $"{Constants.ResultsPath}/results-{Constants.Timestamp}.json";
         RunName = string.Empty;
         _currentRunStats = new RunStats();

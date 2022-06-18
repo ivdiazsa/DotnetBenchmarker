@@ -6,13 +6,7 @@
 // NEXT STEPS:
 // 1) Implement non-composites Crossgen2'ing.
 // 2) Implementation of a fully functional RunBenchmarker.cmd script
-// 3) Creation of missing Logs and Results folders at launch if necessary
-// 4) Windows Composites Implementation
-// 5) Replacement the NotSupported Exceptions with Platform Exceptions in all
-//    the different OS checks throughout the app
-
-using ResultsList = System.Collections.Generic.List<
-                        System.Collections.Generic.Dictionary<string, string>>;
+// 3) Windows Composites Implementation
 
 internal class DotnetBenchmarker
 {

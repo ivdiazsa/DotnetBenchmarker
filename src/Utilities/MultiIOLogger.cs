@@ -5,13 +5,18 @@ using System.IO;
 // Class: MultiIOLogger
 public class MultiIOLogger
 {
-    public string LogFilename { get; }
+    public string LogPath { get; }
     private StreamWriter _writer;
 
-    public MultiIOLogger(string logName)
+    public MultiIOLogger(string logPath)
     {
-        LogFilename = logName;
-        _writer = new StreamWriter(logName);
+        string? logDir = Path.GetDirectoryName(logPath);
+
+        if (!Directory.Exists(logDir))
+            Directory.CreateDirectory(logDir!);
+
+        LogPath = logPath;
+        _writer = new StreamWriter(logPath);
         _writer.AutoFlush = true;
     }
 

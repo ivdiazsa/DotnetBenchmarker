@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 
 // Class: CompositesBuilder
-// TODO: Move all the binaries getting stuff to a class of its own.
 public partial class CompositesBuilder
 {
     private Dictionary<string, Runtime> _runtimes { get; }
