@@ -91,8 +91,8 @@ public partial class CompositesBuilder
                 WindowsCrossgen2er.Apply(config, _logger);
 
             else
-                throw new NotSupportedException($"Invalid OS {config.Os}."
-                                               + " How did this get here?");
+                throw new PlatformNotSupportedException($"Invalid OS {config.Os}."
+                                                   + " How did this get here?");
             config.ProcessedAssembliesPath = destPath;
         }
     }

@@ -45,7 +45,7 @@ public class BinariesRetriever
             }
             else
             {
-                // TODO: Add support to completely omit the "runtimes" info
+                // TODO-MAYBE: Add support to completely omit the "runtimes" info
                 //       in the YAML file when a nightly build will be requested.
                 DownloadNightlyRuntime(destPath, os, logger);
             }
@@ -121,8 +121,8 @@ public class BinariesRetriever
                 sdkFilename = "win-x64.zip";
                 break;
             default:
-                throw new NotSupportedException($"Invalid OS {os}."
-                                               + " How did this get here?");
+                throw new PlatformNotSupportedException($"Invalid OS {os}."
+                                                  + " How did this get here?");
         }
 
         if (!Directory.Exists(destPath))
