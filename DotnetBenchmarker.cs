@@ -25,6 +25,7 @@ internal class DotnetBenchmarker
     {
         var output = new OutputProcessor("Results/results-0615-1818.json");
         output.ComputeReport("Build Time (ms)", "Start Time (ms)");
+        output.PrintToStream();
         TestExit();
 
         // Main Script Here!

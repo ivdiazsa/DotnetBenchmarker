@@ -5,18 +5,17 @@ using System.Text;
 // Base Class: DataFormatter
 public class DataFormatter<T>
 {
-    private BestTable<T> _data;
+    protected BestTable<T> _dataTable;
 
     public DataFormatter(BestTable<T> data)
     {
-        _data = data;
+        _dataTable = data;
     }
 
-    public string Draw()
+    public virtual string Draw()
     {
         System.Console.WriteLine("The DataFormatter class is solely a template"
             + " base object. Use the derived implementations instead.");
-        System.Environment.Exit(-1);
         return string.Empty;
     }
 }
@@ -26,10 +25,107 @@ public class TableFormatter<T> : DataFormatter<T>
     public TableFormatter(BestTable<T> data)
         : base(data) {}
 
-    public new string Draw()
+    public override string Draw()
     {
         var tableSb = new StringBuilder();
+        int[] columnLengths = GetColumnsCellLengths();
+
+        // We're assuming our BestTable friend has headers and side labels here.
+        // Will have to handle other cases some other time.
+        tableSb.Append(BuildTableHeader(columnLengths));
+
+        for (int i = 0; i < _dataTable.Rows; i++)
+        {
+            tableSb.AppendFormat("| {0}", _dataTable.SideLabels![i]
+                                                    .PadRight(columnLengths[0] - 1));
+            for (int j = 0; j < _dataTable.Columns; j++)
+            {
+                tableSb.AppendFormat("| {0}", _dataTable[i, j]!.ToString()!
+                                                               .PadRight(columnLengths[j+1] - 1));
+            }
+            tableSb.Append("|\n");
+        }
+
+        tableSb.Append(BuildHeaderAndFooterOutlines(columnLengths));
         return tableSb.ToString();
+    }
+
+    private int[] GetColumnsCellLengths()
+    {
+        int[] cellLengths;
+
+        // TODO: Complete this size arrangement. We can add more conditions to
+        //       check the different scenarios manually, while the Table views
+        //       functionality is implemented.
+        if (_dataTable.Headers is not null)
+            cellLengths = new int[_dataTable.Headers.Length];
+        else
+            cellLengths = new int[_dataTable.Columns];
+
+        // Let's assume our BestTable friend always has headers defined for
+        // the time being.
+        for (int i = 0; i < _dataTable.Headers!.Length; i++)
+        {
+            // We add a +2 here to always leave at least 1 space at the beginning
+            // and at the end of each cell. It looks much cleaner and neater.
+            cellLengths[i] = _dataTable.Headers![i].Length + 2;
+        }
+
+        for (int j = 0; j < _dataTable.Rows; j++)
+        for (int k = 0; k < _dataTable.Columns; k++)
+        {
+            string cellValue = _dataTable[j, k]!.ToString()!;
+            int len = cellValue.Length + 2;
+
+            if (len > cellLengths[k])
+                cellLengths[k] = len;
+        }
+
+        // Just assuming our BestTable friend will also always have side labels
+        // for the time being.
+        for (int l = 0; l < _dataTable.SideLabels!.Length; l++)
+        {
+            string cellValue = _dataTable.SideLabels[l];
+            int len = cellValue.Length + 2;
+
+            if (len > cellLengths[0])
+                cellLengths[0] = len;
+        }
+
+        return cellLengths;
+    }
+
+    private string BuildTableHeader(int[] columnLengths)
+    {
+        var headerSb = new StringBuilder();
+        headerSb.Append(BuildHeaderAndFooterOutlines(columnLengths));
+
+        for (int i = 0; i < _dataTable.Headers!.Length; i++)
+        {
+            string header = _dataTable.Headers[i];
+            headerSb.AppendFormat("| {0}", header.PadRight(columnLengths[i] - 1));
+        }
+
+        headerSb.Append("|\n");
+        headerSb.Append(BuildHeaderAndFooterOutlines(columnLengths));
+        return headerSb.ToString();
+    }
+
+    private string BuildHeaderAndFooterOutlines(int[] columnLengths,
+                                                char outlineSeparator = '+')
+    {
+        var outlineSb = new StringBuilder();
+        outlineSb.Append(outlineSeparator);
+
+        foreach (int colLen in columnLengths)
+        {
+            char[] cellBorder = Enumerable.Repeat('-', colLen).ToArray();
+            outlineSb.Append(cellBorder);
+            outlineSb.Append(outlineSeparator);
+        }
+
+        outlineSb.Append("\n");
+        return outlineSb.ToString();
     }
 }
 
@@ -38,7 +134,7 @@ public class CsvFormatter<T> : DataFormatter<T>
     public CsvFormatter(BestTable<T> data)
         : base(data) {}
 
-    public new string Draw()
+    public override string Draw()
     {
         return string.Empty;
     }

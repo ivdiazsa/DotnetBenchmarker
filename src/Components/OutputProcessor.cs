@@ -38,19 +38,19 @@ public class OutputProcessor
     public void ComputeReport(params string[] fieldsToFilter)
     {
         ExampleReportFunc(fieldsToFilter);
-        for (int i = 0; i < _processedData!.Rows; i++)
-        {
-            for (int j = 0; j < _processedData!.Columns; j++)
-            {
-                _streamWriter.Write($"| {_processedData[i, j]}");
-            }
-            _streamWriter.Write("|\n");
-        }
     }
 
     public void PrintToStream()
     {
-        return ;
+        if (_processedData is null)
+        {
+            _streamWriter.WriteLine("\nThere was no data to table and print."
+                                  + " Returning...\n");
+            return ;
+        }
+
+        DataFormatter<float> formatter = new TableFormatter<float>(_processedData);
+        _streamWriter.WriteLine(formatter.Draw());
     }
 
     public void ExampleReportFunc(params string[] fieldsToFilter)

@@ -3,13 +3,13 @@
 // Class: Table
 public class BestTable<T>
 {
+    // See note below after the constructor :)
     private enum TableMode
     {
         DataOnly,
         Full,
         WithHeaders,
-        WithHeadersAndFooters,
-        WithHeadersAndLabels,
+        WithFooters,
         WithLabels
     }
 
@@ -40,6 +40,15 @@ public class BestTable<T>
         Footers = footers;
         SideLabels = sides;
     }
+
+    // Got this crazy idea of being able to work with the table, alongside
+    // its headers, footers, and side labels together as a single entity,
+    // or separately. Will implement it for funsies as I get the time to do so.
+    public void UseDataView() => _workMode = TableMode.DataOnly;
+    public void UseFullView() => _workMode = TableMode.Full;
+    public void UseHeadersView() => _workMode = TableMode.WithHeaders;
+    public void UseFootersView() => _workMode = TableMode.WithFooters;
+    public void UseLabelsView() => _workMode = TableMode.WithLabels;
 
     // TODO: Implement the rest of the indexing modes.
     public T this[int rowIndex, int colIndex]
