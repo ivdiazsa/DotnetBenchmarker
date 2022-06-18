@@ -95,7 +95,7 @@ internal static partial class DockerLauncher
                                               System.StringComparison.OrdinalIgnoreCase));
     }
 
-    // NOTE: We might opt to change this to use the Docker Dotnet API instead,
+    // NOTE: We might opt to change this to use the Docker Dotnet API instead...
     //       IF THE STUPID ASYNC CALLS DECIDE TO WORK! And if that fits our needs
     //       of course.
     private static void FetchInstalledImages()

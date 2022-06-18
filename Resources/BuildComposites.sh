@@ -5,12 +5,9 @@ if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir $OUTPUT_DIR
 fi
 
-# TODO: Rename these DOTNET_* variables, since they can potentially conflict
-#       with the ones of the same names from the .NET installation.
-
-DOTNET_ROOT="DotnetLinux/dotnet$DOTNET_VERSION"
-CORELIB_PATH=$(find $DOTNET_ROOT/shared -name System.Private.CoreLib.dll)
-ASPNET_PATH=$(find $DOTNET_ROOT/shared -name Microsoft.AspNetCore.dll)
+DOTNET_PATH="DotnetLinux/dotnet$DOTNET_VERSION_NUMBER"
+CORELIB_PATH=$(find $DOTNET_PATH/shared -name System.Private.CoreLib.dll)
+ASPNET_PATH=$(find $DOTNET_PATH/shared -name Microsoft.AspNetCore.dll)
 
 FX_PATH=$(dirname $CORELIB_PATH)
 ASP_PATH=$(dirname $ASPNET_PATH)

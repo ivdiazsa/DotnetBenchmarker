@@ -6,7 +6,7 @@
 // NEXT STEPS:
 // 1) Implement non-composites Crossgen2'ing.
 // 2) Implementation of a fully functional RunBenchmarker.cmd script
-// 3) Windows Composites Implementation
+// 3) Windows Stuff and Composites Implementation
 
 internal class DotnetBenchmarker
 {
