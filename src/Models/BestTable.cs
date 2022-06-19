@@ -21,7 +21,11 @@ public class BestTable<T>
     public string[]? SideLabels { get; set; }
 
     private T[][] _data;
+
+// These pragmas are only temporary while we implement this work mode feature.
+#pragma warning disable CS0414
     private TableMode _workMode;
+#pragma warning restore CS0414
 
     public BestTable(int rows, int columns, string[]? headers = null,
                      string[]? footers = null, string[]? sides = null)

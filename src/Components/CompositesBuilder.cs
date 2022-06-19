@@ -28,10 +28,12 @@ public partial class CompositesBuilder
                                              .Distinct()
                                              .ToArray();
 
+        // BUG: This gets triggered even when the configuration(s) don't
+        //      require any sort of rebuilding.
         if (!HasEnoughBuildResources(osRequired))
         {
-            _logger.Write(@"\nMissing Crossgen2 platforms to generate the 
-                            necessary components later...\n");
+            _logger.Write("\nMissing Crossgen2 platforms to generate the"
+                        + " necessary components later...\n");
             System.Environment.Exit(-1);
         }
 
@@ -56,8 +58,28 @@ public partial class CompositesBuilder
 
             _logger.Write($"\nSetting up for {config.Name} ({i+1}/{total})...\n");
 
+            // To ensure we are comparing apples to apples, if any given
+            // configuration did not require any sort of rebuilding or processing,
+            // then we upload the binaries we had. This will ensure that whenever
+            // we compare runs of clean vs processed, we are using the same basis.
             if (!buildParams.NeedsRecompilation())
+            {
+                string defaultRuntimePath = _runtimes[config.Os].BinariesPath;
+
+                string coreLibPath = Directory.GetFiles(defaultRuntimePath,
+                                                        "System.Private.CoreLib.dll",
+                                                        SearchOption.AllDirectories)
+                                              .FirstOrDefault(string.Empty);
+
+                string aspNetPath = Directory.GetFiles(defaultRuntimePath,
+                                                       "Microsoft.AspNetCore.dll",
+                                                       SearchOption.AllDirectories)
+                                             .FirstOrDefault(string.Empty);
+
+                config.ProcessedAssembliesPath = $"{Path.GetDirectoryName(coreLibPath)}"
+                                        + $";{Path.GetDirectoryName(aspNetPath)}";
                 continue;
+            }
 
             string osCode = config.Os.Substring(0, 3);
             string destPath = $"{Constants.ResourcesPath}/"

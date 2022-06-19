@@ -20,7 +20,7 @@ public class BinariesRetriever
             string srcPath = string.Empty;
             string destPath = $"{Constants.ResourcesPath}/Dotnet{os.Capitalize()}/dotnet7.0";
         
-            // TODO: Add check to skip if we already have the runtime binaries
+            // TODO: Add full check to skip if we already have the runtime binaries
             //       for this OS :)
             if (Directory.Exists(destPath))
             {
@@ -65,7 +65,7 @@ public class BinariesRetriever
             string srcPath = crossgen2Desc.Value.Path;
             string destPath = $"{Constants.ResourcesPath}/Crossgen2{os.Capitalize()}";
 
-            // TODO: Add check to skip if we already have the crossgen2 binaries
+            // TODO: Add full check to skip if we already have the crossgen2 binaries
             //       for this OS :)
             if (Directory.Exists(destPath))
             {

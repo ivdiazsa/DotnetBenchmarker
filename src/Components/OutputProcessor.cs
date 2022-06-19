@@ -50,6 +50,7 @@ public class OutputProcessor
         }
 
         DataFormatter<float> formatter = new TableFormatter<float>(_processedData);
+        _streamWriter.Write("\n");
         _streamWriter.WriteLine(formatter.Draw());
     }
 

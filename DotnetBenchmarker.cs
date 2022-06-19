@@ -7,8 +7,8 @@
 // 1) Reenabling of non-composites Crossgen2'ing (Only ASP.NET is missing to reenable)
 // 2) Implementation of a fully functional RunBenchmarker.cmd script
 // 3) Windows Stuff and Composites Implementation
-// 4) Addition of always uploading binaries to crank, even when no processing
-//    was done by the app.
+// 4) Support of ComputeReport() in OutputProcessor to run any function passed
+//    to it, rather than "hard-coding" it in its source file.
 
 internal class DotnetBenchmarker
 {

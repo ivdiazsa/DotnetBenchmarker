@@ -101,6 +101,17 @@ public class CrankRunner
             cmdSb.Append($" --{appName}.options.outputFiles"
                        + $" {config.ProcessedAssembliesPath}/*");
         }
+        else
+        {
+            string[] defaultAssemblies = config.ProcessedAssembliesPath.Split(';');
+            foreach (string path in defaultAssemblies)
+            {
+                if (string.IsNullOrEmpty(path))
+                    continue;
+
+                cmdSb.Append($" --{appName}.options.outputFiles {path}/*");
+            }
+        }
 
         cmdSb.Append($" --{appName}.environmentVariables"
                    + $" COMPlus_ReadyToRun={(runEnv.EnvReadyToRun ? "1" : "0")}");
