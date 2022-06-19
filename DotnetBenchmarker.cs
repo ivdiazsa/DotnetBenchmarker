@@ -4,7 +4,7 @@
 // This is our little script :)
 
 // NEXT STEPS:
-// 1) Reenabling of non-composites Crossgen2'ing
+// 1) Reenabling of non-composites Crossgen2'ing (Only ASP.NET is missing to reenable)
 // 2) Implementation of a fully functional RunBenchmarker.cmd script
 // 3) Windows Stuff and Composites Implementation
 

@@ -58,31 +58,30 @@ if [[ ${FRAMEWORK_COMPOSITE,,} == "true" ]]; then
 
   BUILDFX_CMD+=" --out $OUTPUT_DIR/$COMPOSITE_FILE.r2r.dll"
   $BUILDFX_CMD
-fi
 
-# else
-#   # Iterate over each Framework Assembly and recompile it using Crossgen2.
-#   # Output the resulting images to the corresponding output folder.
-#   echo "Applying Crossgen2 normally..."
-# 
-#   for FILE in $FX_PATH/*.dll; do
-#     BUILDBIN_CMD="$BASE_CMD"
-#     BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
-#     BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
-#     BUILDBIN_CMD+=" $FILE"
-#     BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
-#     $BUILDBIN_CMD
-#   done
-# 
-#   for FILE in $ASP_PATH/*.dll; do
-#     BUILDBIN_CMD="$BASE_CMD"
-#     BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
-#     BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
-#     BUILDBIN_CMD+=" $FILE"
-#     BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
-#     $BUILDBIN_CMD
-#   done
-# fi
+else
+  # Iterate over each Framework Assembly and recompile it using Crossgen2.
+  # Output the resulting images to the corresponding output folder.
+  echo "Applying Crossgen2 normally..."
+
+  for FILE in $FX_PATH/*.dll; do
+    BUILDBIN_CMD="$BASE_CMD"
+    BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
+    BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
+    BUILDBIN_CMD+=" $FILE"
+    BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
+    $BUILDBIN_CMD
+  done
+
+  # for FILE in $ASP_PATH/*.dll; do
+  #   BUILDBIN_CMD="$BASE_CMD"
+  #   BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
+  #   BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
+  #   BUILDBIN_CMD+=" $FILE"
+  #   BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
+  #   $BUILDBIN_CMD
+  # done
+fi
 
 if [[ ${ASPNET_COMPOSITE,,} == "true" && ${BUNDLE_ASPNET,,} != "true" ]]; then
   echo "Compiling ASP.NET Framework Composites..."
