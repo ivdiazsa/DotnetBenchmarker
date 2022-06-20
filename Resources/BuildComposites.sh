@@ -20,7 +20,7 @@ BASE_CMD+=" --targetarch x64"
 if [[ ${USE_AVX2,,} == "true" ]]; then
   echo "Will apply AVX2 Instruction Set..."
   BASE_CMD+=" --instruction-set:avx2"
-  BASE_CMD+=" --inputbubble"
+  # BASE_CMD+=" --inputbubble" # Return to this.
 fi
 
 # At least for the time being, we expect the optimization data MIBC file to be
@@ -37,17 +37,7 @@ if [[ ${FRAMEWORK_COMPOSITE,,} == "true" ]]; then
   BUILDFX_CMD="$BASE_CMD"
   BUILDFX_CMD+=" --composite"
 
-  ASSEMBLIES_TO_COMPOSITE=''
-  if [[ ${PARTIAL_COMPOSITES,,} != "0" ]]; then
-    while read -r line
-    do
-      ASSEMBLIES_TO_COMPOSITE+=" $FX_PATH/$line"
-    done < "$PARTIAL_COMPOSITES"
-    COMPOSITE_FILE+='-partial'
-  else
-    ASSEMBLIES_TO_COMPOSITE=" $FX_PATH/*.dll"
-  fi
-
+  ASSEMBLIES_TO_COMPOSITE=" $FX_PATH/*.dll"
   BUILDFX_CMD+=" $ASSEMBLIES_TO_COMPOSITE"
 
   if [[ ${BUNDLE_ASPNET,,} == "true" ]]; then
@@ -68,19 +58,21 @@ else
     BUILDBIN_CMD="$BASE_CMD"
     BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
     BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
+    # Maybe we need to add more --reference's.
     BUILDBIN_CMD+=" $FILE"
     BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
     $BUILDBIN_CMD
   done
 
-  # for FILE in $ASP_PATH/*.dll; do
-  #   BUILDBIN_CMD="$BASE_CMD"
-  #   BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
-  #   BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
-  #   BUILDBIN_CMD+=" $FILE"
-  #   BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
-  #   $BUILDBIN_CMD
-  # done
+  # As of now, this currently only works with a nightly build.
+  for FILE in $ASP_PATH/*.dll; do
+    BUILDBIN_CMD="$BASE_CMD"
+    BUILDBIN_CMD+=" --reference $FX_PATH/System.Private.CoreLib.dll"
+    BUILDBIN_CMD+=" --reference $FX_PATH/System.Runtime.dll"
+    BUILDBIN_CMD+=" $FILE"
+    BUILDBIN_CMD+=" --out $OUTPUT_DIR/$(basename $FILE)"
+    $BUILDBIN_CMD
+  done
 fi
 
 if [[ ${ASPNET_COMPOSITE,,} == "true" && ${BUNDLE_ASPNET,,} != "true" ]]; then
