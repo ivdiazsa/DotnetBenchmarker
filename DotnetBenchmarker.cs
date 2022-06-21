@@ -4,11 +4,11 @@
 // This is our little script :)
 
 // NEXT STEPS:
-// 1) Implementation of a fully functional RunBenchmarker.cmd script
-// 2) Windows Stuff and Composites Implementation
-// 3) Support of ComputeReport() in OutputProcessor to run any function passed
+// 1) Windows Stuff and Composites Implementation
+// 2) Support of ComputeReport() in OutputProcessor to run any function passed
 //    to it, rather than "hard-coding" it in its source file.
-// 4) Fix of non-composite AVX2 processing
+// 3) Fix of non-composite AVX2 processing
+// 4) Try refactoring BuildComposites.sh to use functions and look cleaner
 
 internal class DotnetBenchmarker
 {

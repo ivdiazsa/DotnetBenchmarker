@@ -20,7 +20,6 @@ BASE_CMD+=" --targetarch x64"
 if [[ ${USE_AVX2,,} == "true" ]]; then
   echo "Will apply AVX2 Instruction Set..."
   BASE_CMD+=" --instruction-set:avx2"
-  # BASE_CMD+=" --inputbubble" # Return to this.
 fi
 
 # At least for the time being, we expect the optimization data MIBC file to be

@@ -1,4 +1,6 @@
 // File: src/Components/Crossgen2Appliers.cs
+using System.Diagnostics;
+using System.Text;
 
 public partial class CompositesBuilder
 {
@@ -35,8 +37,46 @@ public partial class CompositesBuilder
         // Under construction! :)
         internal static void Apply(Configuration config, MultiIOLogger logger)
         {
-            System.Console.WriteLine("Under Construction! :)");
-            System.Environment.Exit(3);
+            BuildPhaseDescription buildMode = config.BuildPhase;
+            var powershellArgsSb = new StringBuilder();
+
+            powershellArgsSb.AppendFormat("{0}/BuildComposites.ps1",
+                                          Constants.ResourcesPath);
+
+            powershellArgsSb.AppendFormat(" -CompositesType {0}",
+                                          config.BuildResultsName);
+
+            powershellArgsSb.AppendFormat(" -DotnetVersionNumber 7.0");
+
+            if (buildMode.AspNetComposite)
+                powershellArgsSb.Append(" -AspNetComposite");
+
+            if (buildMode.BundleAspNet)
+                powershellArgsSb.Append(" -BundleAspNet");
+
+            if (buildMode.FrameworkComposite)
+                powershellArgsSb.Append(" -FrameworkComposite");
+
+            if (buildMode.UseAvx2)
+                powershellArgsSb.Append(" -UseAvx2");
+
+            string powershellArgs = powershellArgsSb.ToString();
+            logger.Write($"\npowershell.exe {powershellArgs}\n\n");
+
+            using (Process powershell = new Process())
+            {
+                var startInfo = new ProcessStartInfo();
+                powershell.StartInfo = startInfo.BaseTemplate("powershell",
+                                                              powershellArgs);
+                powershell.Start();
+
+                while (!powershell.StandardOutput.EndOfStream)
+                {
+                    string line = powershell.StandardOutput.ReadLine()!;
+                    logger.Write($"{line.CleanControlChars()}\n");
+                }
+                powershell.WaitForExit();
+            }
         }
     }
 }
