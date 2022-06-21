@@ -9,6 +9,7 @@
 //    to it, rather than "hard-coding" it in its source file.
 // 3) Fix of non-composite AVX2 processing
 // 4) Try refactoring BuildComposites.sh to use functions and look cleaner
+// 5) Support of partial composites
 
 internal class DotnetBenchmarker
 {
