@@ -4,12 +4,18 @@
 // This is our little script :)
 
 // NEXT STEPS:
-// 1) Windows Stuff and Composites Implementation
-// 2) Support of ComputeReport() in OutputProcessor to run any function passed
+// 1) Support of ComputeReport() in OutputProcessor to run any function passed
 //    to it, rather than "hard-coding" it in its source file.
-// 3) Fix of non-composite AVX2 processing
-// 4) Try refactoring BuildComposites.sh to use functions and look cleaner
-// 5) Support of partial composites
+// 2) Fix of non-composite AVX2 processing
+// 3) Try refactoring BuildComposites.sh to use functions and look cleaner
+// 4) Support of partial composites (Almost there. Only copying the non-selected
+//    assemblies remains)
+// 5) Routine code tidiness checkup.
+
+// WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
+//          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
+//          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL
+//          CLRF CHARACTER SCREWING UP ALL THE NON-HARD-CODED TEXT.
 
 internal class DotnetBenchmarker
 {

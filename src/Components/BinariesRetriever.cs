@@ -26,6 +26,7 @@ public class BinariesRetriever
             {
                 logger.Write("\nFound a ready to use .NET runtime for"
                             + $" {os.Capitalize()}. Continuing...\n");
+                runtimeDesc.Value.BinariesPath = destPath;
                 continue;
             }
 
@@ -71,6 +72,7 @@ public class BinariesRetriever
             {
                 logger.Write("\nFound a ready to use crossgen2 build for"
                             + $" {os.Capitalize()}. Continuing...\n");
+                crossgen2Desc.Value.Path = destPath;
                 continue;
             }
 

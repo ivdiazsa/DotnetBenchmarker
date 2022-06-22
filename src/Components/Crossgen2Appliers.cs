@@ -6,10 +6,17 @@ public partial class CompositesBuilder
 {
     private static class LinuxCrossgen2er
     {
-        // Do Linux Crossgen2 with Docker here :)
         internal static void Apply(Configuration config, MultiIOLogger logger)
         {
             BuildPhaseDescription buildMode = config.BuildPhase;
+
+            string partialAspnetComposites =
+                string.IsNullOrEmpty(buildMode.PartialAspComposites)
+                    ? "0" : buildMode.PartialAspComposites;
+
+            string partialFrameworkComposites =
+                string.IsNullOrEmpty(buildMode.PartialFxComposites)
+                    ? "0" : buildMode.PartialFxComposites;
 
             string[] dockerArgs = new string[]
             {
@@ -18,7 +25,8 @@ public partial class CompositesBuilder
                 $"COMPOSITES_TYPE_ARG={config.BuildResultsName}",
                 $"DOTNET_VERSION_NUMBER_ARG=7.0",
                 $"FRAMEWORK_COMPOSITE_ARG={buildMode.FrameworkComposite}",
-                $"PARTIAL_COMPOSITES_ARG={System.IO.Path.GetFileName(config.PartialComposites)}",
+                $"PARTIAL_ASPNET_COMPOSITES_ARG={partialAspnetComposites}",
+                $"PARTIAL_FRAMEWORK_COMPOSITES_ARG={partialFrameworkComposites}",
                 $"USE_AVX2_ARG={buildMode.UseAvx2}",
             };
 
@@ -34,7 +42,6 @@ public partial class CompositesBuilder
 
     private static class WindowsCrossgen2er
     {
-        // Under construction! :)
         internal static void Apply(Configuration config, MultiIOLogger logger)
         {
             BuildPhaseDescription buildMode = config.BuildPhase;

@@ -8,7 +8,6 @@ public class Configuration
 {
     public string Name { get; set; }
     public string Os { get; set; }
-    public string PartialComposites { get; set; }
     public BuildPhaseDescription BuildPhase { get; set; }
     public RunPhaseDescription RunPhase { get; set; }
 
@@ -22,16 +21,7 @@ public class Configuration
             if (!string.IsNullOrEmpty(_buildResultsName))
                 return _buildResultsName;
 
-            if (!string.IsNullOrEmpty(PartialComposites))
-            {
-                _buildResultsName = $"{BuildPhase.FxResultName()}"
-                                  + $"-{Path.GetFileName(PartialComposites).ToLower()}"
-                                  + "-partial";
-            }
-            else
-            {
-                _buildResultsName = BuildPhase.FxResultName();
-            }
+            _buildResultsName = BuildPhase.FxResultName();
             return _buildResultsName;
         }
     }
@@ -40,7 +30,6 @@ public class Configuration
     {
         Name = "unnamed-funny-configuration";
         Os = "linux";
-        PartialComposites = string.Empty;
         BuildPhase = new BuildPhaseDescription();
         RunPhase = new RunPhaseDescription();
 

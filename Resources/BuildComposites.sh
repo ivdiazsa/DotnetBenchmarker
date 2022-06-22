@@ -30,28 +30,55 @@ if [ -f "Crossgen2Linux/StandardOptimizationData.mibc" ]; then
 fi
 
 if [[ ${FRAMEWORK_COMPOSITE,,} == "true" ]]; then
-  echo "Compiling Framework Composites..."
+  echo -e "\nCompiling Framework Composites..."
   COMPOSITE_FILE='framework'
 
   BUILDFX_CMD="$BASE_CMD"
   BUILDFX_CMD+=" --composite"
 
-  ASSEMBLIES_TO_COMPOSITE=" $FX_PATH/*.dll"
-  BUILDFX_CMD+=" $ASSEMBLIES_TO_COMPOSITE"
+  ASSEMBLIES_TO_COMPOSITE=''
+
+  # TODO: Format this mess of a code block appropriately.
+  if [ -f $PARTIAL_FRAMEWORK_COMPOSITES ]; then
+    echo "Partial Runtime Composites Requested..."
+    while read -r line
+    do
+      echo "$line"
+      ASSEMBLIES_TO_COMPOSITE+=" $FX_PATH/$line"
+    done < "$PARTIAL_FRAMEWORK_COMPOSITES"
+    COMPOSITE_FILE+='-partial'
+    echo -e "\n"
+  else
+    ASSEMBLIES_TO_COMPOSITE+=" $FX_PATH/*.dll"
+  fi
 
   if [[ ${BUNDLE_ASPNET,,} == "true" ]]; then
     echo "ASP.NET will be bundled into the composite image..."
-    BUILDFX_CMD+=" $ASP_PATH/*.dll"
     COMPOSITE_FILE+='-aspnet'
+
+    if [ -f $PARTIAL_ASPNET_COMPOSITES ]; then
+      echo "Partial ASP.NET Composites Requested..."
+      while read -r line
+      do
+        echo "$line"
+        ASSEMBLIES_TO_COMPOSITE+=" $ASP_PATH/$line"
+      done < "$PARTIAL_ASPNET_COMPOSITES"
+      COMPOSITE_FILE+='-partial'
+      echo -e "\n"
+    else
+      ASSEMBLIES_TO_COMPOSITE+=" $ASP_PATH/*.dll"
+    fi
   fi
 
+  BUILDFX_CMD+=" $ASSEMBLIES_TO_COMPOSITE"
   BUILDFX_CMD+=" --out $OUTPUT_DIR/$COMPOSITE_FILE.r2r.dll"
   $BUILDFX_CMD
 
 else
   # Iterate over each Framework Assembly and recompile it using Crossgen2.
   # Output the resulting images to the corresponding output folder.
-  echo "Applying Crossgen2 normally..."
+  echo -e "\nApplying Crossgen2 normally..."
+  echo "WARNING! This component doesn't work as expected..."
 
   for FILE in $FX_PATH/*.dll; do
     BUILDBIN_CMD="$BASE_CMD"
@@ -75,12 +102,30 @@ else
 fi
 
 if [[ ${ASPNET_COMPOSITE,,} == "true" && ${BUNDLE_ASPNET,,} != "true" ]]; then
-  echo "Compiling ASP.NET Framework Composites..."
+  echo -e "\nCompiling ASP.NET Framework Composites..."
+  ASPNET_COMPOSITE_FILE='aspnetcore'
+
   BUILDASPNET_CMD="$BASE_CMD"
   BUILDASPNET_CMD+=" --composite"
-  BUILDASPNET_CMD+=" $ASP_PATH/*.dll"
+
+  ASSEMBLIES_TO_COMPOSITE=''
+
+  if [ -f $PARTIAL_ASPNET_COMPOSITES ]; then
+    echo "Partial ASP.NET Composites Requested..."
+    while read -r line
+    do
+      echo "$line"
+      ASSEMBLIES_TO_COMPOSITE+=" $ASP_PATH/$line"
+    done < "$PARTIAL_ASPNET_COMPOSITES"
+    ASPNET_COMPOSITE_FILE+='-partial'
+    echo -e "\n"
+  else
+    ASSEMBLIES_TO_COMPOSITE+=" $ASP_PATH/*.dll"
+  fi
+
+  BUILDASPNET_CMD+=" $ASSEMBLIES_TO_COMPOSITE"
   BUILDASPNET_CMD+=" --reference $FX_PATH/*.dll"
-  BUILDASPNET_CMD+=" --out $OUTPUT_DIR/aspnetcore.r2r.dll"
+  BUILDASPNET_CMD+=" --out $OUTPUT_DIR/$ASPNET_COMPOSITE_FILE.r2r.dll"
   $BUILDASPNET_CMD
 fi
 

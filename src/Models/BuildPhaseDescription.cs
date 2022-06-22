@@ -8,6 +8,8 @@ public class BuildPhaseDescription
 {
     // Class definition goes here.
     public List<string> Params { get; set; }
+    public string PartialFxComposites { get; set; }
+    public string PartialAspComposites { get; set; }
 
     public bool FrameworkComposite { get; set; }
     public bool BundleAspNet { get; set; }
@@ -19,6 +21,9 @@ public class BuildPhaseDescription
     public BuildPhaseDescription()
     {
         Params = new List<string>();
+        PartialFxComposites = string.Empty;
+        PartialAspComposites = string.Empty;
+
         FrameworkComposite = false;
         BundleAspNet = false;
         AspNetComposite = false;
@@ -64,6 +69,20 @@ public class BuildPhaseDescription
                 resultNameSb.Append("-aspnet");
         }
 
+        if (IsPartialComposites())
+        {
+            var fxPartials = System.IO.Path.GetFileNameWithoutExtension(PartialFxComposites);
+            var aspPartials = System.IO.Path.GetFileNameWithoutExtension(PartialAspComposites);
+
+            if (!string.IsNullOrEmpty(fxPartials))
+                resultNameSb.AppendFormat("-{0}", fxPartials);
+
+            if (!string.IsNullOrEmpty(aspPartials))
+                resultNameSb.AppendFormat("-{0}", aspPartials);
+
+            resultNameSb.Append("-partial");
+        }
+
         _fxResultName = resultNameSb.ToString();
         return _fxResultName;
     }
@@ -71,6 +90,12 @@ public class BuildPhaseDescription
     public bool NeedsRecompilation()
     {
         return (FrameworkComposite || AspNetComposite || UseAvx2);
+    }
+
+    public bool IsPartialComposites()
+    {
+        return (!string.IsNullOrEmpty(PartialFxComposites)
+                || !string.IsNullOrEmpty(PartialAspComposites));
     }
 
     public override string ToString()

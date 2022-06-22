@@ -93,16 +93,26 @@ public partial class CompositesBuilder
                 continue;
             }
 
-            if (!string.IsNullOrEmpty(config.PartialComposites))
+            if (buildParams.IsPartialComposites()
+                && config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
             {
-                string partialCompositesFile = Path.GetFileName(config.PartialComposites);
-                string copyPath = $"{Constants.ResourcesPath}/{partialCompositesFile}";
+                string fxAssembliesFile = Path.GetFileName(buildParams.PartialFxComposites);
+                string aspAssembliesFile = Path.GetFileName(buildParams.PartialAspComposites);
+                string copyDest = string.Empty;
 
-                if (!File.Exists(copyPath))
+                if (File.Exists(buildParams.PartialFxComposites))
                 {
-                    File.Copy(config.PartialComposites, copyPath, true);
+                    copyDest = Path.Combine(Constants.ResourcesPath, fxAssembliesFile);
+                    File.Copy(buildParams.PartialFxComposites, copyDest, true);
+                    buildParams.PartialFxComposites = fxAssembliesFile;
                 }
-                config.PartialComposites = copyPath;
+
+                if (File.Exists(buildParams.PartialAspComposites))
+                {
+                    copyDest = Path.Combine(Constants.ResourcesPath, aspAssembliesFile);
+                    File.Copy(buildParams.PartialAspComposites, copyDest, true);
+                    buildParams.PartialAspComposites = aspAssembliesFile;
+                }
             }
 
             if (config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
