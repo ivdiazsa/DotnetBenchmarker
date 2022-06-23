@@ -12,4 +12,7 @@
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Resources/BuildEngine/*</DefaultItemExcludes>
+  </PropertyGroup>
 </Project>
