@@ -1,6 +1,7 @@
 ﻿// File: BuildEngine.cs
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -35,6 +36,33 @@ public class BuildEngine
             Directory.CreateDirectory(outputDir);
 
         AppPaths enginePaths = GetPathsSet(engine);
+        BaseCommandGenerator gen;
+
+        if (engine.FrameworkComposite)
+            gen = new FxCompositeCommandGenerator(enginePaths, engine, TargetOS);
+
+        else if (engine.AspnetComposite || !engine.BundleAspnet)
+            gen = new AspCompositeCommandGenerator(enginePaths, engine, TargetOS);
+
+        else
+            gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
+
+        gen.GenerateCmd();
+
+        using (Process crossgen2 = new Process())
+        {
+            string[] fullCmdArgs = gen.GetCmd().Split(' ');
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = fullCmdArgs.FirstOrDefault(enginePaths.crossgen2exe),
+                Arguments = string.Join(' ', fullCmdArgs.Skip(1)),
+            };
+
+            crossgen2.StartInfo = startInfo;
+            crossgen2.Start();
+            crossgen2.WaitForExit();
+        }
     }
 
     private static AppPaths GetPathsSet(EngineEnvironment engEnv)

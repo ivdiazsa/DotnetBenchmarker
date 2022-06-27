@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-internal class BaseCommandGenerator
+internal abstract class BaseCommandGenerator
 {
     protected AppPaths Paths { get; }
     protected EngineEnvironment Env { get; }
@@ -48,12 +48,26 @@ internal class BaseCommandGenerator
     }
 }
 
-internal class CompositeCommandGenerator : BaseCommandGenerator
+internal class NormalCommandGenerator : BaseCommandGenerator
+{
+    public NormalCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
+                                  string targetOs)
+        : base(paths, engEnv, targetOs) {}
+
+    public override void GenerateCmd()
+    {
+        // base.GenerateCmd();
+        Console.WriteLine("Normal Crossgen'ing Under Construction!");
+        Environment.Exit(3);
+    }
+}
+
+internal abstract class CompositeCommandGenerator : BaseCommandGenerator
 {
     protected string CompositeFile { get; set; }
 
     public CompositeCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
-                                       string targetOs)
+                                     string targetOs)
         : base(paths, engEnv, targetOs)
     {
         CompositeFile = "(null)";
@@ -122,7 +136,7 @@ internal class FxCompositeCommandGenerator : CompositeCommandGenerator
 internal class AspCompositeCommandGenerator : CompositeCommandGenerator
 {
     public AspCompositeCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
-                                       string targetOs)
+                                        string targetOs)
         : base(paths, engEnv, targetOs)
     {
         CompositeFile = "aspnetcore";
