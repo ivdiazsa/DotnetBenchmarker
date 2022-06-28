@@ -34,6 +34,8 @@ internal abstract class BaseCommandGenerator
 
         string crossgenDir = Path.GetDirectoryName(Paths.crossgen2exe)!;
 
+        // NOTE: It might be necessary to support using an arbitrary number of
+        //       optimization data files.
         if (File.Exists($"{crossgenDir}/StandardOptimizationData.mibc"))
         {
             Console.WriteLine("Will use StandardOptimizationData.mibc...");
