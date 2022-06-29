@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
+// Base Class: BaseCommandGenerator
 internal abstract class BaseCommandGenerator
 {
     protected AppPaths Paths { get; }
@@ -23,13 +24,13 @@ internal abstract class BaseCommandGenerator
     public virtual void GenerateCmd()
     {
         CommandSb.Append(Paths.crossgen2exe);
-        CommandSb.AppendFormat(" --targetos {0}", TargetOS);
-        CommandSb.Append(" --targetarch x64");
+        CommandSb.AppendFormat(" --targetos={0}", TargetOS);
+        CommandSb.Append(" --targetarch=x64");
 
         if (Env.UseAvx2)
         {
             Console.WriteLine("\nWill apply AVX2 instruction set...");
-            CommandSb.Append(" --instruction-set avx2");
+            CommandSb.Append(" --instruction-set=avx2");
         }
 
         string crossgenDir = Path.GetDirectoryName(Paths.crossgen2exe)!;
@@ -39,7 +40,7 @@ internal abstract class BaseCommandGenerator
         if (File.Exists($"{crossgenDir}/StandardOptimizationData.mibc"))
         {
             Console.WriteLine("Will use StandardOptimizationData.mibc...");
-            CommandSb.AppendFormat(" --mibc {0}/StandardOptimizationData.mibc",
+            CommandSb.AppendFormat(" --mibc={0}/StandardOptimizationData.mibc",
                                     crossgenDir);
         }
     }
@@ -50,20 +51,7 @@ internal abstract class BaseCommandGenerator
     }
 }
 
-internal class NormalCommandGenerator : BaseCommandGenerator
-{
-    public NormalCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
-                                  string targetOs)
-        : base(paths, engEnv, targetOs) {}
-
-    public override void GenerateCmd()
-    {
-        // base.GenerateCmd();
-        Console.WriteLine("Normal Crossgen'ing Under Construction!");
-        Environment.Exit(3);
-    }
-}
-
+// Derived Class Level 1: CompositeCommandGenerator
 internal abstract class CompositeCommandGenerator : BaseCommandGenerator
 {
     protected string CompositeFile { get; set; }
@@ -84,12 +72,13 @@ internal abstract class CompositeCommandGenerator : BaseCommandGenerator
     protected void GenerateCmdFooter(string assembliesToComposite)
     {
         CommandSb.AppendFormat(" {0}", assembliesToComposite);
-        CommandSb.AppendFormat(" --out {0}/{1}.r2r.dll",
+        CommandSb.AppendFormat(" --out={0}/{1}.r2r.dll",
                                Paths.output,
                                CompositeFile);
     }
 }
 
+// Derived Class Level 2: FxCompositeCommandGenerator
 internal class FxCompositeCommandGenerator : CompositeCommandGenerator
 {
     public FxCompositeCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
@@ -135,6 +124,7 @@ internal class FxCompositeCommandGenerator : CompositeCommandGenerator
     }
 }
 
+// Derived Class Level 2: AspCompositeCommandGenerator
 internal class AspCompositeCommandGenerator : CompositeCommandGenerator
 {
     public AspCompositeCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
@@ -161,7 +151,7 @@ internal class AspCompositeCommandGenerator : CompositeCommandGenerator
             assembliesToCompositeSb.AppendFormat(" {0}/*.dll", Paths.asp);
         }
 
-        CommandSb.AppendFormat(" --reference {0}/*.dll", Paths.fx);
+        CommandSb.AppendFormat(" --reference={0}/*.dll", Paths.fx);
         GenerateCmdFooter(assembliesToCompositeSb.ToString());
     }
 }

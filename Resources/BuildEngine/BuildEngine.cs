@@ -36,33 +36,7 @@ public class BuildEngine
             Directory.CreateDirectory(outputDir);
 
         AppPaths enginePaths = GetPathsSet(engine);
-        BaseCommandGenerator gen;
-
-        if (engine.FrameworkComposite)
-            gen = new FxCompositeCommandGenerator(enginePaths, engine, TargetOS);
-
-        else if (engine.AspnetComposite || !engine.BundleAspnet)
-            gen = new AspCompositeCommandGenerator(enginePaths, engine, TargetOS);
-
-        else
-            gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
-
-        gen.GenerateCmd();
-
-        using (Process crossgen2 = new Process())
-        {
-            string[] fullCmdArgs = gen.GetCmd().Split(' ');
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = fullCmdArgs.FirstOrDefault(enginePaths.crossgen2exe),
-                Arguments = string.Join(' ', fullCmdArgs.Skip(1)),
-            };
-
-            crossgen2.StartInfo = startInfo;
-            crossgen2.Start();
-            crossgen2.WaitForExit();
-        }
+        ProcessComposite(enginePaths, engine);
     }
 
     private static AppPaths GetPathsSet(EngineEnvironment engEnv)
@@ -86,5 +60,37 @@ public class BuildEngine
             Directory.GetFiles(root, filename, SearchOption.AllDirectories)
                      .FirstOrDefault(string.Empty)
         )!;
+    }
+
+    private static void ProcessComposite(AppPaths enginePaths, EngineEnvironment engine)
+    {
+        BaseCommandGenerator gen;
+
+        if (engine.FrameworkComposite)
+            gen = new FxCompositeCommandGenerator(enginePaths, engine, TargetOS);
+
+        else if (engine.AspnetComposite || !engine.BundleAspnet)
+            gen = new AspCompositeCommandGenerator(enginePaths, engine, TargetOS);
+
+        else
+            throw new ArgumentException("Could not process this given configuration"
+                                        + " for composites generation.");
+
+        gen.GenerateCmd();
+
+        using (Process crossgen2 = new Process())
+        {
+            string[] fullCmdArgs = gen.GetCmd().Split(' ');
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = fullCmdArgs.FirstOrDefault(enginePaths.crossgen2exe),
+                Arguments = string.Join(' ', fullCmdArgs.Skip(1)),
+            };
+
+            crossgen2.StartInfo = startInfo;
+            crossgen2.Start();
+            crossgen2.WaitForExit();
+        }
     }
 }
