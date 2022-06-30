@@ -74,49 +74,29 @@ public class BuildEngine
     private static void ProcessNonComposite(AppPaths enginePaths,
                                             EngineEnvironment engine)
     {
-        return ;
+        var gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
+
+        // This will probably be changed later to allow the user to select
+        // whether they want to process either one or both products assemblies.
+        // That will likely require some overhaul in the main app as well though.
+
+        if (Directory.Exists(enginePaths.fx))
+        {
+            string[] assemblies = Directory.GetFiles(enginePaths.fx, "*.dll");
+            foreach (var bin in assemblies)
+            {
+                gen.GenerateCmd(bin, enginePaths.fx);
+                RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+            }
+        }
+
+        if (Directory.Exists(enginePaths.asp))
+        {
+            // Crossgen2 the asp.net assemblies.
+        }
+
+        CopyRemainingBinaries(enginePaths.fx, enginePaths.asp, enginePaths.output);
     }
-
-    // private static void ProcessNonComposite(AppPaths enginePaths,
-    //                                         EngineEnvironment engine)
-    // {
-    //     var gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
-    //     var runtimeAssemblies = new List<string>();
-    //     var aspnetAssemblies = new List<string>();
-
-    //     // Here, we're going to add later some flags to define whether the user
-    //     // wants to process fx and/or aspnet assemblies. For now, we will go the
-    //     // safe route and process all those we can find.
-
-    //     if (Directory.Exists(enginePaths.fx))
-    //     {
-    //         runtimeAssemblies.AddRange(Directory.GetFiles(enginePaths.fx, "*.dll"));
-    //     }
-
-    //     if (Directory.Exists(enginePaths.asp))
-    //     {
-    //         aspnetAssemblies.AddRange(Directory.GetFiles(enginePaths.asp, "*.dll"));
-    //     }
-
-    //     foreach (string assembly in runtimeAssemblies)
-    //     {
-    //         System.Console.WriteLine(assembly);
-    //         gen.GenerateCmd(assembly, runtimeAssemblies);
-    //         System.Console.WriteLine($"\n{gen.GetCmd()}\n");
-    //         RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
-    //     }
-
-    //     // For ASP.NET, we need to reference both, their fellow aspnet binaries,
-    //     // as well as the runtime ones. That's the reason we are joining both
-    //     // lists in the runtime assemblies one.
-    //     runtimeAssemblies.AddRange(aspnetAssemblies);
-
-    //     foreach (string assembly in aspnetAssemblies)
-    //     {
-    //         gen.GenerateCmd(assembly, runtimeAssemblies);
-    //         RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
-    //     }
-    // }
 
     private static void ProcessComposite(AppPaths enginePaths,
                                          EngineEnvironment engine)
@@ -152,6 +132,29 @@ public class BuildEngine
             crossgen2.StartInfo = startInfo;
             crossgen2.Start();
             crossgen2.WaitForExit();
+        }
+    }
+
+    private static void CopyRemainingBinaries(string netCorePath, string aspNetPath,
+                                              string resultsPath)
+    {
+        MergeFolders(netCorePath, resultsPath);
+        MergeFolders(aspNetPath, resultsPath);
+    }
+
+    private static void MergeFolders(string srcPath, string destPath)
+    {
+        string[] files = Directory.GetFiles(srcPath);
+        foreach (var item in files)
+        {
+            string itemName = Path.GetFileName(item);
+            string destItemPath = Path.Combine(destPath, itemName);
+
+            if (!File.Exists(destItemPath))
+            {
+                Console.WriteLine($"Copying {itemName} from {srcPath} to {destPath}...");
+                File.Copy(item, destItemPath);
+            }
         }
     }
 }
