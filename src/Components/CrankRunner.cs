@@ -86,8 +86,7 @@ public class CrankRunner
         string osCode = config.Os.Substring(0, 3);
         RunPhaseDescription runEnv = config.RunPhase;
 
-        cmdSb.Append(" --config https://raw.githubusercontent.com/"
-                   + "aspnet/Benchmarks/main/scenarios/plaintext.benchmarks.yml");
+        cmdSb.Append($" --config {config.Scenario}");
 
         cmdSb.Append(" --scenario plaintext");
         cmdSb.Append($" --profile aspnet-citrine-{osCode}");
