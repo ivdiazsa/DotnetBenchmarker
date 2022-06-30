@@ -46,37 +46,54 @@ internal abstract class BaseCommandGenerator
         }
     }
 
-    public string GetCmd()
+    public virtual string GetCmd()
     {
         return CommandSb.ToString();
     }
 }
 
-// internal class NormalCommandGenerator : BaseCommandGenerator
-// {
-//     public NormalCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
-//                                   string targetOs)
-//         : base(paths, engEnv, targetOs) {}
-// 
-//     public void GenerateCmd(string assembly, List<string> references)
-//     {
-//         if (!CommandSb.IsEmpty())
-//             CommandSb.Clear();
-// 
-//         base.GenerateCmd();
-//         references.Remove(assembly);
-// 
-//         foreach (string refy in references)
-//         {
-//             CommandSb.AppendFormat(" --reference={0}", refy);
-//         }
-// 
-//         references.Add(assembly);
-//         CommandSb.AppendFormat(" {0}", assembly);
-//         CommandSb.AppendFormat(" --out={0}/{1}", Paths.output,
-//                                                  Path.GetFileName(assembly));
-//     }
-// }
+internal class NormalCommandGenerator : BaseCommandGenerator
+{
+    private bool _firstRun;
+    private StringBuilder _normalCmdSb;
+
+    public NormalCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
+                                  string targetOs)
+        : base(paths, engEnv, targetOs)
+    {
+        _firstRun = true;
+        _normalCmdSb = new StringBuilder();
+    }
+
+    public void GenerateCmd(string assembly, params string[] referencePaths)
+    {
+        // This is to prevent the "Will use..." messages displayed by the base
+        // GenerateCmd() method for each assembly. The logs are much more
+        // readable this way.
+        if (_firstRun)
+        {
+            base.GenerateCmd();
+            _firstRun = false;
+        }
+
+        if (!_normalCmdSb.IsEmpty())
+            _normalCmdSb.Clear();
+
+        foreach (string refy in referencePaths)
+        {
+            _normalCmdSb.AppendFormat(" --reference={0}/*.dll", refy);
+        }
+
+        _normalCmdSb.AppendFormat(" {0}", assembly);
+        _normalCmdSb.AppendFormat(" --out={0}/{1}", Paths.output,
+                                                    Path.GetFileName(assembly));
+    }
+
+    public override string GetCmd()
+    {
+        return base.GetCmd() + _normalCmdSb.ToString();
+    }
+}
 
 // Derived Class Level 1: CompositeCommandGenerator
 internal abstract class CompositeCommandGenerator : BaseCommandGenerator
