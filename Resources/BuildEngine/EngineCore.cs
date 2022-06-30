@@ -10,7 +10,7 @@ public partial class BuildEngine
     private class EngineCore
     {
         internal void ProcessNonComposite(AppPaths enginePaths,
-                                         EngineEnvironment engine)
+                                          EngineEnvironment engine)
         {
             var gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
 
@@ -20,17 +20,19 @@ public partial class BuildEngine
 
             if (Directory.Exists(enginePaths.fx))
             {
-                string[] assemblies = Directory.GetFiles(enginePaths.fx, "*.dll");
-                foreach (var bin in assemblies)
-                {
-                    gen.GenerateCmd(bin, enginePaths.fx);
-                    RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
-                }
+                ProcessIndividualAssemblies(gen,
+                                            enginePaths.fx,
+                                            enginePaths.crossgen2exe,
+                                            enginePaths.fx);
             }
 
             if (Directory.Exists(enginePaths.asp))
             {
-                // Crossgen2 the asp.net assemblies.
+                ProcessIndividualAssemblies(gen,
+                                            enginePaths.asp,
+                                            enginePaths.crossgen2exe,
+                                            enginePaths.fx,
+                                            enginePaths.asp);
             }
 
             CopyRemainingBinaries(enginePaths.fx, enginePaths.asp, enginePaths.output);
@@ -52,6 +54,19 @@ public partial class BuildEngine
 
             gen.GenerateCmd();
             RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+        }
+
+        private void ProcessIndividualAssemblies(NormalCommandGenerator gen,
+                                                 string assembliesPath,
+                                                 string crossgen2Path,
+                                                 params string[] refsPaths)
+        {
+            string[] assemblies = Directory.GetFiles(assembliesPath, "*.dll");
+            foreach (var bin in assemblies)
+            {
+                gen.GenerateCmd(bin, refsPaths);
+                RunCrossgen2(gen.GetCmd(), crossgen2Path);
+            }
         }
 
         private void RunCrossgen2(string generatedCmd, string crossgen2Path)
