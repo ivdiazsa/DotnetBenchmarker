@@ -40,6 +40,14 @@ internal class EngineEnvironment
         return System.IO.File.Exists(PartialAspnetComposites);
     }
 
+    // For now, non-composite processing == non-composite avx2.
+    // However, I'm adding this method for clarity, and in anticipation of
+    // requiring to support other types of non-composites.
+    public bool RequestedNonComposites()
+    {
+        return UseAvx2 && !(FrameworkComposite || AspnetComposite);
+    }
+
     // NOTE: Might be worth it to add Boolean handling for the empty
     //       environment variable check. Right now, we assume all are set
     //       to something, but we don't know whether that's gonna remain

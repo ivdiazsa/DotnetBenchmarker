@@ -26,8 +26,13 @@ public class BuildEngine
         // Powershell, depending on the platform, automatically.
         var engine = new EngineEnvironment();
 
-        // TODO: Add an assertion here to ensure the resources path was passed.
-        //       Otherwise, well... A disaster is waiting to happen :)
+        if (string.IsNullOrEmpty(args[0]) || !Directory.Exists(args[0]))
+        {
+            throw new ArgumentException("The passed resources directory"
+                + $" {(string.IsNullOrEmpty(args[0]) ? "(null)" : args[0])}"
+                + " was unexpected.");
+        }
+
         string resourcesDir = args[0];
         Directory.SetCurrentDirectory(resourcesDir);
 
@@ -36,7 +41,11 @@ public class BuildEngine
             Directory.CreateDirectory(outputDir);
 
         AppPaths enginePaths = GetPathsSet(engine);
-        ProcessComposite(enginePaths, engine);
+
+        if (engine.RequestedNonComposites())
+            ProcessNonComposite(enginePaths, engine);
+        else
+            ProcessComposite(enginePaths, engine);
     }
 
     private static AppPaths GetPathsSet(EngineEnvironment engEnv)
@@ -62,9 +71,57 @@ public class BuildEngine
         )!;
     }
 
-    private static void ProcessComposite(AppPaths enginePaths, EngineEnvironment engine)
+    private static void ProcessNonComposite(AppPaths enginePaths,
+                                            EngineEnvironment engine)
     {
-        BaseCommandGenerator gen;
+        return ;
+    }
+
+    // private static void ProcessNonComposite(AppPaths enginePaths,
+    //                                         EngineEnvironment engine)
+    // {
+    //     var gen = new NormalCommandGenerator(enginePaths, engine, TargetOS);
+    //     var runtimeAssemblies = new List<string>();
+    //     var aspnetAssemblies = new List<string>();
+
+    //     // Here, we're going to add later some flags to define whether the user
+    //     // wants to process fx and/or aspnet assemblies. For now, we will go the
+    //     // safe route and process all those we can find.
+
+    //     if (Directory.Exists(enginePaths.fx))
+    //     {
+    //         runtimeAssemblies.AddRange(Directory.GetFiles(enginePaths.fx, "*.dll"));
+    //     }
+
+    //     if (Directory.Exists(enginePaths.asp))
+    //     {
+    //         aspnetAssemblies.AddRange(Directory.GetFiles(enginePaths.asp, "*.dll"));
+    //     }
+
+    //     foreach (string assembly in runtimeAssemblies)
+    //     {
+    //         System.Console.WriteLine(assembly);
+    //         gen.GenerateCmd(assembly, runtimeAssemblies);
+    //         System.Console.WriteLine($"\n{gen.GetCmd()}\n");
+    //         RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+    //     }
+
+    //     // For ASP.NET, we need to reference both, their fellow aspnet binaries,
+    //     // as well as the runtime ones. That's the reason we are joining both
+    //     // lists in the runtime assemblies one.
+    //     runtimeAssemblies.AddRange(aspnetAssemblies);
+
+    //     foreach (string assembly in aspnetAssemblies)
+    //     {
+    //         gen.GenerateCmd(assembly, runtimeAssemblies);
+    //         RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+    //     }
+    // }
+
+    private static void ProcessComposite(AppPaths enginePaths,
+                                         EngineEnvironment engine)
+    {
+        CompositeCommandGenerator gen;
 
         if (engine.FrameworkComposite)
             gen = new FxCompositeCommandGenerator(enginePaths, engine, TargetOS);
@@ -77,14 +134,18 @@ public class BuildEngine
                                         + " for composites generation.");
 
         gen.GenerateCmd();
+        RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+    }
 
+    private static void RunCrossgen2(string generatedCmd, string crossgen2Path)
+    {
         using (Process crossgen2 = new Process())
         {
-            string[] fullCmdArgs = gen.GetCmd().Split(' ');
+            string[] fullCmdArgs = generatedCmd.Split(' ');
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = fullCmdArgs.FirstOrDefault(enginePaths.crossgen2exe),
+                FileName = fullCmdArgs.FirstOrDefault(crossgen2Path),
                 Arguments = string.Join(' ', fullCmdArgs.Skip(1)),
             };
 

@@ -1,5 +1,6 @@
 // File: CommandGenerators.cs
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -50,6 +51,32 @@ internal abstract class BaseCommandGenerator
         return CommandSb.ToString();
     }
 }
+
+// internal class NormalCommandGenerator : BaseCommandGenerator
+// {
+//     public NormalCommandGenerator(in AppPaths paths, EngineEnvironment engEnv,
+//                                   string targetOs)
+//         : base(paths, engEnv, targetOs) {}
+// 
+//     public void GenerateCmd(string assembly, List<string> references)
+//     {
+//         if (!CommandSb.IsEmpty())
+//             CommandSb.Clear();
+// 
+//         base.GenerateCmd();
+//         references.Remove(assembly);
+// 
+//         foreach (string refy in references)
+//         {
+//             CommandSb.AppendFormat(" --reference={0}", refy);
+//         }
+// 
+//         references.Add(assembly);
+//         CommandSb.AppendFormat(" {0}", assembly);
+//         CommandSb.AppendFormat(" --out={0}/{1}", Paths.output,
+//                                                  Path.GetFileName(assembly));
+//     }
+// }
 
 // Derived Class Level 1: CompositeCommandGenerator
 internal abstract class CompositeCommandGenerator : BaseCommandGenerator
