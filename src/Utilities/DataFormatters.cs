@@ -41,7 +41,7 @@ public class TableFormatter<T> : DataFormatter<T>
             for (int j = 0; j < DataTable.Columns; j++)
             {
                 tableSb.AppendFormat("| {0}", DataTable[i, j]!.ToString()!
-                                                               .PadRight(columnLengths[j+1] - 1));
+                                                              .PadRight(columnLengths[j+1] - 1));
             }
             tableSb.Append("|\n");
         }
@@ -136,6 +136,7 @@ public class CsvFormatter<T> : DataFormatter<T>
 
     public override string Draw()
     {
+        System.Console.WriteLine("CSV Draw() Under Construction!");
         return string.Empty;
     }
 }

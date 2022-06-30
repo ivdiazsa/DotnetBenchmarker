@@ -6,7 +6,6 @@ using System.Text;
 // Class: BuildPhaseDescription
 public class BuildPhaseDescription
 {
-    // Class definition goes here.
     public List<string> Params { get; set; }
     public string PartialFxComposites { get; set; }
     public string PartialAspComposites { get; set; }

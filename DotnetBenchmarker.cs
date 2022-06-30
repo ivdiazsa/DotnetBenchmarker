@@ -8,13 +8,13 @@
 //    to it, rather than "hard-coding" it in its source file.
 // 2) Fix of non-composite AVX2 processing (Almost there. Only ASP.NET missing).
 // 3) Support of partial composites (Doesn't work...).
-// 4) Routine code tidiness checkup (Both apps).
-// 5) Perhaps a safety block to finish processing the good run results whenever
+// 4) Perhaps a safety block to finish processing the good run results whenever
 //    a faulty one was encountered.
-// 6) A configuration filter so that we don't have to edit the yaml config file
+// 5) A configuration filter so that we don't have to edit the yaml config file
 //    every time we want to exclude or include (a) certain configuration(s).
-// 7) Skipping of configuration binaries generation when they are actually there.
-// 8) Full code documentation (Both apps).
+// 6) Skipping of configuration binaries generation when they are actually there.
+// 7) Full code documentation (Both apps).
+// 8) Development of BestTable's modes.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING

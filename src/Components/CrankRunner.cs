@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 
 // Class: CrankRunner
-public class CrankRunner
+public partial class CrankRunner
 {
     private List<CrankRun> _cranks;
     private List<Configuration> _configs;

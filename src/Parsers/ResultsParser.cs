@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-// Maybe this can be refactored into their own unique classes?
 using RunStats = System.Collections.Generic.List
                     <System.Collections.Generic.Dictionary<string, string>>;
 
@@ -63,7 +62,6 @@ public class ResultsParser
     {
         var jOptions = new JsonSerializerOptions { WriteIndented = true };
         string jString = JsonSerializer.Serialize(_allStats, jOptions);
-        // System.Console.WriteLine($"\n{jString}\n");
         File.WriteAllText(ResultsFilename, jString);
     }
 }

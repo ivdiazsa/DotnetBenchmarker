@@ -3,7 +3,7 @@
 // Class: ListyExtensions
 static class ListyExtensions
 {
-    public static T[] PrependElement<T>(this T[] array, T newElement)
+    public static T[] Prepend<T>(this T[] array, T newElement)
     {
         var result = new T[array.Length + 1];
         result[0] = newElement;

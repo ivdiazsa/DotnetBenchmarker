@@ -93,7 +93,7 @@ public class OutputProcessor
             configNo++;
         }
 
-        _processedData.Headers = fieldsToFilter.PrependElement("Configuration");
+        _processedData.Headers = fieldsToFilter.Prepend("Configuration");
         _processedData.SideLabels = _runResults.Keys.ToArray();
     }
 }
