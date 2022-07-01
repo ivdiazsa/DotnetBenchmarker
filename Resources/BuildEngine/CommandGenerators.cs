@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+// Summary of this system: Since the commands differ very slightly between types
+// of assembly processing, this template approach was the most suitable for easier
+// maintainability, and code readability. Since the repeated code is kept to a
+// minimum, the differences between the different ways of processing are more
+// visual and apparent.
+
 // Base Class: BaseCommandGenerator
 internal abstract class BaseCommandGenerator
 {

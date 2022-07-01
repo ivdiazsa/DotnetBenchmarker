@@ -35,6 +35,9 @@ public partial class BuildEngine
                                             enginePaths.asp);
             }
 
+            // Not all dll's are crossgen'able in Windows, so we copy those
+            // instead. For Linux, we have to also provide the *.so files so
+            // that our composites can be understood.
             CopyRemainingBinaries(enginePaths.fx, enginePaths.asp, enginePaths.output);
         }
 
@@ -102,6 +105,8 @@ public partial class BuildEngine
                 string itemName = Path.GetFileName(item);
                 string destItemPath = Path.Combine(destPath, itemName);
 
+                // We don't want to overwrite the crossgen'd binary with the
+                // untouched one.
                 if (!File.Exists(destItemPath))
                 {
                     Console.WriteLine($"Copying {itemName} from {srcPath} to {destPath}...");

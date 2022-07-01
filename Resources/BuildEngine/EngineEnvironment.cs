@@ -23,6 +23,12 @@ internal class EngineEnvironment
     {
         PropertyInfo[] engineProperties = this.GetType().GetProperties();
 
+        // The EngineEnvironment properties are named right after the
+        // environment variables that define how to composite and whatnot.
+        // So, we just read them and we can initialize our EngineEnvironment
+        // straight away using Reflection.
+        // Magic extendability and maintainability!
+
         foreach (PropertyInfo prop in engineProperties)
         {
             string propEnvVariable = prop.Name.ToUpperSnakeCase();
@@ -55,6 +61,9 @@ internal class EngineEnvironment
     //       not that unlikely as well.
     private dynamic ReadAndConvertEnvironmentValue(string envVarName)
     {
+        // Translate the environment variable values. The reason this function
+        // is defined as "dynamic", is because we can get either strings or
+        // booleans from the environment at the current time.
         string? env = Environment.GetEnvironmentVariable(envVarName);
 
         if (string.IsNullOrEmpty(env) || env.Equals("0"))
