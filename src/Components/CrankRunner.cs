@@ -29,6 +29,8 @@ public partial class CrankRunner
     {
         _logger.Write("\nCreating Crank objects from the configurations received...\n");
 
+        // Simply create the little objects with the crank command to run for
+        // each configuration.
         foreach (Configuration cfg in _configs)
         {
             string cmdArgs = GenerateCrankCmdArgs(cfg);
@@ -38,10 +40,15 @@ public partial class CrankRunner
 
     private void ExecuteRuns()
     {
+        // In order to store the results for further analysis, we gotta keep
+        // track of the relevant part of the output, and parse it into a JSON.
+        // See Parsers/ResultsParser.cs for details on implementation of this.
+
         var outputKeep = new List<string>();
         var resultsParser = new ResultsParser();
         _logger.Write("\nStarting sending to crank...\n");
 
+        // Iterate each configuration.
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
@@ -50,6 +57,7 @@ public partial class CrankRunner
             _logger.Write($"\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
             _logger.Write($"\ncrank {cr.Args}\n");
 
+            // Run the current configuration the required number of times.
             for (int j = 0; j < _iterations; j++)
             {
                 outputKeep.Clear();
@@ -75,6 +83,7 @@ public partial class CrankRunner
             resultsParser.StoreRunResults();
         }
 
+        // Record the run's results in its JSON file.
         resultsParser.SerializeToJSON();
         _logger.Write("\nFinished with the tests!\n");
     }
@@ -95,6 +104,11 @@ public partial class CrankRunner
         cmdSb.Append($" --{appName}.buildArguments"
                    + $" -p:PublishReadyToRun={runEnv.AppR2R.ToString()}");
 
+        // Since the main use case of this app is to compare different benchmarks,
+        // we should always start from the same sources. If processing was done,
+        // then upload those assemblies to crank. If not, then upload the normal
+        // assemblies from your build acquired elsewhere.
+
         if (config.BuildPhase.NeedsRecompilation())
         {
             cmdSb.Append($" --{appName}.options.outputFiles"
@@ -102,6 +116,10 @@ public partial class CrankRunner
         }
         else
         {
+            // In the case of using a nightly build, the runtime and the asp
+            // binaries are located in different paths. We get those here through
+            // a string separated with a semi-colon(;). This also applies if you
+            // provided your own binaries and have them in different spots.
             string[] defaultAssemblies = config.ProcessedAssembliesPath.Split(';');
             foreach (string path in defaultAssemblies)
             {

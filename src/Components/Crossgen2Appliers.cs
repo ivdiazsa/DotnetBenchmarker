@@ -4,6 +4,13 @@ using System.Text;
 
 public partial class CompositesBuilder
 {
+    // These two friendly classes build and run the necessary command to have
+    // the appropriate script run the BuildEngine, who is in charge of actually
+    // calling Crossgen2:
+    //      * Linux uses Docker and a Shell script.
+    //      * Windows uses a Powershell script.
+
+    // Inner Class: LinuxCrossgen2er
     private static class LinuxCrossgen2er
     {
         internal static void Apply(Configuration config, MultiIOLogger logger)
@@ -40,6 +47,7 @@ public partial class CompositesBuilder
         }
     }
 
+    // Inner Class: WindowsCrossgen2er
     private static class WindowsCrossgen2er
     {
         internal static void Apply(Configuration config, MultiIOLogger logger)

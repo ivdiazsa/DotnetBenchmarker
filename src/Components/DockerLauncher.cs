@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 
 // Class: Docker Launcher
+// Might be nice to add a little check to ensure that, firstly Docker is installed
+// in the machine, and secondly that it's on.
 internal static partial class DockerLauncher
 {
     private static List<DockerImage> s_images = new List<DockerImage>();

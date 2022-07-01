@@ -14,6 +14,9 @@ public class BinariesRetriever
     {
         logger.Write("\nBeginning search and copy of the runtime binaries...\n");
 
+        // Our runtime(s)' information comes in a dictionary, where the OS is
+        // the key for easy management and use. See AppOptionsBank.cs to know
+        // where it comes from.
         foreach (KeyValuePair<string, Runtime> runtimeDesc in runtimes)
         {
             string os = runtimeDesc.Key;
@@ -32,8 +35,11 @@ public class BinariesRetriever
 
             if (!string.IsNullOrEmpty(runtimeDesc.Value.BinariesPath))
             {
+                // If a path with the runtime binaries was provided, then we only
+                // ought to copy them to our Resources location.
+
                 srcPath = runtimeDesc.Value.BinariesPath;
-                destPath += "/shared";
+                destPath += "/shared"; // Match the nightly build layout.
 
                 logger.Write($"Copying runtime binaries from {srcPath}"
                             + $" to {destPath}...\n");
@@ -46,8 +52,8 @@ public class BinariesRetriever
             }
             else
             {
-                // TODO-MAYBE: Add support to completely omit the "runtimes" info
-                //       in the YAML file when a nightly build will be requested.
+                // No binaries given. Download a nightly build from the
+                // installer repo in this case.
                 DownloadNightlyRuntime(destPath, os, logger);
             }
 
@@ -60,6 +66,7 @@ public class BinariesRetriever
     {
         logger.Write("\nBeginning search and copy of the crossgen2 binaries...\n");
 
+        // Same case as described in the previous function with the runtimes.
         foreach (KeyValuePair<string, Crossgen2> crossgen2Desc in crossgen2s)
         {
             string os = crossgen2Desc.Key;
@@ -79,6 +86,10 @@ public class BinariesRetriever
             logger.Write($"Copying crossgen2 binaries from {srcPath}"
                         + $" to {destPath}...\n");
 
+            // Copy the crossgen2 build to our Resources path. Here, we don't do
+            // a deep copy because potentially, the crossgen2 build folder might
+            // have further nested published artifacts, which will confuse the
+            // BuildEngine later on. So, we ensure we only one build.
             CopyBinariesFromPath(srcPath, destPath, false);
             crossgen2Desc.Value.Path = destPath;
         }
@@ -91,7 +102,7 @@ public class BinariesRetriever
         FileInfo[] filesToCopy = srcDirInfo.GetFiles();
 
         if (!Directory.Exists(destPath))
-            _ = Directory.CreateDirectory(destPath);
+            Directory.CreateDirectory(destPath);
 
         foreach (FileInfo f in filesToCopy)
         {
@@ -99,6 +110,7 @@ public class BinariesRetriever
             f.CopyTo(destFilepath);
         }
 
+        // Do a deep copy instead of just top level.
         if (recurse)
         {
             foreach (DirectoryInfo d in dirsToCopy)
@@ -114,6 +126,8 @@ public class BinariesRetriever
     {
         string sdkFilename = string.Empty;
 
+        // The nightly builds come in different formats, depending on the OS
+        // they are aimed for.
         switch (os)
         {
             case "linux":
@@ -133,6 +147,7 @@ public class BinariesRetriever
         string url = $"https://aka.ms/dotnet/7.0.1xx/daily/dotnet-sdk-{sdkFilename}";
         logger.Write($"\nDownloading latest {os.Capitalize()} .NET nightly build...\n");
 
+        // Download and extract the bundled zip or tar.
         var webClient = new WebClient();
         webClient.DownloadFile(url, $"{destPath}/dotnet-sdk-{sdkFilename}");
 

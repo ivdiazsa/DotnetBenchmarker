@@ -24,6 +24,10 @@ public partial class CompositesBuilder
 
     public void Run()
     {
+        // Define which platforms our given configurations are targeting.
+        // For example, we have no reason to build anything Windows-related if
+        // all configurations are targeting Linux. And therefore, we only would
+        // need Linux raw material.
         string[] osRequired = _configurations.Select(cfg => cfg.Os)
                                              .Distinct()
                                              .ToArray();
@@ -37,6 +41,7 @@ public partial class CompositesBuilder
             System.Environment.Exit(-1);
         }
 
+        // Get all stuff into place and build the composites or non-composites.
         var binRetriever = new BinariesRetriever();
         binRetriever.SearchAndFetchRuntimes(_runtimes, _logger);
         binRetriever.SearchAndFetchCrossgen2s(_crossgen2s, _logger);
@@ -81,6 +86,8 @@ public partial class CompositesBuilder
                 continue;
             }
 
+            // Get the resulting binaries path and check whether we need to
+            // (re)build or we are good to go.
             string osCode = config.Os.Substring(0, 3);
             string destPath = $"{Constants.ResourcesPath}/"
                             + $"{osCode}-output-{config.BuildResultsName}";
@@ -93,6 +100,14 @@ public partial class CompositesBuilder
                 continue;
             }
 
+            // This handles the special case of requesting partial composites
+            // on Linux. This code block is simpler than it looks btw.
+
+            // The app receives text files with a list of assemblies the user
+            // wants to partial composite. Since it might come from wherever, 
+            // like the runtime and crossgen2 builds, we copy it to our
+            // Resources folder, so the Docker container can find it.
+
             if (buildParams.IsPartialComposites()
                 && config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
             {
@@ -100,6 +115,9 @@ public partial class CompositesBuilder
                 string aspAssembliesFile = Path.GetFileName(buildParams.PartialAspComposites);
                 string copyDest = string.Empty;
 
+                // Might be useful to stop if the partial composites list file(s)
+                // are not found, rather than fail silently and yield incorrect
+                // results at the end.
                 if (File.Exists(buildParams.PartialFxComposites))
                 {
                     copyDest = Path.Combine(Constants.ResourcesPath, fxAssembliesFile);
@@ -115,6 +133,7 @@ public partial class CompositesBuilder
                 }
             }
 
+            // Apply crossgen2!
             if (config.Os.Equals("linux", StringComparison.OrdinalIgnoreCase))
                 LinuxCrossgen2er.Apply(config, _logger);
 
@@ -133,6 +152,8 @@ public partial class CompositesBuilder
         if (!Directory.Exists(path))
             return false;
 
+        // We will assume that if these two dll's are present, then the build
+        // is fine to use :)
         return (File.Exists($"{path}/System.Private.CoreLib.dll")
              && File.Exists($"{path}/System.Runtime.dll"));
     }

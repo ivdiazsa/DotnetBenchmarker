@@ -21,6 +21,8 @@ public class OutputProcessor
 
     public OutputProcessor(string inputFile, string? outputFile = null)
     {
+        // We might want to save the processed numbers to a file, or simply
+        // print them to the console.
         if (string.IsNullOrEmpty(outputFile))
             _streamWriter = Console.Out;
         else
@@ -30,11 +32,14 @@ public class OutputProcessor
         _runResults = JsonSerializer.Deserialize<ResultsDictionary>(rawJson)!;
     }
 
+    // Don't leak memory :)
     ~OutputProcessor()
     {
         _streamWriter.Close();
     }
 
+    // This function will eventually support us passing it any arbitrary function
+    // we might write for different ways of processing the data.
     public void ComputeReport(params string[] fieldsToFilter)
     {
         ExampleReportFunc(fieldsToFilter);
@@ -49,6 +54,8 @@ public class OutputProcessor
             return ;
         }
 
+        // This is currently defaulting to the Table Formatter. We will add
+        // the option once we add more ways to show the results (e.g. CSV).
         DataFormatter<float> formatter = new TableFormatter<float>(_processedData);
         _streamWriter.Write("\n");
         _streamWriter.WriteLine(formatter.Draw());
@@ -62,6 +69,7 @@ public class OutputProcessor
         // One column per metric.
         int columns = fieldsToFilter.Length;
 
+        // Will document this code later.
         _processedData = new BestTable<float>(rows, columns);
         int configNo = 0;
 

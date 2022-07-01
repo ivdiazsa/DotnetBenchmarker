@@ -15,6 +15,7 @@
 // 6) Skipping of configuration binaries generation when they are actually there.
 // 7) Full code documentation (Both apps).
 // 8) Development of BestTable's modes.
+// 9) Differentiation of Framework, Aspnet, or both when building non-composites.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -37,7 +38,8 @@ internal class DotnetBenchmarker
 
         if (optsBank.BuildOnly)
         {
-            System.Console.WriteLine("Assemblies generated successfully. Exiting now...");
+            System.Console.WriteLine("\nAssemblies generated successfully."
+                                     + " Exiting now...");
             System.Environment.Exit(0);
         }
 
