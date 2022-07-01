@@ -14,6 +14,10 @@ public static class YamlConfigFileParser
                               .Build();
 
         AppDescription appDesc = deserializer.Deserialize<AppDescription>(yaml);
+
+        // From the YAML parsing, we only get the list of flags written down.
+        // We now need to initialize the *_PhaseDescription objects, using these
+        // lists of parameters to know which flags to set.
         foreach (Configuration cfg in appDesc.Configurations)
         {
             cfg.BuildPhase.InitFromParamsList();

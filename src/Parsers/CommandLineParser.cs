@@ -6,6 +6,9 @@ public static class CommandLineParser
 {
     public static void ParseIntoOptsBank(AppOptionsBank bank, string[] args)
     {
+        // Define the command-line flags we will support, along with their
+        // default values, in case they are not provided.
+
         var configFileOption = new Option<string>(
             name: "--config-file",
             description: "The YAML file with the configurations to execute.",
@@ -24,11 +27,13 @@ public static class CommandLineParser
             getDefaultValue: () => false
         );
 
+        // Add them to the handler.
         var rootCommand = new RootCommand();
         rootCommand.Add(configFileOption);
         rootCommand.Add(iterationsOption);
         rootCommand.Add(buildOnlyOption);
 
+        // Store the provided values into our AppOptionsBank :)
         rootCommand.SetHandler((configFileOptionValue,
                                 iterationsOptionValue,
                                 buildOnlyOptionValue) =>
@@ -39,6 +44,7 @@ public static class CommandLineParser
         },
         configFileOption, iterationsOption, buildOnlyOption);
 
+        // All the heavy lifting is done by the System.CommandLine library.
         rootCommand.Invoke(args);
     }
 }

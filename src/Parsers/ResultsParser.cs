@@ -45,15 +45,23 @@ public class ResultsParser
                                               .Select(line => line.Split("|"))
                                               .ToList();
 
+        // Add each metric with their corresponding value to this iteration's
+        // dictionary.
         foreach (string[] row in statsTable)
         {
             iterStats.Add(row[1].Trim(), row[2].Trim());
         }
+
+        // Add this iteration's dictionary to the list of this configuration's
+        // runs.
         _currentRunStats.Add(iterStats);
     }
 
     public void StoreRunResults()
     {
+        // Add the current configuration's results to the "global" dictionary,
+        // where all the numbers are stored. The configuration name is used
+        // as the key to know where these numbers came from.
         _allStats.Add(RunName, new RunStats(_currentRunStats));
         _currentRunStats.Clear();
     }
