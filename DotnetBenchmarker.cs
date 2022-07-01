@@ -13,9 +13,8 @@
 // 5) A configuration filter so that we don't have to edit the yaml config file
 //    every time we want to exclude or include (a) certain configuration(s).
 // 6) Skipping of configuration binaries generation when they are actually there.
-// 7) Full code documentation (Both apps).
-// 8) Development of BestTable's modes.
-// 9) Differentiation of Framework, Aspnet, or both when building non-composites.
+// 7) Development of BestTable's modes.
+// 8) Differentiation of Framework, Aspnet, or both when building non-composites.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
