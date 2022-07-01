@@ -75,7 +75,6 @@ public partial class CrankRunner
                         _logger.Write($"{line.CleanControlChars()}\n");
                         outputKeep.Add(line);
                     }
-
                     crank.WaitForExit();
                 }
                 resultsParser.ParseAndStoreIterationResults(j + 1, outputKeep);
