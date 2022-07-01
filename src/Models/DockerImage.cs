@@ -5,7 +5,6 @@ internal static partial class DockerLauncher
 {
     private struct DockerImage
     {
-        // Struct definition goes here.
         public DockerImage(string repo, string tag, string id, string size)
         {
             Repository = repo;

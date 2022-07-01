@@ -6,6 +6,8 @@ using System.Text;
 // Class: RunPhaseDescription
 public class RunPhaseDescription
 {
+    // Same deal as with the BuildPhaseDescription. This Params list allows us
+    // to write in list forms the parameters in the YAML file.
     public List<string> Params { get; set; }
 
     public bool AppR2R { get; set; }

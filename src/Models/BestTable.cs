@@ -13,7 +13,6 @@ public class BestTable<T>
         WithLabels
     }
 
-    // Implement the wrapper class here :)
     public int Rows { get; set; }
     public int Columns { get; set; }
     public string[]? Headers { get; set; }
@@ -26,6 +25,12 @@ public class BestTable<T>
 #pragma warning disable CS0414
     private TableMode _workMode;
 #pragma warning restore CS0414
+
+    // To explain it simply, this class treats the table's contents separately
+    // from the headers, footers, and side row labels you might want to add.
+    // This is first, to be able to view the table data from different perspectives,
+    // and second, to not have to be tied to the "string" type, since we will
+    // possibly and likely want to do numerical operations with the table's contents.
 
     public BestTable(int rows, int columns, string[]? headers = null,
                      string[]? footers = null, string[]? sides = null)
@@ -48,6 +53,7 @@ public class BestTable<T>
     // Got this crazy idea of being able to work with the table, alongside
     // its headers, footers, and side labels together as a single entity,
     // or separately. Will implement it for funsies as I get the time to do so.
+
     public void UseDataView() => _workMode = TableMode.DataOnly;
     public void UseFullView() => _workMode = TableMode.Full;
     public void UseHeadersView() => _workMode = TableMode.WithHeaders;

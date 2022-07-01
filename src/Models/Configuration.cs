@@ -2,8 +2,6 @@
 using System.IO;
 
 // Class: Configuration
-// Might be worth experimenting with an abstract base class, since both,
-// Build and Run Phases Descriptors have very mirror-like functionality.
 public class Configuration
 {
     public string Name { get; set; }

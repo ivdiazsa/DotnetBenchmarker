@@ -6,7 +6,10 @@ using System.Text;
 // Class: BuildPhaseDescription
 public class BuildPhaseDescription
 {
+    // This Params list allows us to write in list forms the parameters in
+    // the YAML file. This is required by YAMLDotNet, which we use to parse it.
     public List<string> Params { get; set; }
+
     public string PartialFxComposites { get; set; }
     public string PartialAspComposites { get; set; }
 
@@ -41,8 +44,15 @@ public class BuildPhaseDescription
         }
     }
 
+    // Depending on what kind of binaries this phase's owning configuration will
+    // produce, we will have to label them differently. This is to be able to
+    // determine later on (see Components/CompositesBuilder.cs for more details)
+    // whether we already have built this specific kind of assemblies, and
+    // in general for clarity in the logging :)
+
     public string FxResultName()
     {
+        // No need to calculate it more than once :)
         if (!string.IsNullOrEmpty(_fxResultName))
             return _fxResultName;
         
@@ -68,6 +78,8 @@ public class BuildPhaseDescription
                 resultNameSb.Append("-aspnet");
         }
 
+        // We currently use the partial composites list filename as part of the
+        // label to differentiate among them and full composites builds.
         if (IsPartialComposites())
         {
             var fxPartials = System.IO.Path.GetFileNameWithoutExtension(PartialFxComposites);
