@@ -95,14 +95,24 @@ public partial class CrankRunner
         string osCode = config.Os.Substring(0, 3);
         RunPhaseDescription runEnv = config.RunPhase;
 
-        cmdSb.Append($" --config {config.Scenario}");
+        cmdSb.AppendFormat(" --config {0}", config.Scenario);
 
         cmdSb.Append(" --scenario plaintext");
-        cmdSb.Append($" --profile aspnet-citrine-{osCode}");
-        cmdSb.Append($" --{appName}.framework net7.0");
+        cmdSb.AppendFormat(" --profile aspnet-citrine-{0}", osCode);
+        cmdSb.AppendFormat(" --{0}.framework net7.0", appName);
 
-        cmdSb.Append($" --{appName}.buildArguments"
-                   + $" -p:PublishReadyToRun={runEnv.AppR2R.ToString()}");
+        cmdSb.AppendFormat(" --{0}.buildArguments"
+                         + " -p:PublishReadyToRun={1}",
+                           appName,
+                           runEnv.AppR2R.ToString());
+
+        if (config.BuildPhase.UseAvx2)
+        {
+            cmdSb.AppendFormat(" --{0}.buildArguments"
+                             + " -p:PublishReadyToRunCrossgen2ExtraArgs="
+                             + "--instruction-set:avx2",
+                               appName);
+        }
 
         // Since the main use case of this app is to compare different benchmarks,
         // we should always start from the same sources. If processing was done,
@@ -111,8 +121,8 @@ public partial class CrankRunner
 
         if (config.BuildPhase.NeedsRecompilation())
         {
-            cmdSb.Append($" --{appName}.options.outputFiles"
-                       + $" {config.ProcessedAssembliesPath}/*");
+            cmdSb.AppendFormat(" --{0}.options.outputFiles {1}/*",
+                               appName, config.ProcessedAssembliesPath);
         }
         else
         {
@@ -126,15 +136,16 @@ public partial class CrankRunner
                 if (string.IsNullOrEmpty(path))
                     continue;
 
-                cmdSb.Append($" --{appName}.options.outputFiles {path}/*");
+                cmdSb.AppendFormat(" --{0}.options.outputFiles {1}/*",
+                                   appName, path);
             }
         }
 
-        cmdSb.Append($" --{appName}.environmentVariables"
-                   + $" COMPlus_ReadyToRun={(runEnv.EnvReadyToRun ? "1" : "0")}");
+        cmdSb.AppendFormat(" --{0}.environmentVariables COMPlus_ReadyToRun={1}",
+                           appName, runEnv.EnvReadyToRun ? "1" : "0");
 
-        cmdSb.Append($" --{appName}.environmentVariables"
-                   + $" COMPlus_TieredCompilation={(runEnv.EnvTieredCompilation ? "1" : "0")}");
+        cmdSb.AppendFormat(" --{0}.environmentVariables COMPlus_TieredCompilation={1}",
+                           appName, runEnv.EnvTieredCompilation ? "1" : "0");
 
         return cmdSb.ToString();
     }
