@@ -6,15 +6,14 @@
 // NEXT STEPS:
 // 1) Support of ComputeReport() in OutputProcessor to run any function passed
 //    to it, rather than "hard-coding" it in its source file.
-// 2) Fix of non-composite AVX2 processing (Almost there. Only ASP.NET missing).
-// 3) Support of partial composites (Doesn't work...).
-// 4) Perhaps a safety block to finish processing the good run results whenever
+// 2) Support of partial composites (Doesn't work...).
+// 3) Perhaps a safety block to finish processing the good run results whenever
 //    a faulty one was encountered.
-// 5) A configuration filter so that we don't have to edit the yaml config file
+// 4) A configuration filter so that we don't have to edit the yaml config file
 //    every time we want to exclude or include (a) certain configuration(s).
-// 6) Skipping of configuration binaries generation when they are actually there.
-// 7) Development of BestTable's modes.
-// 8) Differentiation of Framework, Aspnet, or both when building non-composites.
+// 5) Development of BestTable's modes.
+// 6) Differentiation of Framework, Aspnet, or both when building non-composites.
+// 7) Add support for global flags.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING

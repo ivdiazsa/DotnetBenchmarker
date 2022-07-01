@@ -23,9 +23,7 @@ public class BinariesRetriever
             string srcPath = string.Empty;
             string destPath = $"{Constants.ResourcesPath}/Dotnet{os.Capitalize()}/dotnet7.0";
         
-            // TODO: Add full check to skip if we already have the runtime binaries
-            //       for this OS :)
-            if (Directory.Exists(destPath))
+            if (HasValidRuntime($"{destPath}/shared"))
             {
                 logger.Write("\nFound a ready to use .NET runtime for"
                             + $" {os.Capitalize()}. Continuing...\n");
@@ -37,7 +35,6 @@ public class BinariesRetriever
             {
                 // If a path with the runtime binaries was provided, then we only
                 // ought to copy them to our Resources location.
-
                 srcPath = runtimeDesc.Value.BinariesPath;
                 destPath += "/shared"; // Match the nightly build layout.
 
@@ -73,9 +70,7 @@ public class BinariesRetriever
             string srcPath = crossgen2Desc.Value.Path;
             string destPath = $"{Constants.ResourcesPath}/Crossgen2{os.Capitalize()}";
 
-            // TODO: Add full check to skip if we already have the crossgen2 binaries
-            //       for this OS :)
-            if (Directory.Exists(destPath))
+            if (HasValidCrossgen2(destPath))
             {
                 logger.Write("\nFound a ready to use crossgen2 build for"
                             + $" {os.Capitalize()}. Continuing...\n");
@@ -93,6 +88,38 @@ public class BinariesRetriever
             CopyBinariesFromPath(srcPath, destPath, false);
             crossgen2Desc.Value.Path = destPath;
         }
+    }
+
+    private bool HasValidRuntime(string dir)
+    {
+        if (!Directory.Exists(dir))
+            return false;
+
+        // Since we don't know the structure of the runtime folder given to us
+        // beforehand, we have to search it all in its entirety to determine
+        // whether it's ready to use or not.
+
+        string[] coreLibDlls = Directory.GetFiles(dir, "System.Private.CoreLib.dll",
+                                                  SearchOption.AllDirectories);
+
+        string[] runtimeDlls = Directory.GetFiles(dir, "System.Runtime.dll",
+                                                  SearchOption.AllDirectories);
+
+        // We will assume that if these two dll's are present, then the provided
+        // runtime is fine to use :)
+        return !coreLibDlls.IsEmpty() && !runtimeDlls.IsEmpty();
+    }
+
+    private bool HasValidCrossgen2(string dir)
+    {
+        if (!Directory.Exists(dir))
+            return false;
+
+        // We will assume that if the dll and exe are present, then the crossgen2
+        // build is fine to use :)
+        return (File.Exists($"{dir}/crossgen2.dll")
+            && (File.Exists($"{dir}/crossgen2.exe")
+                || File.Exists($"{dir}/crossgen2")));
     }
 
     private void CopyBinariesFromPath(string srcPath, string destPath, bool recurse)
