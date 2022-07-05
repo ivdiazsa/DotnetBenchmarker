@@ -46,7 +46,7 @@ internal abstract class BaseCommandGenerator
         //       optimization data files.
         if (File.Exists($"{crossgenDir}/StandardOptimizationData.mibc"))
         {
-            Console.WriteLine("Will use StandardOptimizationData.mibc...");
+            Console.WriteLine("Will use StandardOptimizationData.mibc...\n");
             CommandSb.AppendFormat(" --mibc={0}/StandardOptimizationData.mibc",
                                     crossgenDir);
         }
@@ -125,6 +125,18 @@ internal abstract class CompositeCommandGenerator : BaseCommandGenerator
         CommandSb.AppendFormat(" --out={0}/{1}.r2r.dll",
                                Paths.output,
                                CompositeFile);
+        Console.WriteLine($"\n{CommandSb.ToString()}\n");
+    }
+
+    protected void GeneratePartialsCmdSection(StringBuilder assembliesSb,
+                                              string assembliesListFile,
+                                              string assembliesOrigin)
+    {
+        string[] toComposite = File.ReadAllLines(assembliesListFile);
+        foreach (var assembly in toComposite)
+        {
+            assembliesSb.AppendFormat(" {0}/{1}", assembliesOrigin, assembly);
+        }
     }
 }
 
@@ -144,11 +156,17 @@ internal class FxCompositeCommandGenerator : CompositeCommandGenerator
         Console.WriteLine("\nCompiling Framework Composites...");
 
         var assembliesToCompositeSb = new StringBuilder();
+        var requiredReferences = new List<string>(2);
 
         if (Env.RequestedPartialFxComposites())
         {
-            Console.WriteLine("Partial Framework Under Construction!");
-            Environment.Exit(3);
+            Console.WriteLine("Partial framework composites requested. Reading"
+                            + $" them from {Env.PartialFrameworkComposites}...");
+
+            requiredReferences.Add(Paths.fx);
+            GeneratePartialsCmdSection(assembliesToCompositeSb,
+                                       Env.PartialFrameworkComposites!,
+                                       Paths.fx);
         }
         else
         {
@@ -162,13 +180,24 @@ internal class FxCompositeCommandGenerator : CompositeCommandGenerator
 
             if (Env.RequestedPartialAspnetComposites())
             {
-                Console.WriteLine("Partial ASP.NET Bundle Under Construction!");
-                Environment.Exit(3);
+                Console.WriteLine("Partial Bundled ASP.NET composites requested."
+                                + " Reading them from "
+                                + $"{Env.PartialAspnetComposites}...");
+
+                requiredReferences.Add(Paths.asp);
+                GeneratePartialsCmdSection(assembliesToCompositeSb,
+                                           Env.PartialAspnetComposites!,
+                                           Paths.asp);
             }
             else
             {
                 assembliesToCompositeSb.AppendFormat(" {0}/*.dll", Paths.asp);
             }
+        }
+
+        foreach (string refy in requiredReferences)
+        {
+            CommandSb.AppendFormat(" --reference={0}/*.dll", refy);
         }
         GenerateCmdFooter(assembliesToCompositeSb.ToString());
     }
@@ -193,8 +222,15 @@ internal class AspCompositeCommandGenerator : CompositeCommandGenerator
 
         if (Env.RequestedPartialAspnetComposites())
         {
-            Console.WriteLine("Partial ASP.NET Under Construction!");
-            Environment.Exit(3);
+            Console.WriteLine("Partial ASP.NET composites requested."
+                            + " Reading them from "
+                            + $"{Env.PartialAspnetComposites}...");
+
+            GeneratePartialsCmdSection(assembliesToCompositeSb,
+                                       Env.PartialAspnetComposites!,
+                                       Paths.asp);
+
+            CommandSb.AppendFormat(" --reference={0}/*.dll", Paths.asp);
         }
         else
         {

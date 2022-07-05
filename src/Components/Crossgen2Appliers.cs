@@ -55,11 +55,25 @@ public partial class CompositesBuilder
             BuildPhaseDescription buildMode = config.BuildPhase;
             var powershellArgsSb = new StringBuilder();
 
+            string partialAspnetComposites =
+                string.IsNullOrEmpty(buildMode.PartialAspComposites)
+                    ? "0" : buildMode.PartialAspComposites;
+
+            string partialFrameworkComposites =
+                string.IsNullOrEmpty(buildMode.PartialFxComposites)
+                    ? "0" : buildMode.PartialFxComposites;
+
             powershellArgsSb.AppendFormat("{0}/BuildComposites.ps1",
                                           Constants.ResourcesPath);
 
             powershellArgsSb.AppendFormat(" -CompositesType {0}",
                                           config.BuildResultsName);
+
+            powershellArgsSb.AppendFormat(" -PartialAspnetComposites {0}",
+                                          partialAspnetComposites);
+
+            powershellArgsSb.AppendFormat(" -PartialFrameworkComposites {0}",
+                                          partialFrameworkComposites);
 
             powershellArgsSb.AppendFormat(" -DotnetVersionNumber 7.0");
 

@@ -46,17 +46,28 @@ public partial class BuildEngine
             CompositeCommandGenerator gen;
 
             if (engine.FrameworkComposite)
+            {
                 gen = new FxCompositeCommandGenerator(enginePaths, engine, TargetOS);
+                gen.GenerateCmd();
+                RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+            }
 
-            else if (engine.AspnetComposite || !engine.BundleAspnet)
+            if (engine.AspnetComposite && !engine.BundleAspnet)
+            {
                 gen = new AspCompositeCommandGenerator(enginePaths, engine, TargetOS);
+                gen.GenerateCmd();
+                RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+            }
 
+            // TODO: Show the configuration's characteristics so the user can
+            //       easily know which one went wrong.
             else
+            {
                 throw new ArgumentException("Could not process this given configuration"
                                             + " for composites generation.");
+            }
 
-            gen.GenerateCmd();
-            RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
+            CopyRemainingBinaries(enginePaths.fx, enginePaths.asp, enginePaths.output);
         }
 
         private void ProcessIndividualAssemblies(NormalCommandGenerator gen,
@@ -93,6 +104,7 @@ public partial class BuildEngine
         private void CopyRemainingBinaries(string netCorePath, string aspNetPath,
                                            string resultsPath)
         {
+            Console.Write("\n");
             MergeFolders(netCorePath, resultsPath);
             MergeFolders(aspNetPath, resultsPath);
         }
