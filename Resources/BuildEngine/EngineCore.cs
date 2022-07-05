@@ -59,14 +59,6 @@ public partial class BuildEngine
                 RunCrossgen2(gen.GetCmd(), enginePaths.crossgen2exe);
             }
 
-            // TODO: Show the configuration's characteristics so the user can
-            //       easily know which one went wrong.
-            else
-            {
-                throw new ArgumentException("Could not process this given configuration"
-                                            + " for composites generation.");
-            }
-
             CopyRemainingBinaries(enginePaths.fx, enginePaths.asp, enginePaths.output);
         }
 
