@@ -5,16 +5,20 @@ using System.Collections.Generic;
 // Class: AppOptionsBank
 public class AppOptionsBank
 {
-    public string ConfigFile { get; set; }
     public int Iterations { get; set; }
     public bool BuildOnly { get; set; }
+    public string ConfigFile { get; set; }
+    public string OutputFile { get; set; }
+    public string[] OutputFormat { get; set; }
     public AppDescription AppDesc { get; set; }
 
     public AppOptionsBank()
     {
-        ConfigFile = String.Empty;
         Iterations = 1;
         BuildOnly = false;
+        ConfigFile = String.Empty;
+        OutputFile = string.Empty;
+        OutputFormat = Array.Empty<string>();
         AppDesc = new AppDescription();
     }
 

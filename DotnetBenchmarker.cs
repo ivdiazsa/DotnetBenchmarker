@@ -6,14 +6,14 @@
 // NEXT STEPS:
 // 1) Support of ComputeReport() in OutputProcessor to run any function passed
 //    to it, rather than "hard-coding" it in its source file.
-// 2) Support of partial composites (Doesn't work...).
-// 3) Perhaps a safety block to finish processing the good run results whenever
+// 2) Perhaps a safety block to finish processing the good run results whenever
 //    a faulty one was encountered.
-// 4) A configuration filter so that we don't have to edit the yaml config file
+// 3) A configuration filter so that we don't have to edit the yaml config file
 //    every time we want to exclude or include (a) certain configuration(s).
-// 5) Development of BestTable's modes.
-// 6) Differentiation of Framework, Aspnet, or both when building non-composites.
-// 7) Add support for global flags.
+// 4) Development of BestTable's modes.
+// 5) Differentiation of Framework, Aspnet, or both when building non-composites.
+// 6) Add support for global flags.
+// 7) Have BestTable be an enumerable data type.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -46,7 +46,10 @@ internal class DotnetBenchmarker
         runner.Execute();
 
         var output = new OutputProcessor($"{Constants.ResultsPath}/"
-                                       + $"results-{Constants.Timestamp}.json");
+                                       + $"results-{Constants.Timestamp}.json",
+                                         optsBank.OutputFile,
+                                         optsBank.OutputFormat);
+
         output.ComputeReport("Build Time (ms)", "Start Time (ms)");
         output.PrintToStream();
     }

@@ -60,7 +60,6 @@ public class BestTable<T>
     public void UseFootersView() => _workMode = TableMode.WithFooters;
     public void UseLabelsView() => _workMode = TableMode.WithLabels;
 
-    // TODO: Implement the rest of the indexing modes.
     public T this[int rowIndex, int colIndex]
     {
         get
@@ -72,6 +71,11 @@ public class BestTable<T>
         {
             _data[rowIndex][colIndex] = value;
         }
+    }
+
+    public T[] this[int index]
+    {
+        get { return _data[index]; }
     }
 
     // TODO: Implement the methods to switch the table's work modes.

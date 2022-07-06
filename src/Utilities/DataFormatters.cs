@@ -136,7 +136,22 @@ public class CsvFormatter<T> : DataFormatter<T>
 
     public override string Draw()
     {
-        System.Console.WriteLine("CSV Draw() Under Construction!");
-        return string.Empty;
+        var csvSb = new StringBuilder();
+
+        // Just like our friend the Table Formatter does, we'll be assuming
+        // our BestTable friend has headers and side labels here. Will have to
+        // handle other cases some other time.
+        csvSb.AppendFormat("{0}\n", string.Join(',', DataTable.Headers!));
+
+        // Since we only want to get all the values separated by commas, our
+        // friend string.Join() can do it in a concise and efficient way.
+        for (int i = 0; i < DataTable.Rows; i++)
+        {
+            T[] row = DataTable[i];
+            csvSb.AppendFormat("{0},{1}\n", DataTable.SideLabels![i],
+                               string.Join(',', row.Select(column =>
+                                                           column!.ToString())));
+        }
+        return csvSb.ToString();
     }
 }

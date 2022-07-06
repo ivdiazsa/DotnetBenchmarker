@@ -18,8 +18,9 @@ public class OutputProcessor
     private ResultsDictionary _runResults;
     private TextWriter _streamWriter;
     private BestTable<float>? _processedData;
+    private string[] _formats;
 
-    public OutputProcessor(string inputFile, string? outputFile = null)
+    public OutputProcessor(string inputFile, string outputFile, string[] formats)
     {
         // We might want to save the processed numbers to a file, or simply
         // print them to the console.
@@ -27,6 +28,13 @@ public class OutputProcessor
             _streamWriter = Console.Out;
         else
             _streamWriter = new StreamWriter(outputFile);
+
+        // Store the requested output formats given, in order to use them later.
+        // If none are given, we will default to our table format.
+        if (formats.IsEmpty())
+            _formats = new string[] { "table" };
+        else
+            _formats = formats;
 
         string rawJson = File.ReadAllText(inputFile);
         _runResults = JsonSerializer.Deserialize<ResultsDictionary>(rawJson)!;
@@ -54,11 +62,25 @@ public class OutputProcessor
             return ;
         }
 
-        // This is currently defaulting to the Table Formatter. We will add
-        // the option once we add more ways to show the results (e.g. CSV).
-        DataFormatter<float> formatter = new TableFormatter<float>(_processedData);
-        _streamWriter.Write("\n");
-        _streamWriter.WriteLine(formatter.Draw());
+        // Print the final results numbers :)
+        DataFormatter<float> formatter;
+
+        foreach (var item in _formats)
+        {
+            if (item.Equals("table", StringComparison.OrdinalIgnoreCase))
+            {
+                formatter = new TableFormatter<float>(_processedData);
+                _streamWriter.Write("\n");
+                _streamWriter.WriteLine(formatter.Draw());
+            }
+
+            if (item.Equals("csv", StringComparison.OrdinalIgnoreCase))
+            {
+                formatter = new CsvFormatter<float>(_processedData);
+                _streamWriter.Write("\n");
+                _streamWriter.WriteLine(formatter.Draw());
+            }
+        }
     }
 
     public void ExampleReportFunc(params string[] fieldsToFilter)
