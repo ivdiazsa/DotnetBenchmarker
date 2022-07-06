@@ -12,8 +12,8 @@
 //    every time we want to exclude or include (a) certain configuration(s).
 // 4) Development of BestTable's modes.
 // 5) Differentiation of Framework, Aspnet, or both when building non-composites.
-// 6) Add support for global flags.
-// 7) Have BestTable be an enumerable data type.
+// 6) Have BestTable be an enumerable data type.
+// 7) Documentation: README and friends.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
