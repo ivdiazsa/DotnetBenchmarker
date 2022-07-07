@@ -126,3 +126,57 @@ properties you can use are the following:
 
 **NOTE**: Check the _NOTE_ at the end of the runtimes' section. The same
           applies to the crossgen2's.
+
+#### The Configurations
+
+In this section, you will enlist all the configurations you want to build
+and/or run. There are currently a handful of parameters supported to describe
+it, which are explained down below:
+
+- `name`: As it sounds, this is just a label to help you identify each configuration
+          in your results, logs, and so on.
+
+- `os`: Which platform this configuration will be built and run on.
+
+- `scenario`: Link to the yml file describing the tests that crank will run. It
+              can be a local file, or a link to a raw file online.
+
+- `buildPhase`: Parameters to be considered and applied when building the binaries.
+                This is explained in detail in its corresponding section below.
+
+- `runPhase`: Parameters to be considered and applied when running the app with crank.
+              This is explained in detail in its corresponding section below.
+
+##### The Build Phase
+
+This subsection will contain all the key parameters on how to build the
+configuration. Here are the currently supported arguments:
+
+- `partialFxComposites`: Path to the file with the list of Netcore assemblies
+                         you wish to partially composite.
+
+- `partialAspComposites`: Path to the file with the list of ASP.NET assemblies
+                          you wish to partially composite.
+
+- `params`: A bullet list of the properties you wish to use to build. Here are
+            the possible values you can add here:
+  - frameworkcomposite
+  - bundleaspnet
+  - aspnetcomposite
+  - useavx2
+
+Something important to mention regarding the partial composites lists, is they
+require a very specific formatting. Nothing too fancy though. Just one assembly
+per line, no bullets or anything of the like, and just the filename. The tool
+automatically fills the full paths as necessary.
+
+##### The Run Phase
+
+This subsection will contain all the key parameters on how to run the
+configuration. Here are the currently supported arguments:
+
+- `params`: A bullet list of the properties you wish to use to run. Here are
+            the possible values you can add here:
+  - appr2r
+  - envreadytorun
+  - envtieredcompilation
