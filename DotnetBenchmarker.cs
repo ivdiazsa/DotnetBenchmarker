@@ -14,6 +14,7 @@
 // 5) Differentiation of Framework, Aspnet, or both when building non-composites.
 // 6) Have BestTable be an enumerable data type.
 // 7) Documentation: README and friends.
+// 8) Handle Runtime Repo paths to fetch the runtime binaries.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
