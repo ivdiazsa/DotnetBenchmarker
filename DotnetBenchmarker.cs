@@ -12,9 +12,11 @@
 //    every time we want to exclude or include (a) certain configuration(s).
 // 4) Development of BestTable's modes.
 // 5) Differentiation of Framework, Aspnet, or both when building non-composites.
-// 6) Have BestTable be an enumerable data type.
-// 7) Documentation: README and friends.
-// 8) Handle Runtime Repo paths to fetch the runtime binaries.
+// 6) Complete the README.
+// 7) Add ASP.NET nightly build when giving just a runtime repo path.
+// 8) Support running multiple scenarios in one go.
+// 9) Add support to use the ASP.NET repo instead.
+// 10) Add support to not have to specify Crossgen2 when a runtime repo is given.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING

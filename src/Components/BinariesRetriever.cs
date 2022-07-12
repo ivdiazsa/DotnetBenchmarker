@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 // using System.Net.Http;
+using System.Text.RegularExpressions;
 
 // Class: BinariesRetriever
 public class BinariesRetriever
@@ -31,6 +33,9 @@ public class BinariesRetriever
                 continue;
             }
 
+            if (!Directory.Exists(destPath))
+                Directory.CreateDirectory(destPath);
+
             if (!string.IsNullOrEmpty(runtimeDesc.Value.BinariesPath))
             {
                 // If a path with the runtime binaries was provided, then we only
@@ -45,7 +50,8 @@ public class BinariesRetriever
             }
             else if (!string.IsNullOrEmpty(runtimeDesc.Value.RepoPath))
             {
-                // TODO: Handle getting the stuff from the runtime repo.
+                CopyBinariesFromRuntimeRepo(runtimeDesc.Value.RepoPath,
+                                            destPath, os, logger);
             }
             else
             {
@@ -77,6 +83,9 @@ public class BinariesRetriever
                 crossgen2Desc.Value.Path = destPath;
                 continue;
             }
+
+            if (!Directory.Exists(destPath))
+                Directory.CreateDirectory(destPath);
 
             logger.Write($"Copying crossgen2 binaries from {srcPath}"
                         + $" to {destPath}...\n");
@@ -128,9 +137,6 @@ public class BinariesRetriever
         DirectoryInfo[] dirsToCopy = srcDirInfo.GetDirectories();
         FileInfo[] filesToCopy = srcDirInfo.GetFiles();
 
-        if (!Directory.Exists(destPath))
-            Directory.CreateDirectory(destPath);
-
         foreach (FileInfo f in filesToCopy)
         {
             string destFilepath = Path.Combine(destPath, f.Name);
@@ -146,6 +152,40 @@ public class BinariesRetriever
                 CopyBinariesFromPath(d.FullName, destSubDirPath, true);
             }
         }
+    }
+
+    private void CopyBinariesFromRuntimeRepo(string repoPath, string destPath,
+                                             string os, MultiIOLogger logger)
+    {
+        // The Shipping path in the runtime repo contains several files with
+        // different flavors of the runtime, including the "default" one we
+        // want to use here. It's equivalent as if you were able to get a nightly
+        // build, but using your own version of the repo, instead of the official one.
+        string shippingPath = $"{repoPath}/{Constants.RuntimeRepoShippingPath}";
+        string zipNamePattern = @"dotnet-runtime-(\d)(\.\d){2}-dev";
+
+        string extension = os.Equals("windows", StringComparison.OrdinalIgnoreCase)
+                           ? "*.zip"
+                           : "*.tar.gz";
+
+        string binsCompressed = Directory.GetFiles(shippingPath, extension)
+                                         .FirstOrDefault(z => Regex.IsMatch(z, zipNamePattern),
+                                                         string.Empty);
+
+        logger.Write($"\nUsing Runtime Repo located in {repoPath}...\n");
+
+        if (string.IsNullOrEmpty(binsCompressed))
+        {
+            throw new FileNotFoundException($"No runtime dev zip found in {shippingPath}"
+                                            + " Make sure you built the packs and"
+                                            + " try again.");
+        }
+
+        logger.Write($"Copying {binsCompressed}...\n");
+        File.Copy(binsCompressed, Path.Combine(destPath, Path.GetFileName(binsCompressed)));
+
+        logger.Write($"Extracting {os.Capitalize()} runtime dev build...\n");
+        ExtractCompressedFile(binsCompressed, destPath);
     }
 
     private void DownloadNightlyRuntime(string destPath, string os,
@@ -168,32 +208,18 @@ public class BinariesRetriever
                                                   + " How did this get here?");
         }
 
-        if (!Directory.Exists(destPath))
-            Directory.CreateDirectory(destPath);
-
         string url = $"https://aka.ms/dotnet/7.0.1xx/daily/dotnet-sdk-{sdkFilename}";
-        logger.Write($"\nDownloading latest {os.Capitalize()} .NET nightly build...\n");
+        logger.Write($"\nDownloading latest {os.Capitalize()} .NET SDK nightly build...\n");
 
         // Download and extract the bundled zip or tar.
         var webClient = new WebClient();
         webClient.DownloadFile(url, $"{destPath}/dotnet-sdk-{sdkFilename}");
 
-        string srcDir = Environment.CurrentDirectory;
-        Directory.SetCurrentDirectory(destPath);
-        logger.Write($"Extracting latest {os.Capitalize()} .NET nightly build...\n");
+        logger.Write($"Extracting latest {os.Capitalize()} .NET SDK nightly build...\n");
+        ExtractCompressedFile($"dotnet-sdk-{sdkFilename}", destPath);
 
-        using (Process tar = new Process())
-        {
-            var startInfo = new ProcessStartInfo();
-            tar.StartInfo = startInfo.BaseTemplate("tar",
-                                                  $"-xf dotnet-sdk-{sdkFilename}");
-            tar.Start();
-            tar.WaitForExit();
-        }
-        Directory.SetCurrentDirectory(srcDir);
-
-        // Will use the code below instead when I finally figure out how the
-        // stupid async commands work. They just ignore me at the moment.
+        // Will use the code below instead when I finally figure out how to get
+        // the stupid async commands work. They just ignore me at the moment.
 
         // // The reason we are using a 'using' statement here is because we don't
         // // need to download any other stuff throughout the app's lifespan. If
@@ -206,5 +232,16 @@ public class BinariesRetriever
         // {
         //     await s.CopyToAsync(fs);
         // }
+    }
+
+    private void ExtractCompressedFile(string zipTarName, string dest)
+    {
+        using (Process tar = new Process())
+        {
+            var startInfo = new ProcessStartInfo();
+            tar.StartInfo = startInfo.BaseTemplate("tar", $"-xf {zipTarName} -C {dest}");
+            tar.Start();
+            tar.WaitForExit();
+        }
     }
 }
