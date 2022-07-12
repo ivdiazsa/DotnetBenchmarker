@@ -88,6 +88,11 @@ So basically, the configuration file is comprised of three main sections:
 - Crossgen2's
 - Configurations
 
+Some fields are paths to somewhere. It is highly recommended you write the
+absolute path, but if you prefer/want/need to use relative paths, keep in mind
+they must be relative to this repo's root (assuming you use the cmd script to
+run it as highly recommended).
+
 #### The Runtimes
 
 In this section, you will describe where the unprocessed runtime binaries will
@@ -123,6 +128,9 @@ properties you can use are the following:
         currently supported.
 
 - `binariesPath`: The folder where you have your Crossgen2 build.
+
+If you specified a runtime repo earlier, then you can omit the crossgen2 section
+for that specific OS. The tool will search the repo and get it from there.
 
 **NOTE**: Check the _NOTE_ at the end of the runtimes' section. The same
           applies to the crossgen2's.

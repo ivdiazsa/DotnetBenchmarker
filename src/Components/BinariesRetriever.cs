@@ -48,16 +48,29 @@ public class BinariesRetriever
 
                 CopyBinariesFromPath(srcPath, destPath, true);
             }
-            else if (!string.IsNullOrEmpty(runtimeDesc.Value.RepoPath))
-            {
-                CopyBinariesFromRuntimeRepo(runtimeDesc.Value.RepoPath,
-                                            destPath, os, logger);
-            }
             else
             {
-                // No binaries given. Download a nightly build from the
-                // installer repo in this case.
+                // Download a nightly build from the installer repo.
                 DownloadNightlyRuntime(destPath, os, logger);
+
+                // If a runtime repo path was specified, then fetch those
+                // binaries as well. The reason we also downloaded the nightly
+                // build in this case, is to also have the ASP.NET core assemblies.
+
+                if (!string.IsNullOrEmpty(runtimeDesc.Value.RepoPath))
+                {
+                    CopyBinariesFromRuntimeRepo(runtimeDesc.Value.RepoPath,
+                                                destPath, os, logger);
+
+                    // Keep only the runtime repo netcore binaries.
+                    string[] netcoreBuilds = Directory.GetDirectories($"{destPath}/"
+                                                            + "shared/Microsoft.NETCore.App");
+                    foreach (var folder in netcoreBuilds)
+                    {
+                        if (!folder.Contains("dev"))
+                            Directory.Delete(folder, true);
+                    }
+                }
             }
 
             runtimeDesc.Value.BinariesPath = destPath;
@@ -216,15 +229,11 @@ public class BinariesRetriever
         webClient.DownloadFile(url, $"{destPath}/dotnet-sdk-{sdkFilename}");
 
         logger.Write($"Extracting latest {os.Capitalize()} .NET SDK nightly build...\n");
-        ExtractCompressedFile($"dotnet-sdk-{sdkFilename}", destPath);
+        ExtractCompressedFile($"{destPath}/dotnet-sdk-{sdkFilename}", destPath);
 
         // Will use the code below instead when I finally figure out how to get
         // the stupid async commands work. They just ignore me at the moment.
 
-        // // The reason we are using a 'using' statement here is because we don't
-        // // need to download any other stuff throughout the app's lifespan. If
-        // // that changes in the future, then we would take a more global approach
-        // // for the sake of conserving resources.
         // using (HttpClient webClient = new HttpClient())
         // using (Stream s = await webClient.GetStreamAsync(url))
         // using (FileStream fs = new FileStream($"{destPath}/{sdkFilename}",
@@ -234,12 +243,12 @@ public class BinariesRetriever
         // }
     }
 
-    private void ExtractCompressedFile(string zipTarName, string dest)
+    private void ExtractCompressedFile(string zipTar, string dest)
     {
         using (Process tar = new Process())
         {
             var startInfo = new ProcessStartInfo();
-            tar.StartInfo = startInfo.BaseTemplate("tar", $"-xf {zipTarName} -C {dest}");
+            tar.StartInfo = startInfo.BaseTemplate("tar", $"-xf {zipTar} -C {dest}");
             tar.Start();
             tar.WaitForExit();
         }
