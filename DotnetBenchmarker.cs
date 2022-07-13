@@ -4,17 +4,13 @@
 // This is our little script :)
 
 // NEXT STEPS:
-// 1) Support of ComputeReport() in OutputProcessor to run any function passed
-//    to it, rather than "hard-coding" it in its source file.
-// 2) Perhaps a safety block to finish processing the good run results whenever
-//    a faulty one was encountered.
-// 3) A configuration filter so that we don't have to edit the yaml config file
+// 1) A configuration filter so that we don't have to edit the yaml config file
 //    every time we want to exclude or include (a) certain configuration(s).
-// 4) Development of BestTable's modes.
-// 5) Differentiation of Framework, Aspnet, or both when building non-composites.
-// 6) Complete the README.
-// 7) Support running multiple scenarios in one go.
-// 8) Add support to use the ASP.NET repo instead.
+// 2) Development of BestTable's modes.
+// 3) Differentiation of Framework, Aspnet, or both when building non-composites.
+// 4) Complete the README.
+// 5) Support running multiple scenarios in one go.
+// 6) Add support to use the ASP.NET repo instead.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -51,7 +47,7 @@ internal class DotnetBenchmarker
                                          optsBank.OutputFile,
                                          optsBank.OutputFormat);
 
-        output.ComputeReport("Build Time (ms)", "Start Time (ms)");
+        output.ComputeReport(() => output.ExampleReportFunc("Build Time (ms)", "Start Time (ms)"));
         output.PrintToStream();
     }
 

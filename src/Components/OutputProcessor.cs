@@ -48,9 +48,9 @@ public class OutputProcessor
 
     // This function will eventually support us passing it any arbitrary function
     // we might write for different ways of processing the data.
-    public void ComputeReport(params string[] fieldsToFilter)
+    public void ComputeReport(Action reportFunction)
     {
-        ExampleReportFunc(fieldsToFilter);
+        reportFunction();
     }
 
     public void PrintToStream()
@@ -106,10 +106,7 @@ public class OutputProcessor
                 string metric = fieldsToFilter[fIndex];
 
                 if (!iter.ContainsKey(metric))
-                {
-                    throw new KeyNotFoundException($"The requested metric {metric}"
-                        + " was not found in the results JSON.");
-                }
+                    continue;
 
                 float value = Convert.ToSingle(iter[metric].Replace(",", ""));
                 _processedData[configNo, fIndex] += value;
