@@ -3,15 +3,6 @@
 // Class: DotnetBenchmarker
 // This is our little script :)
 
-// NEXT STEPS:
-// 1) A configuration filter so that we don't have to edit the yaml config file
-//    every time we want to exclude or include (a) certain configuration(s).
-// 2) Development of BestTable's modes.
-// 3) Differentiation of Framework, Aspnet, or both when building non-composites.
-// 4) Complete the README.
-// 5) Support running multiple scenarios in one go.
-// 6) Add support to use the ASP.NET repo instead.
-
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
 //          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL

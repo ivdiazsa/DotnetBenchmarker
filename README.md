@@ -188,3 +188,7 @@ configuration. Here are the currently supported arguments:
   - appr2r
   - envreadytorun
   - envtieredcompilation
+
+### Running the Benchmarker
+
+Section under construction!
