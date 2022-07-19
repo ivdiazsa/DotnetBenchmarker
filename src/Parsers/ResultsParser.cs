@@ -31,10 +31,12 @@ public class ResultsParser
         _allStats = new GlobalStats();
     }
 
-    public void ParseAndStoreIterationResults(int iterNum, List<string> iterOutput)
+    public void ParseAndStoreIterationResults(int iterNum, double assembliesSize,
+                                              List<string> iterOutput)
     {
         var iterStats = new Dictionary<string, string>();
         iterStats.Add("Iteration", iterNum.ToString());
+        iterStats.Add("Assemblies Size (KB)", assembliesSize.ToString());
 
         // Skip(2) is to just pass the table header. This will most likely be
         // changed when we implement more complex data processing, involving more

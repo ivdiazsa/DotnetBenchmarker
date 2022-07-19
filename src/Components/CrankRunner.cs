@@ -1,6 +1,7 @@
 // File: src/Components/CrankRunner.cs
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 // Class: CrankRunner
@@ -10,6 +11,8 @@ public partial class CrankRunner
     private List<Configuration> _configs;
     private int _iterations;
     private MultiIOLogger _logger;
+
+    private const int KB_SIZE = 1024;
 
     public CrankRunner(List<Configuration> configs, int numIters = 1)
     {
@@ -34,7 +37,7 @@ public partial class CrankRunner
         foreach (Configuration cfg in _configs)
         {
             string cmdArgs = GenerateCrankCmdArgs(cfg);
-            _cranks.Add(new CrankRun(cmdArgs, cfg.Name));
+            _cranks.Add(new CrankRun(cmdArgs, cfg.Name, cfg.ProcessedAssembliesPath));
         }
     }
 
@@ -52,6 +55,7 @@ public partial class CrankRunner
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
+            double outputSize = CalculateAssembliesSize(cr.OutputFiles);
             resultsParser.RunName = cr.Name;
 
             _logger.Write($"\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
@@ -77,7 +81,8 @@ public partial class CrankRunner
                     }
                     crank.WaitForExit();
                 }
-                resultsParser.ParseAndStoreIterationResults(j + 1, outputKeep);
+                resultsParser.ParseAndStoreIterationResults(j + 1, outputSize,
+                                                            outputKeep);
             }
             resultsParser.StoreRunResults();
         }
@@ -147,5 +152,19 @@ public partial class CrankRunner
                            appName, runEnv.EnvTieredCompilation ? "1" : "0");
 
         return cmdSb.ToString();
+    }
+
+    private double CalculateAssembliesSize(string assembliesPath)
+    {
+        double totalSize = 0.0;
+        var dirInfo = new DirectoryInfo(assembliesPath);
+        FileInfo[] files = dirInfo.GetFiles();
+
+        foreach (FileInfo fi in files)
+        {
+            double fiSize = (double)fi.Length / (double)KB_SIZE;
+            totalSize += fiSize;
+        }
+        return totalSize;
     }
 }

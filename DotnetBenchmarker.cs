@@ -3,6 +3,12 @@
 // Class: DotnetBenchmarker
 // This is our little script :)
 
+// WORK ITEMS AND BUGS:
+// 1) Allow clean runs (i.e. Crossgen2 builds should not be required when there
+//    are no BuildPhases for a specific OS).
+// 2) Protect against missing or inactive Dockers.
+// 3) Finish writing the README.
+
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
 //          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL
@@ -38,7 +44,9 @@ internal class DotnetBenchmarker
                                          optsBank.OutputFile,
                                          optsBank.OutputFormat);
 
-        output.ComputeReport(() => output.ExampleReportFunc("Build Time (ms)", "Start Time (ms)"));
+        output.ComputeReport(() => output.ExampleReportFunc("Build Time (ms)",
+                                                            "Start Time (ms)",
+                                                            "Assemblies Size (KB)"));
         output.PrintToStream();
     }
 
