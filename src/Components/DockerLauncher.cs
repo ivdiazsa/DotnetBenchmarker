@@ -15,6 +15,13 @@ internal static partial class DockerLauncher
                                 bool interactive, string mount,
                                 MultiIOLogger logger, params string[] args)
     {
+        if (!IsDockerRunning())
+        {
+            logger.Write("\nThe Docker Engine is either turned off or not installed."
+                         + " Make sure you've started Docker and try again.\n");
+            System.Environment.Exit(-1);
+        }
+
         var dockerRunArgsSb = new StringBuilder("run");
 
         if (removeContainer)
@@ -53,6 +60,13 @@ internal static partial class DockerLauncher
     public static void CreateImage(string imageName, string dockerfilePath,
                                    MultiIOLogger logger, params string[] args)
     {
+        if (!IsDockerRunning())
+        {
+            logger.Write("\nThe Docker Engine is either turned off or not installed."
+                         + " Make sure you've started Docker and try again.\n");
+            System.Environment.Exit(-1);
+        }
+
         if (ImageExists(imageName))
         {
             logger.Write($"\nThe Docker Image {imageName} was found ready to use."
@@ -87,6 +101,22 @@ internal static partial class DockerLauncher
             }
             docker.WaitForExit();
         }
+    }
+
+    private static bool IsDockerRunning()
+    {
+        bool isRunning = false;
+        using (Process docker = new Process())
+        {
+            var startInfo = new ProcessStartInfo();
+            docker.StartInfo = startInfo.BaseTemplate("docker", "ps");
+            docker.Start();
+            docker.WaitForExit();
+
+            if (docker.ExitCode == 0)
+                isRunning = true;
+        }
+        return isRunning;
     }
 
     private static bool ImageExists(string repositoryOrImageName)
