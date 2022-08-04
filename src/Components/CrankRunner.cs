@@ -1,8 +1,11 @@
 // File: src/Components/CrankRunner.cs
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+
+using TraceCollectDescription = OptionsDescription.TraceCollectDescription;
 
 // Class: CrankRunner
 public partial class CrankRunner
@@ -69,6 +72,14 @@ public partial class CrankRunner
                 outputKeep.Clear();
                 _logger.Write($"\nIteration ({j+1}/{_iterations})...\n\n");
 
+                // Little hack to handle getting traces when running multiple
+                // iterations of the configurations given. Will make a cleaner
+                // way whenever I think of one :)
+                if (cr.Args.Contains("traceOutput"))
+                {
+                    cr.Args.Replace($"-{j}", $"-{j+1}");
+                }
+
                 using (Process crank = new Process())
                 {
                     var startInfo = new ProcessStartInfo();
@@ -98,7 +109,7 @@ public partial class CrankRunner
                                         string appName = "application")
     {
         var cmdSb = new StringBuilder();
-        string osCode = config.Os.Substring(0, 3);
+        string osCode = config.Os.Substring(0, 3).ToLower();
         RunPhaseDescription runEnv = config.RunPhase;
 
         cmdSb.AppendFormat(" --config {0}", config.Scenario);
@@ -118,6 +129,30 @@ public partial class CrankRunner
                              + " -p:PublishReadyToRunCrossgen2ExtraArgs="
                              + "--instruction-set:avx2",
                                appName);
+        }
+
+        // Might have to refactor this in the near future.
+        if (config.Options is not null)
+        {
+            // Using an alias here for less verbose typing. Check the "using"
+            // statements at the top of the file for more info.
+            TraceCollectDescription tc = config.Options.TraceCollect;
+            string tracingAppCrankArg = config.Os.ToLower() switch
+            {
+                "linux" => "dotnetTrace",
+                "windows" => "collect",
+                _ => throw new PlatformNotSupportedException(),
+            };
+
+            cmdSb.AppendFormat(" --{0}.{1} true", appName, tracingAppCrankArg);
+            cmdSb.AppendFormat(" --{0}.options.traceOutput {1}",
+                               appName, $"{tc.Output}-{config.Name}-0");
+
+            if (tc.CollectStartup is not null)
+            {
+                cmdSb.AppendFormat(" --{0}.collectStartup {1}",
+                                   appName, tc.CollectStartup);
+            }
         }
 
         // Since the main use case of this app is to compare different benchmarks,
@@ -156,6 +191,7 @@ public partial class CrankRunner
         return cmdSb.ToString();
     }
 
+    // Currently not used.
     private double CalculateAssembliesSize(string assembliesPath)
     {
         double totalSize = 0.0;

@@ -145,6 +145,8 @@ public class AppOptionsBank
             // Iterate through the different trace options that a configuration
             // can have. Since these ones take priority over the global ones,
             // we will only set the null ones to their global counterpart.
+            // NOTE: Will most likely have to refactor this into its own function
+            // whenever I implement more options to check, besides TraceCollect.
 
             PropertyInfo[] traceProps = cfgTraceOpts.GetType()
                                                     .GetProperties(BindingFlags.Public
@@ -155,6 +157,7 @@ public class AppOptionsBank
                 object? cfgValue = prop.GetValue(cfgTraceOpts);
                 object? globalValue = prop.GetValue(AppDesc.Options.TraceCollect);
 
+                // Config's one takes priority.
                 if (cfgValue is not null)
                     continue;
 
