@@ -19,6 +19,8 @@ public class OptionsDescription
                         ? "(null)"
                         : _collectStartup.ToString()!.ToLower();
             }
+
+            set => _collectStartup = System.Convert.ToBoolean(value);
         }
 
         public override string ToString()
