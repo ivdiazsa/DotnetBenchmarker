@@ -6,8 +6,8 @@
 // WORK ITEMS AND BUGS:
 // 1) Allow clean runs (i.e. Crossgen2 builds should not be required when there
 //    are no BuildPhases for a specific OS).
-// 2) Protect against missing or inactive Dockers.
-// 3) Finish writing the README.
+// 2) Finish writing the README.
+// 3) Implement Universal Options Support.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -22,6 +22,14 @@ internal class DotnetBenchmarker
 
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
+
+        var configs = optsBank.GetConfigurations();
+        foreach (var item in configs)
+        {
+            System.Console.WriteLine(item.Name);
+            System.Console.WriteLine(item.Options!.TraceCollect.ToString());
+        }
+        TestExit();
 
         var builder = new CompositesBuilder(optsBank.GetRuntimesGroupedByOS(),
                                             optsBank.GetCrossgen2sGroupedByOS(),

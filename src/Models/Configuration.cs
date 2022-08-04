@@ -1,5 +1,4 @@
 // File: src/Models/Configuration.cs
-using System.IO;
 
 // Class: Configuration
 public class Configuration
@@ -10,6 +9,7 @@ public class Configuration
 
     public BuildPhaseDescription BuildPhase { get; set; }
     public RunPhaseDescription RunPhase { get; set; }
+    public OptionsDescription? Options { get; set; }
 
     public string ProcessedAssembliesPath { get; set; }
 

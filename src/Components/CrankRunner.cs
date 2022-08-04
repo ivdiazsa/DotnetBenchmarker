@@ -55,7 +55,9 @@ public partial class CrankRunner
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
-            double outputSize = CalculateAssembliesSize(cr.OutputFiles);
+            // This doesn't work for the time being.
+            // double outputSize = CalculateAssembliesSize(cr.OutputFiles);
+            double outputSize = 0.0;
             resultsParser.RunName = cr.Name;
 
             _logger.Write($"\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");

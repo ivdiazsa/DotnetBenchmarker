@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 // Class: AppOptionsBank
 public class AppOptionsBank
@@ -30,10 +31,11 @@ public class AppOptionsBank
     {
         CommandLineParser.ParseIntoOptsBank(this, args);
 
-        if (String.IsNullOrEmpty(ConfigFile))
+        if (string.IsNullOrEmpty(ConfigFile))
         {
             Console.WriteLine("A YAML configuration file is needed to know what"
-                              + " to build and run.");
+                              + " to build and run. Use the --config-file to"
+                              + " specify it through the command-line.");
             Environment.Exit(-1);
         }
 
@@ -93,6 +95,7 @@ public class AppOptionsBank
 
     public List<Configuration> GetConfigurations()
     {
+        SetUniversalOptions();
         return AppDesc.Configurations;
     }
 
@@ -104,6 +107,10 @@ public class AppOptionsBank
             if (string.IsNullOrEmpty(item.RepoPath))
                 continue;
 
+            // If we got here, then it means we want to use the crossgen2 build
+            // from the provided runtime repo. Find the path to it, and record
+            // it accordingly, so it can be used later on.
+
             string os = item.Os.Equals("linux", StringComparison.OrdinalIgnoreCase)
                         ? item.Os.Capitalize()
                         : item.Os;
@@ -111,6 +118,48 @@ public class AppOptionsBank
             string repoCrossgenPath = $"{item.RepoPath}/{Constants.RuntimeRepoCoreclrPath}/"
                                     + $"{os}.x64.Release/crossgen2";
             cg2s.Add(item.Os, new Crossgen2 { Os=item.Os, Path=repoCrossgenPath });
+        }
+    }
+
+    private void SetUniversalOptions()
+    {
+        // No global options field was specified in the YAML. So, we just
+        // leave our configurations with the options they have, if any.
+        if (AppDesc.Options is null)
+            return ;
+
+        foreach (Configuration cfg in AppDesc.Configurations)
+        {
+            // This is the simplest case scenario: Global options were given
+            // but this configuration doesn't have any. This means it has no
+            // exceptions regarding this, and therefore we'll use the globals.
+            if (cfg.Options is null)
+            {
+                cfg.Options = AppDesc.Options;
+                continue;
+            }
+
+            var cfgOpts = cfg.Options;
+            var cfgTraceOpts = cfgOpts.TraceCollect;
+
+            // Iterate through the different trace options that a configuration
+            // can have. Since these ones take priority over the global ones,
+            // we will only set the null ones to their global counterpart.
+
+            PropertyInfo[] traceProps = cfgTraceOpts.GetType()
+                                                    .GetProperties(BindingFlags.Public
+                                                                 | BindingFlags.Instance);
+
+            foreach (var prop in traceProps)
+            {
+                object? cfgValue = prop.GetValue(cfgTraceOpts);
+                object? globalValue = prop.GetValue(AppDesc.Options.TraceCollect);
+
+                if (cfgValue is not null)
+                    continue;
+
+                prop.SetValue(cfgTraceOpts, globalValue);
+            }
         }
     }
 }
