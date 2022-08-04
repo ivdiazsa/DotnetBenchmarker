@@ -24,12 +24,6 @@ internal class DotnetBenchmarker
         optsBank.Init(args);
 
         var configs = optsBank.GetConfigurations();
-        foreach (var item in configs)
-        {
-            System.Console.WriteLine(item.Name);
-            System.Console.WriteLine(item.Options!.TraceCollect.ToString());
-        }
-        TestExit();
 
         var builder = new CompositesBuilder(optsBank.GetRuntimesGroupedByOS(),
                                             optsBank.GetCrossgen2sGroupedByOS(),

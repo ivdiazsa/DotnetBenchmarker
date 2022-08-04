@@ -63,22 +63,22 @@ public partial class CrankRunner
             double outputSize = 0.0;
             resultsParser.RunName = cr.Name;
 
-            _logger.Write($"\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
-            _logger.Write($"\ncrank {cr.Args}\n");
+            _logger.Write($"\n\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
 
             // Run the current configuration the required number of times.
             for (int j = 0; j < _iterations; j++)
             {
                 outputKeep.Clear();
-                _logger.Write($"\nIteration ({j+1}/{_iterations})...\n\n");
+                _logger.Write($"\n\nIteration ({j+1}/{_iterations})...\n");
 
                 // Little hack to handle getting traces when running multiple
                 // iterations of the configurations given. Will make a cleaner
                 // way whenever I think of one :)
                 if (cr.Args.Contains("traceOutput"))
                 {
-                    cr.Args.Replace($"-{j}", $"-{j+1}");
+                    cr.UpdateTraceIndex(j, j+1);
                 }
+                _logger.Write($"\ncrank {cr.Args}\n");
 
                 using (Process crank = new Process())
                 {
@@ -148,7 +148,7 @@ public partial class CrankRunner
             cmdSb.AppendFormat(" --{0}.options.traceOutput {1}",
                                appName, $"{tc.Output}-{config.Name}-0");
 
-            if (tc.CollectStartup is not null)
+            if (!tc.CollectStartup.Equals("(null)"))
             {
                 cmdSb.AppendFormat(" --{0}.collectStartup {1}",
                                    appName, tc.CollectStartup);

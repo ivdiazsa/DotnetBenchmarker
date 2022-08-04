@@ -9,7 +9,17 @@ public class OptionsDescription
     public class TraceCollectDescription
     {
         public string? Output { get; set; }
-        public bool? CollectStartup { get; set; }
+
+        private bool? _collectStartup;
+        public string CollectStartup
+        {
+            get
+            {
+                return _collectStartup is null
+                        ? "(null)"
+                        : _collectStartup.ToString()!.ToLower();
+            }
+        }
 
         public override string ToString()
         {
