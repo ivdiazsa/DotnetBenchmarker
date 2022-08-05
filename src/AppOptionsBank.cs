@@ -95,7 +95,6 @@ public class AppOptionsBank
 
     public List<Configuration> GetConfigurations()
     {
-        SetUniversalOptions();
         return AppDesc.Configurations;
     }
 
@@ -118,51 +117,6 @@ public class AppOptionsBank
             string repoCrossgenPath = $"{item.RepoPath}/{Constants.RuntimeRepoCoreclrPath}/"
                                     + $"{os}.x64.Release/crossgen2";
             cg2s.Add(item.Os, new Crossgen2 { Os=item.Os, Path=repoCrossgenPath });
-        }
-    }
-
-    private void SetUniversalOptions()
-    {
-        // No global options field was specified in the YAML. So, we just
-        // leave our configurations with the options they have, if any.
-        if (AppDesc.Options is null)
-            return ;
-
-        foreach (Configuration cfg in AppDesc.Configurations)
-        {
-            // This is the simplest case scenario: Global options were given
-            // but this configuration doesn't have any. This means it has no
-            // exceptions regarding this, and therefore we'll use the globals.
-            if (cfg.Options is null)
-            {
-                cfg.Options = AppDesc.Options;
-                continue;
-            }
-
-            var cfgOpts = cfg.Options;
-            var cfgTraceOpts = cfgOpts.TraceCollect;
-
-            // Iterate through the different trace options that a configuration
-            // can have. Since these ones take priority over the global ones,
-            // we will only set the null ones to their global counterpart.
-            // NOTE: Will most likely have to refactor this into its own function
-            // whenever I implement more options to check, besides TraceCollect.
-
-            PropertyInfo[] traceProps = cfgTraceOpts.GetType()
-                                                    .GetProperties(BindingFlags.Public
-                                                                 | BindingFlags.Instance);
-
-            foreach (var prop in traceProps)
-            {
-                object? cfgValue = prop.GetValue(cfgTraceOpts);
-                object? globalValue = prop.GetValue(AppDesc.Options.TraceCollect);
-
-                // Config's one takes priority.
-                if (cfgValue is not null)
-                    continue;
-
-                prop.SetValue(cfgTraceOpts, globalValue);
-            }
         }
     }
 }

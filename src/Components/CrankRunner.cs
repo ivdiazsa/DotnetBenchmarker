@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-using TraceCollectDescription = OptionsDescription.TraceCollectDescription;
-
 // Class: CrankRunner
 public partial class CrankRunner
 {
@@ -70,14 +68,6 @@ public partial class CrankRunner
             {
                 outputKeep.Clear();
                 _logger.Write($"\n\nIteration ({j+1}/{_iterations})...\n");
-
-                // Little hack to handle getting traces when running multiple
-                // iterations of the configurations given. Will make a cleaner
-                // way whenever I think of one :)
-                if (cr.Args.Contains("traceOutput"))
-                {
-                    cr.UpdateTraceIndex(j, j+1);
-                }
                 _logger.Write($"\ncrank {cr.Args}\n");
 
                 using (Process crank = new Process())
@@ -129,30 +119,6 @@ public partial class CrankRunner
                              + " -p:PublishReadyToRunCrossgen2ExtraArgs="
                              + "--instruction-set:avx2",
                                appName);
-        }
-
-        // Might have to refactor this in the near future.
-        if (config.Options is not null)
-        {
-            // Using an alias here for less verbose typing. Check the "using"
-            // statements at the top of the file for more info.
-            TraceCollectDescription tc = config.Options.TraceCollect;
-            string tracingAppCrankArg = config.Os.ToLower() switch
-            {
-                "linux" => "dotnetTrace",
-                "windows" => "collect",
-                _ => throw new PlatformNotSupportedException(),
-            };
-
-            cmdSb.AppendFormat(" --{0}.{1} true", appName, tracingAppCrankArg);
-            cmdSb.AppendFormat(" --{0}.options.traceOutput {1}",
-                               appName, $"{tc.Output}-{config.Name}-0");
-
-            if (!tc.CollectStartup.Equals("(null)"))
-            {
-                cmdSb.AppendFormat(" --{0}.collectStartup {1}",
-                                   appName, tc.CollectStartup);
-            }
         }
 
         // Since the main use case of this app is to compare different benchmarks,
