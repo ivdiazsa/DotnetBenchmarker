@@ -112,9 +112,9 @@ public partial class CrankRunner
         string osCode = config.Os.Substring(0, 3).ToLower();
         RunPhaseDescription runEnv = config.RunPhase;
 
-        cmdSb.AppendFormat(" --config {0}", config.Scenario);
+        cmdSb.AppendFormat(" --config {0}", config.ScenarioFile);
 
-        cmdSb.Append(" --scenario plaintext");
+        cmdSb.AppendFormat(" --scenario {0}", config.Scenario);
         cmdSb.AppendFormat(" --profile aspnet-citrine-{0}", osCode);
         cmdSb.AppendFormat(" --{0}.framework net7.0", appName);
 

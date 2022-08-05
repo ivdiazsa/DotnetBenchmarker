@@ -5,6 +5,7 @@ public class Configuration
 {
     public string Name { get; set; }
     public string Os { get; set; }
+    public string ScenarioFile { get; set; }
     public string Scenario { get; set; }
 
     public BuildPhaseDescription BuildPhase { get; set; }
@@ -30,8 +31,9 @@ public class Configuration
     {
         Name = "unnamed-funny-configuration";
         Os = "linux";
-        Scenario = "https://raw.githubusercontent.com/aspnet/Benchmarks/main/"
-                    + "scenarios/plaintext.benchmarks.yml";
+        ScenarioFile = "https://raw.githubusercontent.com/aspnet/Benchmarks/main/"
+                        + "scenarios/plaintext.benchmarks.yml";
+        Scenario = "plaintext";
         BuildPhase = new BuildPhaseDescription();
         RunPhase = new RunPhaseDescription();
 
