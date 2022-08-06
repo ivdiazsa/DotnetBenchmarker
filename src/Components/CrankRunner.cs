@@ -1,8 +1,8 @@
 // File: src/Components/CrankRunner.cs
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 // Class: CrankRunner
@@ -56,9 +56,7 @@ public partial class CrankRunner
         for (int i = 0; i < _cranks.Count; i++)
         {
             CrankRun cr = _cranks[i];
-            // This doesn't work for the time being.
-            // double outputSize = CalculateAssembliesSize(cr.OutputFiles);
-            double outputSize = 0.0;
+            double outputSize = CalculateAssembliesSize(cr.OutputFiles);
             resultsParser.RunName = cr.Name;
 
             _logger.Write($"\n\nRunning config '{cr.Name}' ({i+1}/{_cranks.Count})...\n");
@@ -157,12 +155,20 @@ public partial class CrankRunner
         return cmdSb.ToString();
     }
 
-    // Currently not used.
     private double CalculateAssembliesSize(string assembliesPath)
     {
         double totalSize = 0.0;
-        var dirInfo = new DirectoryInfo(assembliesPath);
-        FileInfo[] files = dirInfo.GetFiles();
+
+        // In the case of scenarios where no recompilation is needed, we will
+        // be using the given binaries as is, which includes the case of the
+        // official builds, which have a specific layout. In this case, we will
+        // have more than one path with assemblies, and so we have to consider
+        // them all for the total size we plan to return.
+        List<FileInfo> files = new List<FileInfo>(
+            assembliesPath.Split(";").Select(path => new DirectoryInfo(path))
+                                     .Select(dir => dir.GetFiles())
+                                     .SelectMany(fi => fi)
+        );
 
         foreach (FileInfo fi in files)
         {
