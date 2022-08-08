@@ -10,6 +10,7 @@ public class Configuration
 
     public BuildPhaseDescription BuildPhase { get; set; }
     public RunPhaseDescription RunPhase { get; set; }
+    public RunOptions? Options { get; set; }
 
     public string ProcessedAssembliesPath { get; set; }
 

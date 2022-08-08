@@ -18,6 +18,15 @@ public class RunOptions
             CollectArgs = new List<string>();
             OutputName = "funny-trace";
         }
+
+        public override string ToString()
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.AppendFormat("Trace Providers: {0}\n", string.Join(", ", TraceProviders));
+            sb.AppendFormat("Collect Args: {0}\n", string.Join(", ", CollectArgs));
+            sb.AppendFormat("Output Name: {0}\n", OutputName);
+            return sb.ToString();
+        }
     }
 
     public TraceOptions? Trace { get; set; }

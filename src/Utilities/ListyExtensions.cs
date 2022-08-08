@@ -1,4 +1,6 @@
 // File: src/Utilities/ListyExtensions.cs
+using System.Collections.Generic;
+using System.Linq;
 
 // Class: ListyExtensions
 static class ListyExtensions
@@ -14,8 +16,8 @@ static class ListyExtensions
         return result;
     }
 
-    public static bool IsEmpty<T>(this T[] array)
+    public static bool IsEmpty<T>(this IEnumerable<T> collection)
     {
-        return array.Length == 0;
+        return collection.Count() == 0;
     }
 }

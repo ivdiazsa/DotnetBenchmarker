@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using TraceOptions = RunOptions.TraceOptions;
+
 // Class: AppOptionsBank
 public class AppOptionsBank
 {
@@ -94,6 +96,7 @@ public class AppOptionsBank
 
     public List<Configuration> GetConfigurations()
     {
+        ApplyUniversalOptions();
         return AppDesc.Configurations;
     }
 
@@ -116,6 +119,35 @@ public class AppOptionsBank
             string repoCrossgenPath = $"{item.RepoPath}/{Constants.RuntimeRepoCoreclrPath}/"
                                     + $"{os}.x64.Release/crossgen2";
             cg2s.Add(item.Os, new Crossgen2 { Os=item.Os, Path=repoCrossgenPath });
+        }
+    }
+
+    private void ApplyUniversalOptions()
+    {
+        if (AppDesc.Options is null)
+            return ;
+
+        foreach (var cfg in AppDesc.Configurations)
+        {
+            // The simplest scenario. If the configuration in question doesn't
+            // have any specific options of its own, then we simply apply the
+            // global ones to it.
+            if (cfg.Options is null)
+            {
+                cfg.Options = AppDesc.Options;
+                continue ;
+            }
+
+            RunOptions cfgOpts = cfg.Options;
+            RunOptions appOpts = AppDesc.Options;
+
+            // If this configuration doesn't have Trace options but there are
+            // global ones, then we apply those. In any other case, we skip and
+            // continue on to the next one of the RunOptions... of which there
+            // are currently none. This written with an expectancy of adding
+            // more in the future.
+            if (appOpts.Trace is not null && cfgOpts.Trace is null)
+                cfgOpts.Trace = appOpts.Trace;
         }
     }
 }
