@@ -22,6 +22,19 @@ internal class DotnetBenchmarker
 
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
+        var trace = optsBank.AppDesc.Options!.Trace;
+        System.Console.WriteLine("Trace Providers:");
+        foreach (var item in trace!.TraceProviders)
+        {
+            System.Console.WriteLine(item);
+        }
+        System.Console.WriteLine($"Output Name: {trace.OutputName}");
+        System.Console.WriteLine("Collect Args:");
+        foreach (var item in trace.CollectArgs)
+        {
+            System.Console.WriteLine(item);
+        }
+        TestExit();
 
         var configs = optsBank.GetConfigurations();
 
