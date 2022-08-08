@@ -66,6 +66,8 @@ public partial class CrankRunner
             for (int j = 0; j < _iterations; j++)
             {
                 outputKeep.Clear();
+                cr.UpdateTraceIndexIfExists(j, j+1);
+
                 _logger.Write($"\n\nIteration ({j+1}/{_iterations})...\n");
                 _logger.Write($"\ncrank {cr.Args}\n");
 
