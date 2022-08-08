@@ -1,4 +1,5 @@
 // File: src/Components/CrankRunner.cs
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -143,6 +144,41 @@ public partial class CrankRunner
 
                 cmdSb.AppendFormat(" --{0}.options.outputFiles {1}/*",
                                    appName, path);
+            }
+        }
+
+        if (config.Options is not null)
+        {
+            // Process the additional options here.
+            RunOptions opts = config.Options;
+            if (opts.Trace is not null)
+            {
+                var traceOpts = opts.Trace;
+                string tracingApp = osCode switch
+                {
+                    "lin" => "dotnetTrace",
+                    "win" => "collect",
+                    _ => throw new PlatformNotSupportedException(),
+                };
+
+                cmdSb.AppendFormat(" --{0}.{1} true", appName, tracingApp);
+
+                if (osCode.Equals("lin") && !traceOpts.TraceProviders.IsEmpty())
+                {
+                    cmdSb.AppendFormat(" --{0}.dotnetTraceProviders {1}",
+                                       appName, string.Join(',', traceOpts.TraceProviders));
+                }
+                else if (osCode.Equals("win") && !traceOpts.CollectArgs.IsEmpty())
+                {
+                    cmdSb.AppendFormat(" --{0}.collectArguments {1}",
+                                       appName, string.Join(',', traceOpts.CollectArgs));
+                }
+
+                cmdSb.AppendFormat(" --{0}.options.traceOutput {1}-{2}-0",
+                                   appName,
+                                   traceOpts.OutputName,
+                                   config.Name);
+                cmdSb.AppendFormat(" --{0}.options.collectCounters true", appName);
             }
         }
 
