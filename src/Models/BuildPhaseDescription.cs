@@ -17,6 +17,7 @@ public class BuildPhaseDescription
     public bool BundleAspNet { get; set; }
     public bool AspNetComposite { get; set; }
     public bool UseAvx2 { get; set; }
+    public bool FullComposite { get; set; }
 
     private string _fxResultName = string.Empty;
 
@@ -55,7 +56,7 @@ public class BuildPhaseDescription
         // No need to calculate it more than once :)
         if (!string.IsNullOrEmpty(_fxResultName))
             return _fxResultName;
-        
+
         if (!NeedsRecompilation())
         {
             _fxResultName = "vanilla";
@@ -123,6 +124,10 @@ public class BuildPhaseDescription
 
         strBuilder.AppendFormat("Build With AVX2 Enabled: {0}\n",
                                  UseAvx2.ToString());
+
+        strBuilder.AppendFormat("Build a Full Composite with the Runtime and App: {0}\n",
+                                 FullComposite.ToString());
+
         return strBuilder.ToString();
     }
 }

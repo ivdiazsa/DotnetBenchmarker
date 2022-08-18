@@ -114,6 +114,11 @@ public partial class CrankRunner
                            appName,
                            runEnv.AppR2R.ToString());
 
+        cmdSb.AppendFormat(" --{0}.buildArguments"
+                         + " -p:PublishReadyToRunComposite={1}",
+                           appName,
+                           config.BuildPhase.FullComposite.ToString());
+
         if (config.BuildPhase.UseAvx2)
         {
             cmdSb.AppendFormat(" --{0}.buildArguments"
