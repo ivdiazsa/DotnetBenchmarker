@@ -8,6 +8,9 @@
 //    are no BuildPhases for a specific OS).
 // 2) Finish writing the README.
 // 3) Implement Universal Options Support.
+// 4) FullComposite right now assumes FrameworkComposite and BundleAspnet are
+//    present. It'd be better to make it so that only specifying FullComposite
+//    implies the presence of the other two, since that's what it means.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
