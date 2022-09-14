@@ -3,15 +3,6 @@
 // Class: DotnetBenchmarker
 // This is our little script :)
 
-// WORK ITEMS AND BUGS:
-// 1) Allow clean runs (i.e. Crossgen2 builds should not be required when there
-//    are no BuildPhases for a specific OS).
-// 2) Finish writing the README.
-// 3) Implement Universal Options Support.
-// 4) FullComposite right now assumes FrameworkComposite and BundleAspnet are
-//    present. It'd be better to make it so that only specifying FullComposite
-//    implies the presence of the other two, since that's what it means.
-
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
 //          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL
@@ -22,37 +13,6 @@ internal class DotnetBenchmarker
     static void Main(string[] args)
     {
         // Main Script Here!
-
-        var optsBank = new AppOptionsBank();
-        optsBank.Init(args);
-
-        var configs = optsBank.GetConfigurations();
-
-        var builder = new CompositesBuilder(optsBank.GetRuntimesGroupedByOS(),
-                                            optsBank.GetCrossgen2sGroupedByOS(),
-                                            optsBank.GetConfigurations());
-        builder.Run();
-
-        if (optsBank.BuildOnly)
-        {
-            System.Console.WriteLine("\nAssemblies generated successfully."
-                                     + " Exiting now...");
-            System.Environment.Exit(0);
-        }
-
-        var runner = new CrankRunner(optsBank.GetConfigurations(),
-                                     optsBank.Iterations);
-        runner.Execute();
-
-        var output = new OutputProcessor($"{Constants.ResultsPath}/"
-                                       + $"results-{Constants.Timestamp}.json",
-                                         optsBank.OutputFile,
-                                         optsBank.OutputFormat);
-
-        output.ComputeReport(() => output.ExampleReportFunc("Build Time (ms)",
-                                                            "Start Time (ms)",
-                                                            "Assemblies Size (KB)"));
-        output.PrintToStream();
     }
 
     // This functionie is only used for testing individual components :)
