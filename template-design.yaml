@@ -1,0 +1,135 @@
+assemblies:
+
+  windows:
+
+    processed: # Optional
+      - name: WindowsComposites1
+        path: Path/To/Windows/Composites/1
+      - name: WindowsComposites2
+        path: Path/To/Windows/Composites/2
+    runtimes: # Will download latest runtime if omitted AND no 'processed' are present.
+      - name: WindowsRuntime1
+        path: Path/To/Windows/Runtime/1
+      - name: WindowsRuntime2
+        path: Path/To/Windows/Runtime/2
+    crossgen2s: # Will fail if omitted, no 'processed' are present, AND there are configurations that require them.
+      - name: WindowsCrossgen21
+        path: Path/To/Windows/Crossgen2/1
+      - name: WindowsCrossgen22
+        path: Path/To/Windows/Crossgen2/2
+
+  macos:
+
+    processed: # Optional
+      - name: MacOSComposites1
+        path: Path/To/MacOS/Composites/1
+      - name: MacOSComposites2
+        path: Path/To/MacOS/Composites/2
+    runtimes: # Will download latest runtime if omitted AND no 'processed' are present.
+      - name: MacOSRuntime1
+        path: Path/To/MacOS/Runtime/1
+      - name: MacOSRuntime2
+        path: Path/To/MacOS/Runtime/2
+    crossgen2s: # Will fail if omitted, no 'processed' are present, AND there are configurations that require them.
+      - name: MacOSCrossgen21
+        path: Path/To/MacOS/Crossgen2/1
+      - name: MacOSCrossgen22
+        path: Path/To/MacOS/Crossgen2/2
+
+  linux:
+
+    processed: # Optional
+      - name: LinuxComposites1
+        path: Path/To/Linux/Composites/1
+      - name: LinuxComposites2
+        path: Path/To/Linux/Composites/2
+    runtimes: # Will download latest runtime if omitted AND no 'processed' are present.
+      - name: LinuxRuntime1
+        path: Path/To/Linux/Runtime/1
+      - name: LinuxRuntime2
+        path: Path/To/Linux/Runtime/2
+    crossgen2s: # Will fail if omitted, no 'processed' are present, AND there are configurations that require them.
+      - name: LinuxCrossgen21
+        path: Path/To/Linux/Crossgen2/1
+      - name: LinuxCrossgen22
+        path: Path/To/Linux/Crossgen2/2
+
+configurations:
+
+  - name: Config1
+    os: windows
+    versions: # 'Build Phase' will be omitted if present. Experimental and future milestone.
+      sdk: Net7.0-Preview7
+      runtime: Net7.0-Preview7
+      aspnetcore: Net7.0-Preview7
+    assembliesToUse: # If any field is omitted, the first one available will be selected (except 'processed', which is set during app runtime).
+      processed: Name of Windows Composites
+      runtime: Name of Windows Runtime
+      crossgen2: Name of Windows Crossgen2
+    scenariosFile: Scenario File or Link
+    scenario: Scenario
+    buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      params:
+        - frameworkcomposite
+        - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
+        - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
+        - fullcomposite # Will skip build if present.
+        - useavx2
+    runPhase: # Will run default build args if omitted.
+      params:
+        - appr2r
+        - appavx2
+        - envreadytorun
+        - envtieredcompilation
+
+  - name: Config2
+    os: macos
+    versions: # 'Build Phase' will be omitted if present. Experimental and future milestone.
+      sdk: Net7.0-Preview7
+      runtime: Net7.0-Preview7
+      aspnetcore: Net7.0-Preview7
+    assembliesToUse: # If any field is omitted, the first one available will be selected (except 'processed', which is set during app runtime).
+      processed: Name of MacOS Composites
+      runtime: Name of MacOS Runtime
+      crossgen2: Name of MacOS Crossgen2
+    scenariosFile: Scenario File or Link
+    scenario: Scenario
+    buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      params:
+        - frameworkcomposite
+        - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
+        - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
+        - fullcomposite # Will skip build if present.
+        - useavx2
+    runPhase: # Will run default build args if omitted.
+      params:
+        - appr2r
+        - appavx2
+        - envreadytorun
+        - envtieredcompilation
+
+  - name: Config3
+    os: linux
+    versions: # 'Build Phase' will be omitted if present. Experimental and future milestone.
+      sdk: Net7.0-Preview7
+      runtime: Net7.0-Preview7
+      aspnetcore: Net7.0-Preview7
+    assembliesToUse: # If any field is omitted, the first one available will be selected (except 'processed', which is set during app runtime).
+      processed: Name of Linux Composites
+      runtime: Name of Linux Runtime
+      crossgen2: Name of Linux Crossgen2
+    scenariosFile: Scenario File or Link
+    scenario: Scenario
+    buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      params:
+        - frameworkcomposite
+        - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
+        - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
+        - fullcomposite # Will skip build if present.
+        - useavx2
+    runPhase: # Will run default build args if omitted.
+      params:
+        - appr2r
+        - appavx2
+        - envreadytorun
+        - envtieredcompilation
