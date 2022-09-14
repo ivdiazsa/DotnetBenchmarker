@@ -8,11 +8,17 @@
 //          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL
 //          CLRF CHARACTER SCREWING UP ALL THE NON-HARD-CODED TEXT.
 
-internal class DotnetBenchmarker
+namespace DotnetBenchmarker;
+
+internal class BenchmarkerCore
 {
     static void Main(string[] args)
     {
         // Main Script Here!
+        var optsBank = new AppOptionsBank();
+        optsBank.Init(args);
+        optsBank.CmdLines();
+        TestExit();
     }
 
     // This functionie is only used for testing individual components :)
