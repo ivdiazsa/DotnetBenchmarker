@@ -73,7 +73,7 @@ configurations:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
         - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
-        - fullcomposite # Will skip build if present.
+        - fullcomposite # Will skip build if present. Currently experimental.
         - useavx2
     runPhase: # Will run default build args if omitted.
       params:
@@ -99,7 +99,7 @@ configurations:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
         - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
-        - fullcomposite # Will skip build if present.
+        - fullcomposite # Will skip build if present. Currently experimental.
         - useavx2
     runPhase: # Will run default build args if omitted.
       params:
@@ -125,7 +125,7 @@ configurations:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
         - bundleaspnet # Mutually exclusive with 'aspnetcomposite'.
-        - fullcomposite # Will skip build if present.
+        - fullcomposite # Will skip build if present. Currently experimental.
         - useavx2
     runPhase: # Will run default build args if omitted.
       params:

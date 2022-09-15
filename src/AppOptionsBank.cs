@@ -42,6 +42,21 @@ public class AppOptionsBank
         }
 
         YamlConfigFileParser.ParseIntoOptsBank(this);
+
+        // Make sure that all data is in order. This is to guarantee (as much as
+        // we can) that the app later on will work as expected. Catching failures
+        // early on is much better than failing unexpectedly later, potentially
+        // after some time of execution and leaving resources dangling.
+
+        if (Validator.ValidateAll(AppDesc))
+        {
+            Console.WriteLine("\nEverything's in order. Running the app now :)\n");
+        }
+        else
+        {
+            Console.WriteLine("\nErrors described above. Exiting now...\n");
+            Environment.Exit(-2);
+        }
     }
 
     public void ShowAppDescription() => Console.Write(AppDesc.ToString());
