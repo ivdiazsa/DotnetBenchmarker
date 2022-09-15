@@ -1,5 +1,6 @@
 // File: src/AppOptionsBank.cs
 using System;
+using System.Linq;
 
 namespace DotnetBenchmarker;
 
@@ -57,7 +58,33 @@ public class AppOptionsBank
             Console.WriteLine("\nErrors described above. Exiting now...\n");
             Environment.Exit(-2);
         }
+
+        MatchAssembliesToConfigs();
     }
 
     public void ShowAppDescription() => Console.Write(AppDesc.ToString());
+
+    private void MatchAssembliesToConfigs()
+    {
+        foreach (Configuration item in AppDesc.Configurations)
+        {
+            AssembliesNameLinks links = item.AssembliesToUse;
+            AssembliesCollection asmsFromCfgOs = AppDesc.Assemblies[item.Os];
+
+            if (string.IsNullOrEmpty(links.Runtime))
+            {
+                var firstGivenRuntime = asmsFromCfgOs.Runtimes.FirstOrDefault()!;
+                if (firstGivenRuntime is null)
+                    links.Runtime = "Latest";
+                else
+                    links.Runtime = firstGivenRuntime.Name;
+            }
+
+            if (string.IsNullOrEmpty(links.Crossgen2))
+            {
+                var firstGivenCrossgen2 = asmsFromCfgOs.Crossgen2s.FirstOrDefault()!;
+                links.Crossgen2 = firstGivenCrossgen2.Name;
+            }
+        }
+    }
 }

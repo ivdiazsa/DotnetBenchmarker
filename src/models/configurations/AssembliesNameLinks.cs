@@ -12,7 +12,7 @@ public class AssembliesNameLinks
     public AssembliesNameLinks()
     {
         Processed = string.Empty;
-        Runtime = "Latest";
+        Runtime = string.Empty;
         Crossgen2 = string.Empty;
     }
 
@@ -20,7 +20,7 @@ public class AssembliesNameLinks
     {
         return $"Paths to Assemblies to be Used:\n"
             + $"  Processed and Ready: {Processed.DefaultIfEmpty("None Specified")}\n"
-            + $"  Runtime: {Runtime}\n"
+            + $"  Runtime: {Runtime.DefaultIfEmpty("Latest")}\n"
             + $"  Crossgen2: {Crossgen2.DefaultIfEmpty("None Specified")}";
     }
 }
