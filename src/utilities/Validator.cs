@@ -18,12 +18,33 @@ namespace DotnetBenchmarker;
 // Class: Validator
 internal static class Validator
 {
+    private static int _totalErrors = 0;
+
     internal static bool ValidateAll(AppDescription appDesc)
     {
         var errors = new ErrorsDictionary();
         ValidateAssembliesOSs(appDesc, errors);
         ValidateConfigurations(appDesc, errors);
-        return errors.IsEmpty();
+
+        // Print all the problems that we found, if any.
+        if (!errors.IsEmpty())
+        {
+            Console.WriteLine("\nProblems found while analyzing the app:\n");
+
+            foreach (KeyValuePair<string, List<string>> item in errors)
+            {
+                Console.WriteLine($"{item.Key}:\n");
+                foreach (string message in item.Value)
+                {
+                    Console.WriteLine(message);
+                }
+                Console.Write("\n");
+            }
+
+            Console.Write($"There were {_totalErrors} problems found.\n");
+            return false;
+        }
+        return true;
     }
 
     private static void ValidateAssembliesOSs(AppDescription appDesc,
@@ -46,6 +67,7 @@ internal static class Validator
         foreach (string item in oddOSs)
         {
             theseErrors.Add($"The OS {item} is not currently supported.");
+            _totalErrors++;
         }
 
         errorsFound.Add("Assemblies", theseErrors);
@@ -84,6 +106,9 @@ internal static class Validator
                 Console.WriteLine($"INFO: Configuration {item.Name} doesn't have"
                                 + " a Run Phase. Will use crank's default params...");
             }
+
+            if (!configErrors.IsEmpty())
+                errorsFound.Add($"Config {item.Name}", configErrors);
         }
     }
 
@@ -96,6 +121,7 @@ internal static class Validator
         {
             cfgErrors.Add($"OS {config.Os} requires building materials, but none"
                         + " were provided.");
+            _totalErrors++;
             return ;
         }
 
@@ -130,7 +156,8 @@ internal static class Validator
 
         cfgErrors.Add($"AssembliesToUse: The config references the {matType}"
                     + $" Assemblies '{cfgMatLink}', but they were not found in"
-                    + " the 'Assemblies section of the YAML.");
+                    + " the 'Assemblies' section of the YAML.");
+        _totalErrors++;
     }
 
     private static void ValidateBuildPhase(Configuration config,
@@ -145,12 +172,14 @@ internal static class Validator
         {
             cfgErrors.Add("BuildPhase: Can't use 'BundleAspNet' and"
                         + " 'AspNetComposite' at the same time.");
+            _totalErrors++;
         }
 
         if (!phase.FrameworkComposite)
         {
             cfgErrors.Add("BuildPhase: Can't use 'BundleAspNet' if"
                         + " 'FrameworkComposite' is not present.");
+            _totalErrors++;
         }
     }
 }
