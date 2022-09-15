@@ -11,12 +11,15 @@ public class AppOptionsBank
     public int Iterations { get; set; }
     public bool Run { get; set; }
 
+    public AppDescription AppDesc { get; set; }
+
     public AppOptionsBank()
     {
         Build = false;
         ConfigFile = string.Empty;
         Iterations = 1;
         Run = false;
+        AppDesc = new AppDescription();
     }
 
     public void Init(string[] args)
@@ -31,14 +34,15 @@ public class AppOptionsBank
             Environment.Exit(-1);
         }
 
-        // YamlConfigFileParser.ParseIntoOptsBank(this);
+        if (Iterations < 1)
+        {
+            Console.WriteLine($"We can't run {Iterations} iterations. Setting"
+                            + " to the default value of 1.");
+            Iterations = 1;
+        }
+
+        YamlConfigFileParser.ParseIntoOptsBank(this);
     }
 
-    public void CmdLines()
-    {
-        System.Console.WriteLine(Build);
-        System.Console.WriteLine(ConfigFile);
-        System.Console.WriteLine(Iterations);
-        System.Console.WriteLine(Run);
-    }
+    public void ShowAppDescription() => Console.Write(AppDesc.ToString());
 }

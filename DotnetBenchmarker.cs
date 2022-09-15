@@ -17,7 +17,7 @@ internal class BenchmarkerCore
         // Main Script Here!
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
-        optsBank.CmdLines();
+        optsBank.ShowAppDescription();
         TestExit();
     }
 
