@@ -128,6 +128,14 @@ internal static class Validator
         AssembliesNameLinks cfgMaterialLinks = config.AssembliesToUse;
         AssembliesCollection providedMaterialsForOs = materials.GetValueOrDefault(config.Os)!;
 
+        if (providedMaterialsForOs.Processed.IsEmpty()
+            && providedMaterialsForOs.Crossgen2s.IsEmpty())
+        {
+            cfgErrors.Add($"OS {config.Os} has no Processed Assemblies or Crossgen2's"
+                        + $" specified, and config {config.Name} needs processing.");
+            return ;
+        }
+
         // Check that the referenced assemblies in the config in the YAML, are
         // present in the 'Assemblies' section. Otherwise, we will fail later on
         // whenever we need them.

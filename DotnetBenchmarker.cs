@@ -5,9 +5,6 @@
 
 // WORK ITEMS:
 //
-// - Add validation for Crossgen2 assemblies being present, if a Build Phase
-//   is provided to the Configuration.
-//
 // - Begin working on the app!
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
