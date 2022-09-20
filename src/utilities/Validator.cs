@@ -108,7 +108,7 @@ internal static class Validator
             }
 
             if (!configErrors.IsEmpty())
-                errorsFound.Add($"Config {item.Name}", configErrors);
+                errorsFound.Add($"Configuration {item.Name}", configErrors);
         }
     }
 
@@ -126,10 +126,14 @@ internal static class Validator
         }
 
         AssembliesNameLinks cfgMaterialLinks = config.AssembliesToUse;
-        AssembliesCollection providedMaterialsForOs = materials.GetValueOrDefault(config.Os)!;
+        var providedMaterialsForTargetOs = materials.GetValueOrDefault(config.Os)!;
+        var providedMaterialsForRunningOS = materials.GetValueOrDefault(Constants.RunningOs)!;
 
-        if (providedMaterialsForOs.Processed.IsEmpty()
-            && providedMaterialsForOs.Crossgen2s.IsEmpty())
+        // Crossgen2 is a slightly different story. Since it is currently run
+        // in the machine where this app is executing, we need crossgen2
+        // assemblies for our running OS, rather than the config's target OS.
+        if (providedMaterialsForTargetOs.Processed.IsEmpty()
+            && providedMaterialsForRunningOS.Crossgen2s.IsEmpty())
         {
             cfgErrors.Add($"OS {config.Os} has no Processed Assemblies or Crossgen2's"
                         + $" specified, and config {config.Name} needs processing.");
@@ -141,13 +145,13 @@ internal static class Validator
         // whenever we need them.
 
         ValidateMaterialLinks(cfgMaterialLinks.Processed, "Processed",
-                              providedMaterialsForOs.Processed, cfgErrors);
+                              providedMaterialsForTargetOs.Processed, cfgErrors);
 
         ValidateMaterialLinks(cfgMaterialLinks.Runtime, "Runtime",
-                              providedMaterialsForOs.Runtimes, cfgErrors);
+                              providedMaterialsForTargetOs.Runtimes, cfgErrors);
 
         ValidateMaterialLinks(cfgMaterialLinks.Crossgen2, "Crossgen2",
-                              providedMaterialsForOs.Crossgen2s, cfgErrors);
+                              providedMaterialsForRunningOS.Crossgen2s, cfgErrors);
     }
 
     private static void ValidateMaterialLinks(string cfgMatLink,
