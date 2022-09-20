@@ -3,53 +3,53 @@ assemblies:
   windows:
     processed:
       - name: WindowsComposites
-        path: ~/Development/WhatWeDoin/Windows/CompositesAsms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/CompositesAsms
       - name: WindowsBackup
-        path: ~/Development/WhatWeDoin/Windows/CompositesAsmsBackup
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/CompositesAsmsBackup
     runtimes:
       - name: Windows7SDK
-        path: ~/Development/WhatWeDoin/Windows/Runtimeasms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/Runtimeasms
       - name: Windows8SDK
-        path: ~/Development/WhatWeDoin/Windows/Runtimeasms8
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/Runtimeasms8
     crossgen2s:
       - name: WinCG2
-        path: ~/Development/WhatWeDoin/Windows/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/TheCrossgen2sWins
       - name: WinCG2AccidentalCopy
-        path: ~/Development/WhatWeDoin/Windows/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Windows/TheCrossgen2sWins
 
   macos:
     processed:
       - name: MacOSComposites
-        path: ~/Development/WhatWeDoin/MacOS/CompositesAsms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/CompositesAsms
       - name: MacOSBackup
-        path: ~/Development/WhatWeDoin/MacOS/CompositesAsmsBackup
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/CompositesAsmsBackup
     runtimes:
       - name: MacOS7SDK
-        path: ~/Development/WhatWeDoin/MacOS/Runtimeasms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/Runtimeasms
       - name: MacOS8SDK
-        path: ~/Development/WhatWeDoin/MacOS/Runtimeasms8
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/Runtimeasms8
     crossgen2s:
       - name: OSXCG2
-        path: ~/Development/WhatWeDoin/MacOS/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/TheCrossgen2sWins
       - name: OSXCG2AccidentalCopy
-        path: ~/Development/WhatWeDoin/MacOS/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/MacOS/TheCrossgen2sWins
 
   linux:
     processed:
       - name: LinuxComposites
-        path: ~/Development/WhatWeDoin/Linux/CompositesAsms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/CompositesAsms
       - name: LinuxBackup
-        path: ~/Development/WhatWeDoin/Linux/CompositesAsmsBackup
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/CompositesAsmsBackup
     runtimes:
       - name: Linux7SDK
-        path: ~/Development/WhatWeDoin/Linux/Runtimeasms
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/Runtimeasms
       - name: Linux8SDK
-        path: ~/Development/WhatWeDoin/Linux/Runtimeasms8
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/Runtimeasms8
     crossgen2s:
       - name: UnixCG2
-        path: ~/Development/WhatWeDoin/Linux/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/TheCrossgen2sWins
       - name: UnixCG2AccidentalCopy
-        path: ~/Development/WhatWeDoin/Linux/TheCrossgen2sWins
+        path: /Users/ivdiazsa186/Development/WhatWeDoin/Linux/TheCrossgen2sWins
 
 configurations:
 

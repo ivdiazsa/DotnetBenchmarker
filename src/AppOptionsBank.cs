@@ -51,7 +51,7 @@ public class AppOptionsBank
 
         if (Validator.ValidateAll(AppDesc))
         {
-            Console.WriteLine("\nEverything's in order. Running the app now :)\n");
+            Console.WriteLine("\nEverything's in order. Running the app now :)");
         }
         else
         {

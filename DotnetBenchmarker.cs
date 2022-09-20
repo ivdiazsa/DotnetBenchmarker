@@ -24,6 +24,10 @@ internal class BenchmarkerCore
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
         PrepareResourcesTree();
+
+        var workshop = new AssembliesWorkshop(optsBank.AppDesc.Assemblies,
+                                              optsBank.AppDesc.Configurations);
+        workshop.Run();
     }
 
     static void PrepareResourcesTree()

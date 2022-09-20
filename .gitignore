@@ -8,15 +8,8 @@
 # .NET Build Files
 bin/*
 obj/*
-Resources/BuildEngine/bin/*
-Resources/BuildEngine/obj/*
 
 # Results and Logs Files
-Logs/*
-Results/*
-
-# Dotnet, Crossgen2, and Processed Binaries
-Resources/Crossgen2*
-Resources/Dotnet*
-Resources/*output*
-Resources/*.txt
+logs/*
+results/*
+resources/*

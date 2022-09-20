@@ -16,6 +16,7 @@ public class MaterialsRetriever
         foreach (Configuration config in configurations)
         {
             AssembliesNameLinks asmsLinks = config.AssembliesToUse;
+            logger.Write("\n");
 
             // Find and copy the processed assemblies (if any) for this
             // configuration. If processed assemblies are present, then there's
@@ -24,7 +25,7 @@ public class MaterialsRetriever
             {
                 FetchProcessedAssemblies(assemblies[config.Os].Processed,
                                          asmsLinks.Processed, config.Os, logger);
-                return ;
+                continue;
             }
 
             // Find and copy the runtime assemblies for this configuration, or
@@ -73,7 +74,7 @@ public class MaterialsRetriever
         string dstPath = Path.Combine(Constants.Paths.Resources, os, "runtimes",
                                       "latest");
 
-        logger.Write("\nNo runtimes specified. Will use a nightly build...\n");
+        logger.Write("No runtimes specified. Will use a nightly build...\n");
 
         if (Directory.Exists(dstPath))
         {
@@ -120,8 +121,8 @@ public class MaterialsRetriever
 
         if (Directory.Exists(dstPath))
         {
-                logger.Write($"'{searchedAsms.Name}' {asmsKind} assemblies"
-                            + $" found in {dstPath}. Skipping...\n");
+            logger.Write($"'{searchedAsms.Name}' {asmsKind} assemblies"
+                        + $" found in {dstPath}. Skipping...\n");
             return ;
         }
 
