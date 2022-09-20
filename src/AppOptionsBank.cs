@@ -59,6 +59,7 @@ public class AppOptionsBank
             Environment.Exit(-2);
         }
 
+        // Environment.Exit(3);
         MatchAssembliesToConfigs();
     }
 

@@ -117,26 +117,65 @@ internal static class Validator
         Configuration config,
         List<string> cfgErrors)
     {
-        if (!materials.ContainsKey(config.Os))
+        // We have a Build Phase, and therefore we need a Crossgen2 we can run
+        // on our current machine.
+        if (!materials.ContainsKey(Constants.RunningOs))
         {
-            cfgErrors.Add($"OS {config.Os} requires building materials, but none"
-                        + " were provided.");
+            cfgErrors.Add($"{Constants.RunningOs.Capitalize()} building materials"
+                        + " not provided and are needed.");
             _totalErrors++;
             return ;
         }
 
         AssembliesNameLinks cfgMaterialLinks = config.AssembliesToUse;
+
+        // If (a) link(s) to processed and/or runtime assemblies were specified,
+        // we have to ensure they are defined in the target OS in the 'Assemblies'
+        // section. Note that "Latest" is a keyword here. It means this configuration
+        // will use a nightly build, and therefore we have nothing else to
+        // verify here.
+        if (!materials.ContainsKey(config.Os))
+        {
+            bool lol = false;
+
+            // TODO: Refactor this into a single validation function :)
+
+            if (!string.IsNullOrEmpty(cfgMaterialLinks.Processed))
+            {
+                cfgErrors.Add("AssembliesToUse: Processed Assemblies link was"
+                            + $" specified for {config.Os.Capitalize()}, but"
+                            + " none were found in the 'Assemblies' section.");
+                _totalErrors++;
+                lol = true;
+            }
+
+            // "Latest" is a keyword for using nightly builds, so that one is
+            // valid for our app's purposes.
+            if (!string.IsNullOrEmpty(cfgMaterialLinks.Runtime)
+                && !cfgMaterialLinks.Runtime.Equals("Latest"))
+            {
+                cfgErrors.Add("AssembliesToUse: Runtime Assemblies link was"
+                            + $" specified for {config.Os.Capitalize()}, but"
+                            + " none were found in the 'Assemblies' section.");
+                _totalErrors++;
+                lol = true;
+            }
+
+            if (lol)
+                return ;
+        }
+
         var providedMaterialsForTargetOs = materials.GetValueOrDefault(config.Os)!;
         var providedMaterialsForRunningOS = materials.GetValueOrDefault(Constants.RunningOs)!;
 
         // Crossgen2 is a slightly different story. Since it is currently run
         // in the machine where this app is executing, we need crossgen2
         // assemblies for our running OS, rather than the config's target OS.
-        if (providedMaterialsForTargetOs.Processed.IsEmpty()
-            && providedMaterialsForRunningOS.Crossgen2s.IsEmpty())
+        if (providedMaterialsForRunningOS.Crossgen2s.IsEmpty())
         {
-            cfgErrors.Add($"OS {config.Os} has no Processed Assemblies or Crossgen2's"
-                        + $" specified, and config {config.Name} needs processing.");
+            cfgErrors.Add($"Running OS {Constants.RunningOs.Capitalize()} has no"
+                        + " given Crossgen2's This config needs them for its"
+                        + " Build Phase.");
             return ;
         }
 
@@ -144,12 +183,24 @@ internal static class Validator
         // present in the 'Assemblies' section. Otherwise, we will fail later on
         // whenever we need them.
 
-        ValidateMaterialLinks(cfgMaterialLinks.Processed, "Processed",
-                              providedMaterialsForTargetOs.Processed, cfgErrors);
+        if (!string.IsNullOrEmpty(cfgMaterialLinks.Processed))
+        {
+            ValidateMaterialLinks(cfgMaterialLinks.Processed, "Processed",
+                                  providedMaterialsForTargetOs.Processed, cfgErrors);
+        }
 
-        ValidateMaterialLinks(cfgMaterialLinks.Runtime, "Runtime",
-                              providedMaterialsForTargetOs.Runtimes, cfgErrors);
+        // If the user wants to use a nightly build, regardless of any other
+        // specified runtimes, they'll use the 'Latest' keyword. In this case,
+        // we have nothing to check since those binaries will be acquired later on :)
+        if (!string.IsNullOrEmpty(cfgMaterialLinks.Runtime)
+            && !cfgMaterialLinks.Runtime.Equals("Latest"))
+        {
+            ValidateMaterialLinks(cfgMaterialLinks.Runtime, "Runtime",
+                                  providedMaterialsForTargetOs.Runtimes, cfgErrors);
+        }
 
+        // By this point, we are certain that at least one Crossgen2 build was
+        // specified. Now, let's just make sure that there's a match.
         ValidateMaterialLinks(cfgMaterialLinks.Crossgen2, "Crossgen2",
                               providedMaterialsForRunningOS.Crossgen2s, cfgErrors);
     }

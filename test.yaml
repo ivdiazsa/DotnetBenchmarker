@@ -75,7 +75,7 @@ configurations:
   - name: Config3
     os: linux
     assembliesToUse:
-      runtime: Linux7SDK
+      runtime: Latest
       crossgen2: OSXCG2
     buildPhase:
       params:
