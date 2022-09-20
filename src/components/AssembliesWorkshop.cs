@@ -38,6 +38,8 @@ public class AssembliesWorkshop
             // GetRuntimeAssemblies()
 
             // GetCrossgen2Assemblies()
+            FetchCrossgen2Assemblies(_assemblies[config.Os].Crossgen2s,
+                                     asmsLinks.Crossgen2, config.Os, lol);
         }
         return ;
     }
@@ -77,6 +79,45 @@ public class AssembliesWorkshop
 
         // Bring those processed assemblies to our resources folder tree.
         _logger.Write($"Copying processed assemblies from '{srcPath}' to"
+                    + $" '{dstPath}'...\n");
+        CopyContents(srcPath, dstPath);
+    }
+
+    private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
+                                          string cg2AsmsLink,
+                                          string os,
+                                          HashSet<string> lol)
+    {
+        // It is guaranteed we will find a match here. If not, then that
+        // would mean a bug in our validation process that we would have
+        // to take a look at.
+        AssembliesDescription cg2Asms = allCg2s.Find(
+            asmDesc => asmDesc.Name.Equals(cg2AsmsLink)
+        )!;
+
+        // Check if we already have these processed assemblies. If not,
+        // then we copy them. Otherwise, we skip them.
+        string srcPath = cg2Asms.Path;
+        string dstPath = Path.Combine(Constants.Paths.Resources, os, "crossgen2s",
+                                      cg2Asms.Name);
+
+        if (Directory.Exists(dstPath))
+        {
+            // If we haven't informed the user about these assemblies
+            // already present, then do so now. Otherwise, just skip
+            // and continue processing.
+            if (!lol.Contains(dstPath))
+            {
+                _logger.Write($"'{cg2Asms.Name}' crossgen2 assemblies"
+                            + $" found in {dstPath}. Skipping...\n");
+                lol.Add(dstPath);
+            }
+
+            return ;
+        }
+
+        // Bring those processed assemblies to our resources folder tree.
+        _logger.Write($"Copying crossgen2 assemblies from '{srcPath}' to"
                     + $" '{dstPath}'...\n");
         CopyContents(srcPath, dstPath);
     }
