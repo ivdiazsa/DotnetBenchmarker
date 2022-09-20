@@ -17,11 +17,14 @@ public class MaterialsRetriever
         {
             AssembliesNameLinks asmsLinks = config.AssembliesToUse;
 
-            // Find and copy the processed assemblies (if any) for this configuration.
+            // Find and copy the processed assemblies (if any) for this
+            // configuration. If processed assemblies are present, then there's
+            // no need to further get a runtime and a crossgen2, so we just return.
             if (!string.IsNullOrEmpty(asmsLinks.Processed))
             {
                 FetchProcessedAssemblies(assemblies[config.Os].Processed,
                                          asmsLinks.Processed, config.Os, logger);
+                return ;
             }
 
             // Find and copy the runtime assemblies for this configuration, or

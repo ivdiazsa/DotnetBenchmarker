@@ -1,7 +1,6 @@
 assemblies:
 
   windows:
-
     processed: # Optional
       - name: WindowsComposites1
         path: Path/To/Windows/Composites/1
@@ -19,7 +18,6 @@ assemblies:
         path: Path/To/Windows/Crossgen2/2
 
   macos:
-
     processed: # Optional
       - name: MacOSComposites1
         path: Path/To/MacOS/Composites/1
@@ -37,7 +35,6 @@ assemblies:
         path: Path/To/MacOS/Crossgen2/2
 
   linux:
-
     processed: # Optional
       - name: LinuxComposites1
         path: Path/To/Linux/Composites/1

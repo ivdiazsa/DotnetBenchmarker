@@ -6,6 +6,8 @@
 // WORK ITEMS:
 //
 // - Begin working on the app!
+// - Check the TODO and NOTE notes throughout the app.
+// - OS Compatibility Matrix.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -21,12 +23,6 @@ internal class BenchmarkerCore
         // Main Script Here!
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
-
-        // Get all resources in one place:
-        //   * resources
-        //   * logs
-        //   * results
-
         PrepareResourcesTree();
     }
 
