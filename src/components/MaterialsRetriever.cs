@@ -13,46 +13,45 @@ public class MaterialsRetriever
                                List<Configuration> configurations,
                                MultiIOLogger logger)
     {
-        var lol = new HashSet<string>();
-
         foreach (Configuration config in configurations)
         {
             AssembliesNameLinks asmsLinks = config.AssembliesToUse;
 
-            // GetProcessedAssemblies()
             // Find and copy the processed assemblies (if any) for this configuration.
             if (!string.IsNullOrEmpty(asmsLinks.Processed))
             {
                 FetchProcessedAssemblies(assemblies[config.Os].Processed,
-                                         asmsLinks.Processed, config.Os, lol,
-                                         logger);
+                                         asmsLinks.Processed, config.Os, logger);
             }
 
-            // GetRuntimeAssemblies()
+            // Find and copy the runtime assemblies for this configuration, or
+            // download the nightly build.
             FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
-                                   asmsLinks.Runtime, config.Os, lol, logger);
+                                   asmsLinks.Runtime, config.Os, logger);
 
-            // GetCrossgen2Assemblies()
+            // Find and copy the crossgen2 assemblies for this configuration.
+            // Note that these ones depend on the OS the app is running on, not
+            // on the configuration's target OS.
+            FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
+                                     asmsLinks.Crossgen2, Constants.RunningOs,
+                                     logger);
         }
-        return ;
     }
 
     private void FetchProcessedAssemblies(List<AssembliesDescription> allProcessed,
                                           string procAsmsLink,
                                           string os,
-                                          HashSet<string> lol,
                                           MultiIOLogger logger)
     {
         // Copy the processed assemblies from the location specified in the
         // link, to our resources folder.
         CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink, os,
-                                        "processed", lol, logger);
+                                        "processed", logger);
     }
 
     private void FetchRuntimeAssemblies(List<AssembliesDescription> allRuntimes,
                                         string runAsmsLink,
                                         string os,
-                                        HashSet<string> lol,
                                         MultiIOLogger logger)
     {
         // We have given runtimes. Therefore, the assemblies link has been set,
@@ -62,7 +61,7 @@ public class MaterialsRetriever
         if (!allRuntimes.IsEmpty() && !runAsmsLink.Equals("Latest"))
         {
             CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink, os,
-                                            "runtimes", lol, logger);
+                                            "runtimes", logger);
             return ;
         }
 
@@ -75,28 +74,32 @@ public class MaterialsRetriever
 
         if (Directory.Exists(dstPath))
         {
-            // If we haven't informed the user about these assemblies
-            // already present, then do so now. Otherwise, just skip
-            // and continue processing.
-            if (!lol.Contains(dstPath))
-            {
-                logger.Write($"'{os.Capitalize()}' nightly runtime build"
-                            + $" found in {dstPath}. Skipping...\n");
-                lol.Add(dstPath);
-            }
-
+            logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
+                        + $" {dstPath}. Skipping...\n");
             return ;
         }
 
         // No runtimes found, so we download a nightly .NET SDK build.
         Directory.CreateDirectory(dstPath);
+        DownloadNightlyBuild(os, dstPath, logger);
+    }
+
+    private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
+                                          string cg2AsmsLink,
+                                          string os,
+                                          MultiIOLogger logger
+    )
+    {
+        // Copy the processed assemblies from the location specified in the
+        // link, to our resources folder.
+        CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, os, "crossgen2s",
+                                        logger);
     }
 
     private void CopyAssembliesFromPathUsingLink(List<AssembliesDescription> allAsms,
                                                  string asmsLink,
                                                  string os,
                                                  string asmsKind,
-                                                 HashSet<string> lol,
                                                  MultiIOLogger logger)
     {
         // It is guaranteed we will find a match here. If not, then that
@@ -114,16 +117,8 @@ public class MaterialsRetriever
 
         if (Directory.Exists(dstPath))
         {
-            // If we haven't informed the user about these assemblies
-            // already present, then do so now. Otherwise, just skip
-            // and continue processing.
-            if (!lol.Contains(dstPath))
-            {
                 logger.Write($"'{searchedAsms.Name}' {asmsKind} assemblies"
                             + $" found in {dstPath}. Skipping...\n");
-                lol.Add(dstPath);
-            }
-
             return ;
         }
 

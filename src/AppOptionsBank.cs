@@ -83,7 +83,8 @@ public class AppOptionsBank
 
             if (string.IsNullOrEmpty(links.Crossgen2))
             {
-                var firstGivenCrossgen2 = asmsFromCfgOs.Crossgen2s.FirstOrDefault()!;
+                var asmsFromRunningOs = AppDesc.Assemblies[Constants.RunningOs];
+                var firstGivenCrossgen2 = asmsFromRunningOs.Crossgen2s.FirstOrDefault()!;
                 links.Crossgen2 = firstGivenCrossgen2.Name;
             }
         }

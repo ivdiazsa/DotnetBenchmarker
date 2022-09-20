@@ -26,4 +26,9 @@ static class Constants
     public static readonly string DotnetVersion = "8.0.1";
     public static readonly string Timestamp = DateTime.Now.ToString("MMdd-HHmm");
     public static readonly AppPaths Paths = new AppPaths();
+
+    public static readonly string RunningOs = OperatingSystem.IsWindows() ? "windows"
+                                                : OperatingSystem.IsMacOS() ? "macos"
+                                                : OperatingSystem.IsLinux() ? "linux"
+                                                : "other";
 }
