@@ -13,3 +13,6 @@ obj/*
 logs/*
 results/*
 resources/*
+
+# VSCode Files
+.vscode/*
