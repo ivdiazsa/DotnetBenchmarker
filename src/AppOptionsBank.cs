@@ -64,6 +64,7 @@ public class AppOptionsBank
 
     public void ShowAppDescription() => Console.Write(AppDesc.ToString());
 
+    // TODO: Move this to the AppDescription class.
     private void MatchAssembliesToConfigs()
     {
         foreach (Configuration item in AppDesc.Configurations)

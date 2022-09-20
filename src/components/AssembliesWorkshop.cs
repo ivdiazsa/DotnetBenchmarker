@@ -7,9 +7,9 @@ namespace DotnetBenchmarker;
 // Class: AssembliesWorkshop
 public class AssembliesWorkshop
 {
-    private Dictionary<string, AssembliesCollection> _assemblies;
-    private List<Configuration> _configurations;
-    private MultiIOLogger _logger;
+    private readonly Dictionary<string, AssembliesCollection> _assemblies;
+    private readonly List<Configuration> _configurations;
+    private readonly MultiIOLogger _logger;
 
     public AssembliesWorkshop(Dictionary<string, AssembliesCollection> asms,
                               List<Configuration> configs)
@@ -21,139 +21,7 @@ public class AssembliesWorkshop
 
     public void Run()
     {
-        var lol = new HashSet<string>();
-
-        foreach (Configuration config in _configurations)
-        {
-            AssembliesNameLinks asmsLinks = config.AssembliesToUse;
-
-            // GetProcessedAssemblies()
-            // Find and copy the processed assemblies (if any) for this configuration.
-            if (!string.IsNullOrEmpty(asmsLinks.Processed))
-            {
-                FetchProcessedAssemblies(_assemblies[config.Os].Processed,
-                                         asmsLinks.Processed, config.Os, lol);
-            }
-
-            // GetRuntimeAssemblies()
-
-            // GetCrossgen2Assemblies()
-            FetchCrossgen2Assemblies(_assemblies[config.Os].Crossgen2s,
-                                     asmsLinks.Crossgen2, config.Os, lol);
-        }
-        return ;
-    }
-
-    private void FetchProcessedAssemblies(List<AssembliesDescription> allProcessed,
-                                          string procAsmsLink,
-                                          string os,
-                                          HashSet<string> lol)
-    {
-        // It is guaranteed we will find a match here. If not, then that
-        // would mean a bug in our validation process that we would have
-        // to take a look at.
-        AssembliesDescription procAsms = allProcessed.Find(
-            asmDesc => asmDesc.Name.Equals(procAsmsLink)
-        )!;
-
-        // Check if we already have these processed assemblies. If not,
-        // then we copy them. Otherwise, we skip them.
-        string srcPath = procAsms.Path;
-        string dstPath = Path.Combine(Constants.Paths.Resources, os, "processed",
-                                      procAsms.Name);
-
-        if (Directory.Exists(dstPath))
-        {
-            // If we haven't informed the user about these assemblies
-            // already present, then do so now. Otherwise, just skip
-            // and continue processing.
-            if (!lol.Contains(dstPath))
-            {
-                _logger.Write($"'{procAsms.Name}' processed assemblies"
-                            + $" found in {dstPath}. Skipping...\n");
-                lol.Add(dstPath);
-            }
-
-            return ;
-        }
-
-        // Bring those processed assemblies to our resources folder tree.
-        _logger.Write($"Copying processed assemblies from '{srcPath}' to"
-                    + $" '{dstPath}'...\n");
-        CopyContents(srcPath, dstPath);
-    }
-
-    private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
-                                          string cg2AsmsLink,
-                                          string os,
-                                          HashSet<string> lol)
-    {
-        // It is guaranteed we will find a match here. If not, then that
-        // would mean a bug in our validation process that we would have
-        // to take a look at.
-        AssembliesDescription cg2Asms = allCg2s.Find(
-            asmDesc => asmDesc.Name.Equals(cg2AsmsLink)
-        )!;
-
-        // Check if we already have these processed assemblies. If not,
-        // then we copy them. Otherwise, we skip them.
-        string srcPath = cg2Asms.Path;
-        string dstPath = Path.Combine(Constants.Paths.Resources, os, "crossgen2s",
-                                      cg2Asms.Name);
-
-        if (Directory.Exists(dstPath))
-        {
-            // If we haven't informed the user about these assemblies
-            // already present, then do so now. Otherwise, just skip
-            // and continue processing.
-            if (!lol.Contains(dstPath))
-            {
-                _logger.Write($"'{cg2Asms.Name}' crossgen2 assemblies"
-                            + $" found in {dstPath}. Skipping...\n");
-                lol.Add(dstPath);
-            }
-
-            return ;
-        }
-
-        // Bring those processed assemblies to our resources folder tree.
-        _logger.Write($"Copying crossgen2 assemblies from '{srcPath}' to"
-                    + $" '{dstPath}'...\n");
-        CopyContents(srcPath, dstPath);
-    }
-
-    private void CopyContents(string sourceDir, string destinationDir)
-    {
-        // Get information about the source directory.
-        var srcDirInfo = new DirectoryInfo(sourceDir);
-
-        // Check if the source directory exists.
-        if (!srcDirInfo.Exists)
-            throw new DirectoryNotFoundException($"Directory {srcDirInfo.FullName}"
-                                               + " was not found.");
-
-        // Create the destination directory.
-        Directory.CreateDirectory(destinationDir);
-
-        // Get all info on the next level of subdirectories.
-        DirectoryInfo[] innerDirsInfos = srcDirInfo.GetDirectories();
-
-        // Copy all files.
-        foreach (FileInfo fInfo in srcDirInfo.GetFiles())
-        {
-            string fileDestinationPath = Path.Combine(destinationDir, fInfo.Name);
-            fInfo.CopyTo(fileDestinationPath);
-        }
-
-        // No more subdirectories, then we're finished.
-        if (innerDirsInfos.IsEmpty())
-            return ;
-
-        // We still have subfolders to process, so we recurse with a deep copy.
-        foreach (DirectoryInfo dInfo in innerDirsInfos)
-        {
-            string dirDestinationPath = Path.Combine(destinationDir, dInfo.Name);
-            CopyContents(dInfo.FullName, dirDestinationPath);
-        }
+        var retriever = new MaterialsRetriever();
+        retriever.SearchAndFetch(_assemblies, _configurations, _logger);
     }
 }
