@@ -1,5 +1,4 @@
 // File: src/Models/Configurations/Configuration.cs
-using System.Collections.Generic;
 
 namespace DotnetBenchmarker;
 

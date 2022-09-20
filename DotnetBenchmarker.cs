@@ -21,8 +21,27 @@ internal class BenchmarkerCore
         // Main Script Here!
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
-        optsBank.ShowAppDescription();
-        TestExit();
+
+        // Get all resources in one place:
+        //   * resources
+        //   * logs
+        //   * results
+
+        PrepareResourcesTree();
+    }
+
+    static void PrepareResourcesTree()
+    {
+        AppPaths resourcesPaths = Constants.Paths;
+
+        if (!System.IO.Directory.Exists(resourcesPaths.Logs))
+            System.IO.Directory.CreateDirectory(resourcesPaths.Logs);
+
+        if (!System.IO.Directory.Exists(resourcesPaths.Resources))
+            System.IO.Directory.CreateDirectory(resourcesPaths.Resources);
+
+        if (!System.IO.Directory.Exists(resourcesPaths.Results))
+            System.IO.Directory.CreateDirectory(resourcesPaths.Results);
     }
 
     // This functionie is only used for testing individual components :)
