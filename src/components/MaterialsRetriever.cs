@@ -154,16 +154,17 @@ public partial class AssembliesWorkshop
 
             // We can now construct the url to download.
             string url = $"https://aka.ms/dotnet/{Constants.DotnetVersion}xx/"
-                        + "daily/dotnet-sdk-{osCode}-x64.{zipExtension}";
+                        + $"daily/dotnet-sdk-{osCode}-x64.{zipExtension}";
+
+            string dlPath = Path.Combine(dstPath,
+                                        $"dotnet-sdk-{osCode}-x64.{zipExtension}");
 
             // Download and extract the bundled zip or tar.
-            logger.Write($"Downloading latest {os.Capitalize()} .NET SDK nightly build...\n");
-            var webClient = new WebClient();
+            logger.Write($"Downloading latest {os.Capitalize()} .NET SDK nightly build"
+                        + $" to {dlPath}...\n");
 
-            webClient.DownloadFile(
-                url,
-                Path.Combine(dstPath, $"dotnet-sdk-{osCode}.{zipExtension}")
-            );
+            var webClient = new WebClient();
+            webClient.DownloadFile(url, dlPath);
 
             logger.Write($"Extracting latest {os.Capitalize()} .NET SDK nightly build...\n");
             using (Process tar = new Process())
@@ -171,8 +172,7 @@ public partial class AssembliesWorkshop
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "tar",
-                    Arguments = $"-xf {dstPath}/dotnet-sdk-{osCode}.{zipExtension}"
-                            + $" -C {dstPath}",
+                    Arguments = $"-xf {dlPath} -C {dstPath}",
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
                     StandardOutputEncoding = System.Text.Encoding.UTF8,

@@ -35,7 +35,7 @@ public partial class AssembliesWorkshop
             var config = _configurations[i];
             var buildParams = config.BuildPhase;
 
-            _logger.Write($"\nSetting up for configuration {config.Name} ({i+1}/{total})...\n");
+            _logger.Write($"\n\nSetting up for configuration {config.Name} ({i+1}/{total})...\n");
 
             if (buildParams is null)
             {
