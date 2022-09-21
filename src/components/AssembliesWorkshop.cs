@@ -1,5 +1,7 @@
 // File: src/components/AssembliesWorkshop.cs
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace DotnetBenchmarker;
@@ -37,45 +39,137 @@ public partial class AssembliesWorkshop
 
             if (buildParams is null)
             {
-                _logger.Write("No Build Phase required for this configuration."
-                            + " Moving on to the next...\n");
+                _logger.Write("INFO: No Build Phase required for this"
+                            + " configuration. Moving on to the next...\n");
                 continue;
             }
 
-            // string crossgenCmd = GenerateCrossgenCommand();
+            // These configuration's binaries are already there, presumably
+            // from a previous run. We just let the user know and move on to
+            // the next configuration.
+            string outputFolder = Path.Combine(Constants.Paths.Resources,
+                                               config.Os, "processed",
+                                               $"{config.Name}-processed");
+            if (Directory.Exists(outputFolder))
+            {
+                _logger.Write($"INFO: Configuration {config.Name} output binaries"
+                            + $" found in {outputFolder}. Moving on to the next...\n");
+                continue;
+            }
+
+            // Remember that the runtime binaries must match the target configuration,
+            // while the crossgen2 binaries must match the running platform.
+
+            AssembliesCollection targetOsAsms = _assemblies[config.Os];
+            AssembliesCollection runningOsAsms = _assemblies[Constants.RunningOs];
+            AssembliesNameLinks asmsToUseLinks = config.AssembliesToUse;
+
+            string runtimePath =
+                targetOsAsms.Runtimes
+                            .Find(run => run.Name.Equals(asmsToUseLinks.Runtime))!
+                            .Path;
+
+            string crossgen2Path =
+                runningOsAsms.Crossgen2s
+                            .Find(cg2 => cg2.Name.Equals(asmsToUseLinks.Crossgen2))!
+                            .Path;
+
+            string crossgenApp = Path.Combine(crossgen2Path, "crossgen2");
+
+            // Windows executables end in '.exe', while Unix ones don't have an
+            // extension by default.
+            if (Constants.RunningOs.Equals("windows"))
+            {
+                crossgenApp = Path.ChangeExtension(crossgenApp, ".exe");
+            }
+
+            string crossgenArgs = GenerateCrossgenArgs(config, outputFolder,
+                                                       runtimePath, crossgen2Path);
+            _logger.Write($"\n{crossgenApp} {crossgenArgs}\n");
         }
 
         return ;
     }
 
-    private string GenerateCrossgenCommand(BuildPhaseDescription buildParams,
-                                           string targetOs)
+    // TODO: This function is meant to do any sort of Crossgen2 processing, but
+    // currently, only composites are supported due to urgency. Making support
+    // more general is one of the highest priority work items at the moment.
+    private string GenerateCrossgenArgs(Configuration config, string outputPath,
+                                        string runtimePath, string crossgen2Path)
     {
         var cmdSb = new StringBuilder();
         string compositeResultName = string.Empty;
+        BuildPhaseDescription buildParams = config.BuildPhase!;
 
-        cmdSb.AppendFormat("--targetos={0}", targetOs);
+        // Target OS is defined in the configuration, and for the time being,
+        // we only support targeting the x64 architecture. But do not fret!
+        // Support for other platforms is in the works.
+        cmdSb.AppendFormat("--targetos={0}", config.Os);
         cmdSb.Append(" --targetarch=x64");
 
+        // Set whether we want to compile using AVX2.
         if (buildParams.UseAvx2)
         {
             _logger.Write("Will apply AVX2 instruction set...\n");
             cmdSb.Append(" --instruction-set=avx2");
         }
 
-        // TODO: Need to deal with finding the StandardOptimizationData.mibc
-        // file in the same directory as the crossgen2 executable is.
-
+        // Set whether this will produce a composite image.
         if (buildParams.IsComposite())
             cmdSb.Append(" --composite");
 
-        if (buildParams.FrameworkComposite)
+        // Get the direct paths to the framework and asp.net assemblies within
+        // the runtime folder.
+
+        string fxPath = Path.GetDirectoryName(
+            Directory.GetFiles(runtimePath, "System.Private.CoreLib.dll",
+                               SearchOption.AllDirectories)
+                     .FirstOrDefault(string.Empty)
+        )!;
+
+        string aspNetPath = Path.GetDirectoryName(
+            Directory.GetFiles(runtimePath, "Microsoft.AspNetCore.dll",
+                               SearchOption.AllDirectories)
+                     .FirstOrDefault(string.Empty)
+        )!;
+
+        // Apply Standard Optimization Data if it's present. Otherwise, skip.
+        if (File.Exists($"{crossgen2Path}/StandardOptimizationData.mibc"))
         {
-            compositeResultName += "framework";
-            _logger.Write("Compiling Framework Composites...\n");
-            // Need the paths to the configuration's unprocessed runtime binaries.
+            _logger.Write("Will use StandardOptimizationData.mibc\n");
+            cmdSb.AppendFormat(" --mibc={0}/StandardOptimizationData.mibc",
+                                crossgen2Path);
         }
 
+        // Framework Composites!
+        if (buildParams.FrameworkComposite)
+        {
+            _logger.Write("Compiling Framework Composites...\n");
+            compositeResultName += "framework";
+            cmdSb.AppendFormat(" {0}/*.dll", fxPath);
+
+            // Bundle ASP.NET for the full Fx+Asp Composite!
+            if (buildParams.BundleAspNet)
+            {
+                _logger.Write("ASP.NET will be bundled into the composite image...\n");
+                compositeResultName += "-aspnet";
+                cmdSb.AppendFormat(" {0}/*.dll", aspNetPath);
+            }
+        }
+
+        // ASP.NET Composites! Note this is mutually exclusive with bundling
+        // with the framework. This has already been validated at the beginning.
+        // If not, then that's a bug in the Validator we've got to take a look at.
+        if (buildParams.AspNetComposite)
+        {
+            compositeResultName += "aspnetcore";
+            _logger.Write("Compiling ASP.NET Composites...\n");
+            cmdSb.AppendFormat(" {0}/*.dll", aspNetPath);
+            cmdSb.AppendFormat(" --reference={0}/*.dll", fxPath);
+        }
+
+        // Specify the path where we want to output our new R2R images, and return :)
+        cmdSb.AppendFormat(" --out={0}/{1}.r2r.dll", outputPath, compositeResultName);
         return cmdSb.ToString();
     }
 }
