@@ -138,8 +138,8 @@ public partial class AssembliesWorkshop
         if (File.Exists($"{crossgen2Path}/StandardOptimizationData.mibc"))
         {
             _logger.Write("Will use StandardOptimizationData.mibc\n");
-            cmdSb.AppendFormat(" --mibc={0}/StandardOptimizationData.mibc",
-                                crossgen2Path);
+            cmdSb.AppendFormat(" --mibc={0}", Path.Combine(crossgen2Path,
+                                "StandardOptimizationData.mibc"));
         }
 
         // Framework Composites!
@@ -147,14 +147,14 @@ public partial class AssembliesWorkshop
         {
             _logger.Write("Compiling Framework Composites...\n");
             compositeResultName += "framework";
-            cmdSb.AppendFormat(" {0}/*.dll", fxPath);
+            cmdSb.AppendFormat(" {0}", Path.Combine(fxPath, "*.dll"));
 
             // Bundle ASP.NET for the full Fx+Asp Composite!
             if (buildParams.BundleAspNet)
             {
                 _logger.Write("ASP.NET will be bundled into the composite image...\n");
                 compositeResultName += "-aspnet";
-                cmdSb.AppendFormat(" {0}/*.dll", aspNetPath);
+                cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
             }
         }
 
@@ -165,12 +165,13 @@ public partial class AssembliesWorkshop
         {
             compositeResultName += "aspnetcore";
             _logger.Write("Compiling ASP.NET Composites...\n");
-            cmdSb.AppendFormat(" {0}/*.dll", aspNetPath);
-            cmdSb.AppendFormat(" --reference={0}/*.dll", fxPath);
+            cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
+            cmdSb.AppendFormat(" --reference={0}", Path.Combine(fxPath, "*.dll"));
         }
 
         // Specify the path where we want to output our new R2R images, and return :)
-        cmdSb.AppendFormat(" --out={0}/{1}.r2r.dll", outputPath, compositeResultName);
+        cmdSb.AppendFormat(" --out={0}.r2r.dll",
+                           Path.Combine(outputPath, compositeResultName));
         return cmdSb.ToString();
     }
 }

@@ -1,5 +1,6 @@
 // File: src/utilities/Constants.cs
 using System;
+using System.IO;
 
 namespace DotnetBenchmarker;
 
@@ -13,9 +14,9 @@ readonly struct AppPaths
     public AppPaths()
     {
         Base = Environment.CurrentDirectory;
-        Logs = $"{Base}/logs";
-        Resources = $"{Base}/resources";
-        Results = $"{Base}/results";
+        Logs = Path.Combine(Base, "logs");
+        Resources = Path.Combine(Base, "resources");
+        Results = Path.Combine(Base, "results");
     }
 
     public string Base { get; init; }
