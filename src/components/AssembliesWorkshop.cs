@@ -18,7 +18,8 @@ public partial class AssembliesWorkshop
     {
         _assemblies = asms;
         _configurations = configs;
-        _logger = new MultiIOLogger($"{Constants.Paths.Logs}/build-log-{Constants.Timestamp}.txt");
+        _logger = new MultiIOLogger($"{Constants.Paths.Logs}/"
+                                  + $"build-log-{Constants.Timestamp}.txt");
     }
 
     public void Run()

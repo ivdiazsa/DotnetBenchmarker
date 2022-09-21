@@ -33,10 +33,34 @@ public partial class AssembliesWorkshop
                     continue;
                 }
 
+                // This is for those "simplest" scenarios where the user requests
+                // a nightly build by omission. In these cases, there won't be
+                // an entry for said configuration's target OS. We need to add
+                // it, so we have a way of referencing that nightly build later
+                // on in the app.
+                if (!assemblies.ContainsKey(config.Os))
+                {
+                    assemblies.Add(config.Os, new AssembliesCollection());
+                }
+
                 // Find and copy the runtime assemblies for this configuration,
                 // or download the nightly build.
                 FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
                                        asmsLinks.Runtime, config.Os, logger);
+
+                // TODO: This is a little hacky. Will leave it for now but if
+                // there's a way to address this during the final validation
+                // stages before actually running the app, then it would be
+                // better to handle it there.
+                //                            |
+                //                            V
+                // If by this point, the 'Runtime' assemblies link of this
+                // configuration is empty, then we know it's going to use
+                // a nightly build for sure.
+                if (string.IsNullOrEmpty(asmsLinks.Runtime))
+                {
+                    asmsLinks.Runtime = "Latest";
+                }
 
                 // Find and copy the crossgen2 assemblies for this configuration.
                 // Note that these ones depend on the OS the app is running on,
