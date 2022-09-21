@@ -81,9 +81,14 @@ public class BuildPhaseDescription
     // whether we already have built this specific kind of assemblies, and
     // in general for clarity in the logging :)
 
+    public bool IsComposite()
+    {
+        return FrameworkComposite || AspNetComposite;
+    }
+
     public bool NeedsRecompilation()
     {
-        return (FrameworkComposite || AspNetComposite || UseAvx2);
+        return IsComposite() || UseAvx2;
     }
 
     public override string ToString()
