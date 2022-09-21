@@ -25,6 +25,8 @@ internal class BenchmarkerCore
         optsBank.Init(args);
         PrepareResourcesTree();
 
+        // TODO: Add AppDesc getters to the App Options Bank, rather than having
+        // to depend on double redirection.
         if (optsBank.Build)
         {
             var workshop = new AssembliesWorkshop(optsBank.AppDesc.Assemblies,

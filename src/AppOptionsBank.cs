@@ -71,15 +71,24 @@ public class AppOptionsBank
         foreach (Configuration item in AppDesc.Configurations)
         {
             AssembliesNameLinks links = item.AssembliesToUse;
-            AssembliesCollection asmsFromCfgOs = AppDesc.Assemblies[item.Os];
 
-            if (string.IsNullOrEmpty(links.Runtime))
+            // In one of the simplest cases, we will have a configuration
+            // targeting a different OS than the one we are running on, and
+            // requesting a latest SDK build by omission. In this scenario,
+            // there won't be assemblies specified for this configuration's
+            // target OS, and that's perfectly fine.
+
+            if (AppDesc.Assemblies.ContainsKey(item.Os))
             {
-                var firstGivenRuntime = asmsFromCfgOs.Runtimes.FirstOrDefault()!;
-                if (firstGivenRuntime is null)
-                    links.Runtime = "Latest";
-                else
-                    links.Runtime = firstGivenRuntime.Name;
+                AssembliesCollection asmsFromCfgOs = AppDesc.Assemblies[item.Os];
+                if (string.IsNullOrEmpty(links.Runtime))
+                {
+                    var firstGivenRuntime = asmsFromCfgOs.Runtimes.FirstOrDefault()!;
+                    if (firstGivenRuntime is null)
+                        links.Runtime = "Latest";
+                    else
+                        links.Runtime = firstGivenRuntime.Name;
+                }
             }
 
             if (string.IsNullOrEmpty(links.Crossgen2))

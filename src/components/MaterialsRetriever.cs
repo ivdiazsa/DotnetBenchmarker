@@ -86,7 +86,7 @@ public partial class AssembliesWorkshop
                 logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
                             + $" {dstPath}. Skipping...\n");
 
-                // Remember that "Latest" builds are added programatically to
+                // Remember that "Latest" builds are added programmatically to
                 // the list, so we have to make sure to readd it during any
                 // subsequent runs.
                 if (!allRuntimes.Any(r => r.Path.Equals(dstPath)))

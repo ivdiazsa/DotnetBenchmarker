@@ -92,7 +92,7 @@ internal static class Validator
                 if (item.BuildPhase is not null
                     && !string.IsNullOrEmpty(item.AssembliesToUse.Processed))
                 {
-                    Console.WriteLine($"INFO: Configuration {item.Name} has a"
+                    Console.WriteLine($"INFO: Configuration '{item.Name}' has a"
                                     + " Build Phase and Processed Assemblies"
                                     + " specified. Will use the assemblies and"
                                     + " skip the build phase...");
@@ -103,7 +103,7 @@ internal static class Validator
             // just let Crank run its defaults.
             if (item.RunPhase is null)
             {
-                Console.WriteLine($"INFO: Configuration {item.Name} doesn't have"
+                Console.WriteLine($"INFO: Configuration '{item.Name}' doesn't have"
                                 + " a Run Phase. Will use crank's default params...");
             }
 
