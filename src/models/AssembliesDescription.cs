@@ -16,6 +16,12 @@ public class AssembliesDescription
         Path = string.Empty;
     }
 
+    public AssembliesDescription(string name, string path)
+    {
+        Name = name;
+        Path = path;
+    }
+
     public override string ToString()
     {
         return $"Name: {Name}\n"

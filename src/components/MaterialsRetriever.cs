@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace DotnetBenchmarker;
@@ -84,12 +85,24 @@ public partial class AssembliesWorkshop
             {
                 logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
                             + $" {dstPath}. Skipping...\n");
+
+                // Remember that "Latest" builds are added programatically to
+                // the list, so we have to make sure to readd it during any
+                // subsequent runs.
+                if (!allRuntimes.Any(r => r.Path.Equals(dstPath)))
+                    allRuntimes.Add(new AssembliesDescription("Latest", dstPath));
+
                 return ;
             }
 
             // No runtimes found, so we download a nightly .NET SDK build.
             Directory.CreateDirectory(dstPath);
             DownloadNightlyBuild(os, dstPath, logger);
+
+            // Since we officially now have another runtime build (the latest),
+            // add it to the list so later on the configuration(s) that require
+            // it can find it.
+            allRuntimes.Add(new AssembliesDescription("Latest", dstPath));
         }
 
         private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
