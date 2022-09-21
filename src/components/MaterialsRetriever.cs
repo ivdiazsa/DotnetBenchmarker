@@ -7,211 +7,217 @@ using System.Net;
 namespace DotnetBenchmarker;
 
 // Class: MaterialsRetriever
-public class MaterialsRetriever
+public partial class AssembliesWorkshop
 {
-    public void SearchAndFetch(Dictionary<string, AssembliesCollection> assemblies,
-                               List<Configuration> configurations,
-                               MultiIOLogger logger)
+    internal class MaterialsRetriever
     {
-        foreach (Configuration config in configurations)
+        public void SearchAndFetch(Dictionary<string, AssembliesCollection> assemblies,
+                                   List<Configuration> configurations,
+                                   MultiIOLogger logger)
         {
-            AssembliesNameLinks asmsLinks = config.AssembliesToUse;
-            logger.Write("\n");
-
-            // Find and copy the processed assemblies (if any) for this
-            // configuration. If processed assemblies are present, then there's
-            // no need to further get a runtime and a crossgen2, so we just return.
-            if (!string.IsNullOrEmpty(asmsLinks.Processed))
+            foreach (Configuration config in configurations)
             {
-                FetchProcessedAssemblies(assemblies[config.Os].Processed,
-                                         asmsLinks.Processed, config.Os, logger);
-                continue;
+                AssembliesNameLinks asmsLinks = config.AssembliesToUse;
+                logger.Write("\n");
+
+                // Find and copy the processed assemblies (if any) for this
+                // configuration. If processed assemblies are present, then
+                // there's no need to further get a runtime and a crossgen2,
+                // so we just return.
+                if (!string.IsNullOrEmpty(asmsLinks.Processed))
+                {
+                    FetchProcessedAssemblies(assemblies[config.Os].Processed,
+                                             asmsLinks.Processed, config.Os,
+                                             logger);
+                    continue;
+                }
+
+                // Find and copy the runtime assemblies for this configuration,
+                // or download the nightly build.
+                FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
+                                       asmsLinks.Runtime, config.Os, logger);
+
+                // Find and copy the crossgen2 assemblies for this configuration.
+                // Note that these ones depend on the OS the app is running on,
+                // not on the configuration's target OS.
+                FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
+                                         asmsLinks.Crossgen2, Constants.RunningOs,
+                                         logger);
+            }
+        }
+
+        private void FetchProcessedAssemblies(List<AssembliesDescription> allProcessed,
+                                              string procAsmsLink,
+                                              string os,
+                                              MultiIOLogger logger)
+        {
+            // Copy the processed assemblies from the location specified in the
+            // link, to our resources folder.
+            CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink, os,
+                                            "processed", logger);
+        }
+
+        private void FetchRuntimeAssemblies(List<AssembliesDescription> allRuntimes,
+                                            string runAsmsLink,
+                                            string os,
+                                            MultiIOLogger logger)
+        {
+            // We have given runtimes. Therefore, the assemblies link has been
+            // set, either directly in the YAML, or to the first one if originally
+            // omitted. So, we just copy them normally, unless it is specified
+            // we want the latest nightly build.
+            if (!allRuntimes.IsEmpty() && !runAsmsLink.Equals("Latest"))
+            {
+                CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink, os,
+                                                "runtimes", logger);
+                return ;
             }
 
-            // Find and copy the runtime assemblies for this configuration, or
-            // download the nightly build.
-            FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
-                                   asmsLinks.Runtime, config.Os, logger);
+            // We are left with the remaining case. Either we have no runtimes
+            // specified, or the user explicitly requested a nightly build.
+            string dstPath = Path.Combine(Constants.Paths.Resources, os, "runtimes",
+                                        "latest");
 
-            // Find and copy the crossgen2 assemblies for this configuration.
-            // Note that these ones depend on the OS the app is running on, not
-            // on the configuration's target OS.
-            FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
-                                     asmsLinks.Crossgen2, Constants.RunningOs,
-                                     logger);
-        }
-    }
+            logger.Write("No runtimes specified. Will use a nightly build...\n");
 
-    private void FetchProcessedAssemblies(List<AssembliesDescription> allProcessed,
-                                          string procAsmsLink,
-                                          string os,
-                                          MultiIOLogger logger)
-    {
-        // Copy the processed assemblies from the location specified in the
-        // link, to our resources folder.
-        CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink, os,
-                                        "processed", logger);
-    }
-
-    private void FetchRuntimeAssemblies(List<AssembliesDescription> allRuntimes,
-                                        string runAsmsLink,
-                                        string os,
-                                        MultiIOLogger logger)
-    {
-        // We have given runtimes. Therefore, the assemblies link has been set,
-        // either directly in the YAML, or to the first one if originally omitted.
-        // So, we just copy them normally, unless it is required we want the
-        // latest nightly build.
-        if (!allRuntimes.IsEmpty() && !runAsmsLink.Equals("Latest"))
-        {
-            CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink, os,
-                                            "runtimes", logger);
-            return ;
-        }
-
-        // We are left with the remaining case. Either we have no runtimes
-        // specified, or the user explicitly requested a nightly build.
-        string dstPath = Path.Combine(Constants.Paths.Resources, os, "runtimes",
-                                      "latest");
-
-        logger.Write("No runtimes specified. Will use a nightly build...\n");
-
-        if (Directory.Exists(dstPath))
-        {
-            logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
-                        + $" {dstPath}. Skipping...\n");
-            return ;
-        }
-
-        // No runtimes found, so we download a nightly .NET SDK build.
-        Directory.CreateDirectory(dstPath);
-        DownloadNightlyBuild(os, dstPath, logger);
-    }
-
-    private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
-                                          string cg2AsmsLink,
-                                          string os,
-                                          MultiIOLogger logger
-    )
-    {
-        // Copy the processed assemblies from the location specified in the
-        // link, to our resources folder.
-        CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, os, "crossgen2s",
-                                        logger);
-    }
-
-    private void CopyAssembliesFromPathUsingLink(List<AssembliesDescription> allAsms,
-                                                 string asmsLink,
-                                                 string os,
-                                                 string asmsKind,
-                                                 MultiIOLogger logger)
-    {
-        // It is guaranteed we will find a match here. If not, then that
-        // would mean a bug in our validation process that we would have
-        // to take a look at.
-        AssembliesDescription searchedAsms = allAsms.Find(
-            asmsDesc => asmsDesc.Name.Equals(asmsLink)
-        )!;
-
-        // Check if we already have these processed assemblies. If not,
-        // then we copy them. Otherwise, we skip them.
-        string srcPath = searchedAsms.Path;
-        string dstPath = Path.Combine(Constants.Paths.Resources, os, asmsKind,
-                                      searchedAsms.Name);
-
-        if (Directory.Exists(dstPath))
-        {
-            logger.Write($"'{searchedAsms.Name}' {asmsKind} assemblies"
-                        + $" found in {dstPath}. Skipping...\n");
-            return ;
-        }
-
-        // Bring those processed assemblies to our resources folder tree.
-        logger.Write($"Copying {asmsKind} assemblies from '{srcPath}' to"
-                    + $" '{dstPath}'...\n");
-        CopyDirectoryContents(srcPath, dstPath);
-    }
-
-    private void DownloadNightlyBuild(string os, string dstPath, MultiIOLogger logger)
-    {
-        // The SDK download urls are classified by an OS code.
-        string osCode = os switch
-        {
-            "windows" => "win",
-            "macos" => "osx",
-            "linux" => "linux",
-            _ => throw new System.PlatformNotSupportedException($"{os} is unsupported."
-                                                            + " How did this get here?")
-        };
-
-        // The compressed file extension differs as well among platforms.
-        string zipExtension = osCode.Equals("win") ? "zip" : "tar.gz";
-
-        // We can now construct the url to download.
-        string url = $"https://aka.ms/dotnet/{Constants.DotnetVersion}xx/daily/"
-                    + $"dotnet-sdk-{osCode}-x64.{zipExtension}";
-
-        // Download and extract the bundled zip or tar.
-        logger.Write($"Downloading latest {os.Capitalize()} .NET SDK nightly build...\n");
-        var webClient = new WebClient();
-
-        webClient.DownloadFile(
-            url,
-            Path.Combine(dstPath, $"dotnet-sdk-{osCode}.{zipExtension}")
-        );
-
-        logger.Write($"Extracting latest {os.Capitalize()} .NET SDK nightly build...\n");
-        using (Process tar = new Process())
-        {
-            var startInfo = new ProcessStartInfo
+            if (Directory.Exists(dstPath))
             {
-                FileName = "tar",
-                Arguments = $"-xf {dstPath}/dotnet-sdk-{osCode}.{zipExtension}"
-                           + $" -C {dstPath}",
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = System.Text.Encoding.UTF8,
-                UseShellExecute = false,
+                logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
+                            + $" {dstPath}. Skipping...\n");
+                return ;
+            }
+
+            // No runtimes found, so we download a nightly .NET SDK build.
+            Directory.CreateDirectory(dstPath);
+            DownloadNightlyBuild(os, dstPath, logger);
+        }
+
+        private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
+                                              string cg2AsmsLink,
+                                              string os,
+                                              MultiIOLogger logger
+        )
+        {
+            // Copy the processed assemblies from the location specified in the
+            // link, to our resources folder.
+            CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, os,
+                                            "crossgen2s", logger);
+        }
+
+        private void CopyAssembliesFromPathUsingLink(List<AssembliesDescription> allAsms,
+                                                     string asmsLink,
+                                                     string os,
+                                                     string asmsKind,
+                                                     MultiIOLogger logger)
+        {
+            // It is guaranteed we will find a match here. If not, then that
+            // would mean a bug in our validation process that we would have
+            // to take a look at.
+            AssembliesDescription searchedAsms = allAsms.Find(
+                asmsDesc => asmsDesc.Name.Equals(asmsLink)
+            )!;
+
+            // Check if we already have these processed assemblies. If not,
+            // then we copy them. Otherwise, we skip them.
+            string srcPath = searchedAsms.Path;
+            string dstPath = Path.Combine(Constants.Paths.Resources, os,
+                                          asmsKind, searchedAsms.Name);
+
+            if (Directory.Exists(dstPath))
+            {
+                logger.Write($"'{searchedAsms.Name}' {asmsKind} assemblies"
+                            + $" found in {dstPath}. Skipping...\n");
+                return ;
+            }
+
+            // Bring those processed assemblies to our resources folder tree.
+            logger.Write($"Copying {asmsKind} assemblies from '{srcPath}' to"
+                        + $" '{dstPath}'...\n");
+            CopyDirectoryContents(srcPath, dstPath);
+        }
+
+        private void DownloadNightlyBuild(string os, string dstPath, MultiIOLogger logger)
+        {
+            // The SDK download urls are classified by an OS code.
+            string osCode = os switch
+            {
+                "windows" => "win",
+                "macos" => "osx",
+                "linux" => "linux",
+                _ => throw new System.PlatformNotSupportedException(
+                    $"{os} is unsupported. How did this get here?"
+                )
             };
 
-            tar.StartInfo = startInfo;
-            tar.Start();
-            tar.WaitForExit();
+            // The compressed file extension differs as well among platforms.
+            string zipExtension = osCode.Equals("win") ? "zip" : "tar.gz";
+
+            // We can now construct the url to download.
+            string url = $"https://aka.ms/dotnet/{Constants.DotnetVersion}xx/"
+                        + "daily/dotnet-sdk-{osCode}-x64.{zipExtension}";
+
+            // Download and extract the bundled zip or tar.
+            logger.Write($"Downloading latest {os.Capitalize()} .NET SDK nightly build...\n");
+            var webClient = new WebClient();
+
+            webClient.DownloadFile(
+                url,
+                Path.Combine(dstPath, $"dotnet-sdk-{osCode}.{zipExtension}")
+            );
+
+            logger.Write($"Extracting latest {os.Capitalize()} .NET SDK nightly build...\n");
+            using (Process tar = new Process())
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "tar",
+                    Arguments = $"-xf {dstPath}/dotnet-sdk-{osCode}.{zipExtension}"
+                            + $" -C {dstPath}",
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    StandardOutputEncoding = System.Text.Encoding.UTF8,
+                    UseShellExecute = false,
+                };
+
+                tar.StartInfo = startInfo;
+                tar.Start();
+                tar.WaitForExit();
+            }
         }
-    }
 
-    private void CopyDirectoryContents(string sourceDir, string destinationDir)
-    {
-        // Get information about the source directory.
-        var srcDirInfo = new DirectoryInfo(sourceDir);
-
-        // Check if the source directory exists.
-        if (!srcDirInfo.Exists)
-            throw new DirectoryNotFoundException($"Directory {srcDirInfo.FullName}"
-                                               + " was not found.");
-
-        // Create the destination directory.
-        Directory.CreateDirectory(destinationDir);
-
-        // Get all info on the next level of subdirectories.
-        DirectoryInfo[] innerDirsInfos = srcDirInfo.GetDirectories();
-
-        // Copy all files.
-        foreach (FileInfo fInfo in srcDirInfo.GetFiles())
+        private void CopyDirectoryContents(string sourceDir, string destinationDir)
         {
-            string fileDestinationPath = Path.Combine(destinationDir, fInfo.Name);
-            fInfo.CopyTo(fileDestinationPath);
-        }
+            // Get information about the source directory.
+            var srcDirInfo = new DirectoryInfo(sourceDir);
 
-        // No more subdirectories, then we're finished.
-        if (innerDirsInfos.IsEmpty())
-            return ;
+            // Check if the source directory exists.
+            if (!srcDirInfo.Exists)
+                throw new DirectoryNotFoundException($"Directory {srcDirInfo.FullName}"
+                                                    + " was not found.");
 
-        // We still have subfolders to process, so we recurse with a deep copy.
-        foreach (DirectoryInfo dInfo in innerDirsInfos)
-        {
-            string dirDestinationPath = Path.Combine(destinationDir, dInfo.Name);
-            CopyDirectoryContents(dInfo.FullName, dirDestinationPath);
+            // Create the destination directory.
+            Directory.CreateDirectory(destinationDir);
+
+            // Get all info on the next level of subdirectories.
+            DirectoryInfo[] innerDirsInfos = srcDirInfo.GetDirectories();
+
+            // Copy all files.
+            foreach (FileInfo fInfo in srcDirInfo.GetFiles())
+            {
+                string fileDestinationPath = Path.Combine(destinationDir, fInfo.Name);
+                fInfo.CopyTo(fileDestinationPath);
+            }
+
+            // No more subdirectories, then we're finished.
+            if (innerDirsInfos.IsEmpty())
+                return ;
+
+            // We still have subfolders to process, so we recurse with a deep copy.
+            foreach (DirectoryInfo dInfo in innerDirsInfos)
+            {
+                string dirDestinationPath = Path.Combine(destinationDir, dInfo.Name);
+                CopyDirectoryContents(dInfo.FullName, dirDestinationPath);
+            }
         }
     }
 }
