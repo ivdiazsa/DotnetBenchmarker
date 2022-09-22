@@ -10,6 +10,8 @@ public class Configuration
     public string ScenariosFile { get; set; }
     public string Scenario { get; set; }
 
+    public string ProcessedAssembliesPath { get; set; }
+
     public DotnetVersions Versions { get; set; }
     public AssembliesNameLinks AssembliesToUse { get; set; }
     public BuildPhaseDescription? BuildPhase { get; set; }
@@ -23,6 +25,7 @@ public class Configuration
                         + "scenarios/plaintext.benchmarks.yml";
         Scenario = "plaintext";
 
+        ProcessedAssembliesPath = string.Empty;
         Versions = new DotnetVersions();
         AssembliesToUse = new AssembliesNameLinks();
     }

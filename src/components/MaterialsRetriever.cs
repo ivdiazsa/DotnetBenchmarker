@@ -28,8 +28,7 @@ public partial class AssembliesWorkshop
                 if (!string.IsNullOrEmpty(asmsLinks.Processed))
                 {
                     FetchProcessedAssemblies(assemblies[config.Os].Processed,
-                                             asmsLinks.Processed, config.Os,
-                                             logger);
+                                             config, logger);
                     continue;
                 }
 
@@ -45,8 +44,8 @@ public partial class AssembliesWorkshop
 
                 // Find and copy the runtime assemblies for this configuration,
                 // or download the nightly build.
-                FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
-                                       asmsLinks.Runtime, config.Os, logger);
+                FetchRuntimeAssemblies(assemblies[config.Os].Runtimes, config,
+                                       logger);
 
                 // TODO: This is a little hacky. Will leave it for now but if
                 // there's a way to address this during the final validation
@@ -66,49 +65,50 @@ public partial class AssembliesWorkshop
                 // Note that these ones depend on the OS the app is running on,
                 // not on the configuration's target OS.
                 FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
-                                         asmsLinks.Crossgen2, Constants.RunningOs,
-                                         logger);
+                                         config, logger);
             }
         }
 
         private void FetchProcessedAssemblies(List<AssembliesDescription> allProcessed,
-                                              string procAsmsLink,
-                                              string os,
+                                              Configuration config,
                                               MultiIOLogger logger)
         {
             // Copy the processed assemblies from the location specified in the
             // link, to our resources folder.
-            CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink, os,
-                                            "processed", logger);
+            CopyAssembliesFromPathUsingLink(allProcessed, config,
+                                            config.AssembliesToUse.Processed,
+                                            config.Os, "processed", logger);
         }
 
         private void FetchRuntimeAssemblies(List<AssembliesDescription> allRuntimes,
-                                            string runAsmsLink,
-                                            string os,
+                                            Configuration config,
                                             MultiIOLogger logger)
         {
+            string runAsmsLink = config.AssembliesToUse.Runtime;
+
             // We have given runtimes. Therefore, the assemblies link has been
             // set, either directly in the YAML, or to the first one if originally
             // omitted. So, we just copy them normally, unless it is specified
             // we want the latest nightly build.
             if (!allRuntimes.IsEmpty() && !runAsmsLink.Equals("Latest"))
             {
-                CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink, os,
-                                                "runtimes", logger);
+                CopyAssembliesFromPathUsingLink(allRuntimes, config,
+                                                config.AssembliesToUse.Runtime,
+                                                config.Os, "runtimes", logger);
                 return ;
             }
 
             // We are left with the remaining case. Either we have no runtimes
             // specified, or the user explicitly requested a nightly build.
-            string dstPath = Path.Combine(Constants.Paths.Resources, os, "runtimes",
-                                        "latest");
+            string dstPath = Path.Combine(Constants.Paths.Resources, config.Os,
+                                          "runtimes", "latest");
 
             logger.Write("No runtimes specified. Will use a nightly build...\n");
 
             if (Directory.Exists(dstPath))
             {
-                logger.Write($"'{os.Capitalize()}' nightly runtime build found in"
-                            + $" {dstPath}. Skipping...\n");
+                logger.Write($"'{config.Os.Capitalize()}' nightly runtime build"
+                            + $" found in {dstPath}. Skipping...\n");
 
                 // Remember that "Latest" builds are added programmatically to
                 // the list, so we have to make sure to readd it during any
@@ -121,7 +121,7 @@ public partial class AssembliesWorkshop
 
             // No runtimes found, so we download a nightly .NET SDK build.
             Directory.CreateDirectory(dstPath);
-            DownloadNightlyBuild(os, dstPath, logger);
+            DownloadNightlyBuild(config.Os, dstPath, logger);
 
             // Since we officially now have another runtime build (the latest),
             // add it to the list so later on the configuration(s) that require
@@ -130,21 +130,23 @@ public partial class AssembliesWorkshop
         }
 
         private void FetchCrossgen2Assemblies(List<AssembliesDescription> allCg2s,
-                                              string cg2AsmsLink,
-                                              string os,
+                                              Configuration config,
                                               MultiIOLogger logger
         )
         {
             // Copy the processed assemblies from the location specified in the
             // link, to our resources folder.
-            CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, os,
-                                            "crossgen2s", logger);
+            CopyAssembliesFromPathUsingLink(allCg2s, config,
+                                            config.AssembliesToUse.Crossgen2,
+                                            Constants.RunningOs, "crossgen2s",
+                                            logger);
         }
 
         private void CopyAssembliesFromPathUsingLink(List<AssembliesDescription> allAsms,
+                                                     Configuration config,
                                                      string asmsLink,
-                                                     string os,
                                                      string asmsKind,
+                                                     string os,
                                                      MultiIOLogger logger)
         {
             // It is guaranteed we will find a match here. If not, then that

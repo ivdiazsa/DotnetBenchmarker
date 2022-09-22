@@ -64,7 +64,7 @@ public class CrankRunner
         return ;
     }
 
-    private string GenerateCrankArgs()
+    private string GenerateCrankArgs(string appName = "application")
     {
         var cmdSb = new StringBuilder();
         return cmdSb.ToString();
