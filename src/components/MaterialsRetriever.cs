@@ -87,8 +87,8 @@ public partial class AssembliesWorkshop
         {
             // Copy the processed assemblies from the location specified in the
             // link, to our resources folder.
-            CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink, os,
-                                            "processed", logger);
+            CopyAssembliesFromPathUsingLink(allProcessed, procAsmsLink,
+                                            "processed", os, logger);
         }
 
         private void FetchRuntimeAssemblies(List<AssembliesDescription> allRuntimes,
@@ -102,8 +102,8 @@ public partial class AssembliesWorkshop
             // we want the latest nightly build.
             if (!allRuntimes.IsEmpty() && !runAsmsLink.Equals("Latest"))
             {
-                CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink, os,
-                                                "runtimes", logger);
+                CopyAssembliesFromPathUsingLink(allRuntimes, runAsmsLink,
+                                                "runtimes", os, logger);
                 return ;
             }
 
@@ -146,8 +146,8 @@ public partial class AssembliesWorkshop
         {
             // Copy the processed assemblies from the location specified in the
             // link, to our resources folder.
-            CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, os,
-                                            "crossgen2s", logger);
+            CopyAssembliesFromPathUsingLink(allCg2s, cg2AsmsLink, "crossgen2s",
+                                            os, logger);
         }
 
         private void CopyAssembliesFromPathUsingLink(List<AssembliesDescription> allAsms,

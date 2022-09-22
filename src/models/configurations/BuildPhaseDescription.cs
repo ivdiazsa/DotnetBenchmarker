@@ -15,7 +15,7 @@ public class BuildPhaseDescription
     public bool FrameworkComposite { get; set; }
     public bool AspNetComposite { get; set; }
     public bool BundleAspNet { get; set; }
-    public bool FullComposite { get; set; }
+    public bool FullComposite { get; set; } // Currently not supported.
     public bool UseAvx2 { get; set; }
 
     private string _fxResultName = string.Empty;
