@@ -52,10 +52,12 @@ public partial class AssembliesWorkshop
             string outputFolder = Path.Combine(Constants.Paths.Resources,
                                                config.Os, "processed",
                                                $"{config.Name}-processed");
+
             if (Directory.Exists(outputFolder))
             {
                 _logger.Write($"INFO: Configuration {config.Name} output binaries"
                             + $" found in {outputFolder}. Moving on to the next...\n");
+                config.ProcessedAssembliesPath = outputFolder;
                 continue;
             }
             else
@@ -75,6 +77,21 @@ public partial class AssembliesWorkshop
                             .Find(run => run.Name.Equals(asmsToUseLinks.Runtime))!
                             .Path;
 
+            // Get the direct paths to the framework and asp.net assemblies within
+            // the runtime folder.
+
+            string fxPath = Path.GetDirectoryName(
+                Directory.GetFiles(runtimePath, "System.Private.CoreLib.dll",
+                                SearchOption.AllDirectories)
+                        .FirstOrDefault(string.Empty)
+            )!;
+
+            string aspNetPath = Path.GetDirectoryName(
+                Directory.GetFiles(runtimePath, "Microsoft.AspNetCore.dll",
+                                SearchOption.AllDirectories)
+                        .FirstOrDefault(string.Empty)
+            )!;
+
             string crossgen2Path =
                 runningOsAsms.Crossgen2s
                             .Find(cg2 => cg2.Name.Equals(asmsToUseLinks.Crossgen2))!
@@ -90,10 +107,43 @@ public partial class AssembliesWorkshop
             }
 
             string crossgenArgs = GenerateCrossgenArgs(config, outputFolder,
-                                                       runtimePath, crossgen2Path);
+                                                       fxPath, aspNetPath,
+                                                       crossgen2Path);
 
             _logger.Write($"\n{crossgenApp} {crossgenArgs}\n");
             RunCrossgen2(crossgenApp, crossgenArgs);
+
+            // Non-Windows platforms have their own libraries with their coreclr.
+            // We have to copy them to the output folder, otherwise our composites
+            // won't have their engine to run. Windows has its coreclr as another
+            // dll, and therefore it's already included in the composite build.
+
+            if (config.Os.Equals("linux"))
+            {
+                // Copy all the .so files to the output folder.
+                string[] soFiles = Directory.GetFiles(fxPath, "*.so",
+                                                      SearchOption.TopDirectoryOnly);
+
+                foreach (string so in soFiles)
+                {
+                    string soName = Path.GetFileName(so);
+                    _logger.Write($"Copying {soName}...\n");
+                    File.Copy(so, Path.Combine(outputFolder, soName));
+                }
+            }
+            else if (config.Os.Equals("macos"))
+            {
+                // Copy all the .dylib files to the output folder.
+                string[] dylibFiles = Directory.GetFiles(fxPath, "*.dylib",
+                                                         SearchOption.TopDirectoryOnly);
+
+                foreach (string dylib in dylibFiles)
+                {
+                    string dylibName = Path.GetFileName(dylib);
+                    _logger.Write($"Copying {dylibName}...\n");
+                    File.Copy(dylib, Path.Combine(outputFolder, dylibName));
+                }
+            }
 
             // Set the configuration's processed assemblies path to the
             // output folder we just used.
@@ -105,7 +155,8 @@ public partial class AssembliesWorkshop
     // currently, only composites are supported due to urgency. Making support
     // more general is one of the highest priority work items at the moment.
     private string GenerateCrossgenArgs(Configuration config, string outputPath,
-                                        string runtimePath, string crossgen2Path)
+                                        string fxPath, string aspNetPath,
+                                        string crossgen2Path)
     {
         var cmdSb = new StringBuilder();
         string compositeResultName = string.Empty;
@@ -127,21 +178,6 @@ public partial class AssembliesWorkshop
         // Set whether this will produce a composite image.
         if (buildParams.IsComposite())
             cmdSb.Append(" --composite");
-
-        // Get the direct paths to the framework and asp.net assemblies within
-        // the runtime folder.
-
-        string fxPath = Path.GetDirectoryName(
-            Directory.GetFiles(runtimePath, "System.Private.CoreLib.dll",
-                               SearchOption.AllDirectories)
-                     .FirstOrDefault(string.Empty)
-        )!;
-
-        string aspNetPath = Path.GetDirectoryName(
-            Directory.GetFiles(runtimePath, "Microsoft.AspNetCore.dll",
-                               SearchOption.AllDirectories)
-                     .FirstOrDefault(string.Empty)
-        )!;
 
         // Apply Standard Optimization Data if it's present. Otherwise, skip.
         if (File.Exists($"{crossgen2Path}/StandardOptimizationData.mibc"))

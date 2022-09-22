@@ -34,31 +34,31 @@ public class CrankRunner
 
             for (int j = 1; j <= _iterations; j++)
             {
-                _logger.Write($"\nIteration {i}/{_iterations}...\n");
+                _logger.Write($"\nIteration {j}/{_iterations}...\n");
                 _logger.Write($"\ncrank {cmdArgs}\n");
 
-                // using (Process crank = new Process())
-                // {
-                //     var startInfo = new ProcessStartInfo
-                //     {
-                //         FileName = "crank",
-                //         Arguments = cmdArgs,
-                //         CreateNoWindow = true,
-                //         RedirectStandardOutput = true,
-                //         StandardOutputEncoding = Encoding.UTF8,
-                //         UseShellExecute = false,
-                //     };
+                using (Process crank = new Process())
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = "crank",
+                        Arguments = cmdArgs,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        StandardOutputEncoding = Encoding.UTF8,
+                        UseShellExecute = false,
+                    };
 
-                //     crank.StartInfo = startInfo;
-                //     crank.Start();
+                    crank.StartInfo = startInfo;
+                    crank.Start();
 
-                //     while (!crank.StandardOutput.EndOfStream)
-                //     {
-                //         string line = crank.StandardOutput.ReadLine()!;
-                //         _logger.Write($"{line}\n");
-                //     }
-                //     crank.WaitForExit();
-                // }
+                    while (!crank.StandardOutput.EndOfStream)
+                    {
+                        string line = crank.StandardOutput.ReadLine()!;
+                        _logger.Write($"{line}\n");
+                    }
+                    crank.WaitForExit();
+                }
             }
             continue;
         }

@@ -7,14 +7,10 @@
 //
 // - Check the TODO and NOTE notes throughout the app.
 // - OS Compatibility Matrix.
+// - Add more safety to builds failing, so that we don't continue executing
+//   when failure is basically guaranteed.
+// - Add support to run unprocessed builds.
 //
-// BUGS:
-//
-// Breaking:
-//  * OutputFiles are not set if it is a rerun.
-//
-// Non-Breaking:
-//  * Iterations index is off by 1.
 
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
@@ -35,7 +31,7 @@ internal class BenchmarkerCore
         // TODO: Add AppDesc getters to the App Options Bank, rather than having
         // to depend on double redirection.
         var workshop = new AssembliesWorkshop(optsBank.AppDesc.Assemblies,
-                                            optsBank.AppDesc.Configurations);
+                                              optsBank.AppDesc.Configurations);
         workshop.Run();
         System.Console.WriteLine("\nAll builds finished successfully!\n");
 
@@ -47,7 +43,7 @@ internal class BenchmarkerCore
 
         // Submit to crank and record the results of the runs.
         var runner = new CrankRunner(optsBank.AppDesc.Configurations,
-                                        optsBank.Iterations);
+                                     optsBank.Iterations);
         runner.Execute();
         System.Console.WriteLine("\nAll runs finished!\n");
     }
