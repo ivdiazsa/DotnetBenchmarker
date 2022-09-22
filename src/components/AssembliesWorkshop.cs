@@ -94,9 +94,11 @@ public partial class AssembliesWorkshop
 
             _logger.Write($"\n{crossgenApp} {crossgenArgs}\n");
             RunCrossgen2(crossgenApp, crossgenArgs);
-        }
 
-        return ;
+            // Set the configuration's processed assemblies path to the
+            // output folder we just used.
+            config.ProcessedAssembliesPath = outputFolder;
+        }
     }
 
     // TODO: This function is meant to do any sort of Crossgen2 processing, but
