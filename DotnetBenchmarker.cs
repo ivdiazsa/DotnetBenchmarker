@@ -33,6 +33,15 @@ internal class BenchmarkerCore
                                                 optsBank.AppDesc.Configurations);
             workshop.Run();
         }
+
+        System.Console.WriteLine("\nAll builds finished successfully!\n");
+
+        if (optsBank.Run)
+        {
+            // Submit to crank and record the results of the runs.
+            var runner = new CrankRunner(optsBank.AppDesc.Configurations,
+                                         optsBank.Iterations);
+        }
     }
 
     static void PrepareResourcesTree()
