@@ -24,6 +24,7 @@ internal class BenchmarkerCore
     static void Main(string[] args)
     {
         // Main Script Here!
+
         var optsBank = new AppOptionsBank();
         optsBank.Init(args);
         PrepareResourcesTree();
@@ -45,7 +46,7 @@ internal class BenchmarkerCore
         var runner = new CrankRunner(optsBank.AppDesc.Configurations,
                                      optsBank.Iterations);
         runner.Execute();
-        System.Console.WriteLine("\nAll runs finished!\n");
+        System.Console.WriteLine("\nAll tests runs finished!\n");
     }
 
     static void PrepareResourcesTree()

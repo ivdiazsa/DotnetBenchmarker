@@ -25,15 +25,25 @@ public class CrankRunner
     {
         _logger.Write("\nStarting the Crank runs...\n");
 
+        // In order to store the results for further analysis, we gotta keep
+        // track of the relevant part of the output, and parse it into a JSON.
+        var resultsHandler = new ResultsHandler();
+        var outputKeep = new List<string>();
+
         for (int i = 0, total = _configurations.Count; i < total; i++)
         {
             var config = _configurations[i];
             string cmdArgs = GenerateCrankArgs(config);
+            resultsHandler.ConfigName = config.Name;
 
             _logger.Write($"\nRunning configuration {config.Name} ({i+1}/{total})...\n");
 
             for (int j = 1; j <= _iterations; j++)
             {
+                // Clean the list containing the previous iteration's output
+                // results, so it can be reused for this next iteration.
+                outputKeep.Clear();
+
                 _logger.Write($"\nIteration {j}/{_iterations}...\n");
                 _logger.Write($"\ncrank {cmdArgs}\n");
 
@@ -56,13 +66,17 @@ public class CrankRunner
                     {
                         string line = crank.StandardOutput.ReadLine()!;
                         _logger.Write($"{line}\n");
+                        outputKeep.Add(line);
                     }
                     crank.WaitForExit();
                 }
+                resultsHandler.ParseAndStoreIterationResults(j, outputKeep);
             }
-            continue;
+            resultsHandler.StoreConfigRunResults();
         }
-        return ;
+
+        // Record this run's results in its JSON file.
+        resultsHandler.SerializeToJSON();
     }
 
     private string GenerateCrankArgs(Configuration config,
