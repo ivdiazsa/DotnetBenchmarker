@@ -30,6 +30,15 @@ public partial class AssembliesWorkshop
                     FetchProcessedAssemblies(assemblies[config.Os].Processed,
                                              asmsLinks.Processed, config.Os,
                                              logger);
+
+                    // Hack: Need to somehow set the configuration's Processed
+                    // Assemblies Path property for later. Will try finding a
+                    // cleaner alternative when I have more time.
+                    var processedAsms = assemblies[config.Os].Processed.Find(
+                        asmsDesc => asmsDesc.Name.Equals(asmsLinks.Processed)
+                    )!;
+                    config.ProcessedAssembliesPath = processedAsms.Path;
+
                     continue;
                 }
 
