@@ -1,5 +1,6 @@
 // File: src/components/AssembliesWorkshop.cs
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -57,6 +58,10 @@ public partial class AssembliesWorkshop
                             + $" found in {outputFolder}. Moving on to the next...\n");
                 continue;
             }
+            else
+            {
+                Directory.CreateDirectory(outputFolder);
+            }
 
             // Remember that the runtime binaries must match the target configuration,
             // while the crossgen2 binaries must match the running platform.
@@ -86,7 +91,9 @@ public partial class AssembliesWorkshop
 
             string crossgenArgs = GenerateCrossgenArgs(config, outputFolder,
                                                        runtimePath, crossgen2Path);
+
             _logger.Write($"\n{crossgenApp} {crossgenArgs}\n");
+            RunCrossgen2(crossgenApp, crossgenArgs);
         }
 
         return ;
@@ -173,5 +180,31 @@ public partial class AssembliesWorkshop
         cmdSb.AppendFormat(" --out={0}.r2r.dll",
                            Path.Combine(outputPath, compositeResultName));
         return cmdSb.ToString();
+    }
+
+    private void RunCrossgen2(string app, string args)
+    {
+        using (Process crossgen2 = new Process())
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = app,
+                Arguments = args,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                UseShellExecute = false,
+            };
+
+            crossgen2.StartInfo = startInfo;
+            crossgen2.Start();
+
+            while (!crossgen2.StandardOutput.EndOfStream)
+            {
+                string line = crossgen2.StandardOutput.ReadLine()!;
+                _logger.Write($"{line}\n");
+            }
+            crossgen2.WaitForExit();
+        }
     }
 }
