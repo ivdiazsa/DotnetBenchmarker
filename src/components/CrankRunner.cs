@@ -1,6 +1,7 @@
 // File: src/components/CrankRunner.cs
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace DotnetBenchmarker;
@@ -106,8 +107,10 @@ public class CrankRunner
                                appName, runEnv.EnvTieredCompilation ? "1" : "0");
         }
 
-        cmdSb.AppendFormat(" --{0}.options.outputFiles {1}/*",
-                           appName, config.ProcessedAssembliesPath);
+        cmdSb.AppendFormat(" --{0}.options.outputFiles \"{1}\"",
+                           appName,
+                           Path.Combine(config.ProcessedAssembliesPath, "*"));
+
         return cmdSb.ToString();
     }
 }

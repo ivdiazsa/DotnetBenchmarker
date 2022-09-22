@@ -7,19 +7,17 @@ namespace DotnetBenchmarker;
 // Class: AppOptionsBank
 public class AppOptionsBank
 {
-    public bool Build { get; set; }
+    public bool BuildOnly { get; set; }
     public string ConfigFile { get; set; }
     public int Iterations { get; set; }
-    public bool Run { get; set; }
 
     public AppDescription AppDesc { get; set; }
 
     public AppOptionsBank()
     {
-        Build = false;
+        BuildOnly = false;
         ConfigFile = string.Empty;
         Iterations = 1;
-        Run = false;
         AppDesc = new AppDescription();
     }
 

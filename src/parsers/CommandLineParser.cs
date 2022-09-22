@@ -11,9 +11,9 @@ public static class CommandLineParser
         // Define the command-line flags we will support, along with their
         // default values, in case they are not provided.
 
-        var buildOption = new Option<bool>(
-            name: "--build",
-            description: "Generate the configuration(s) binaries.",
+        var buildOnlyOption = new Option<bool>(
+            name: "--build-only",
+            description: "Only generate the configuration(s) binaries.",
             getDefaultValue: () => false
         );
 
@@ -29,33 +29,24 @@ public static class CommandLineParser
             getDefaultValue: () => 1
         );
 
-        var runOption = new Option<bool>(
-            name: "--run",
-            description: "Run the configuration(s) tests.",
-            getDefaultValue: () => false
-        );
-
         // Add them to the handler.
         // My Ruby side might want to try out using Reflection if this list
         // gets too big in the future.
         var rootCommand = new RootCommand();
         rootCommand.Add(iterationsOption);
-        rootCommand.Add(buildOption);
-        rootCommand.Add(runOption);
+        rootCommand.Add(buildOnlyOption);
         rootCommand.Add(configFileOption);
 
         // Store the provided values into our AppOptionsBank :)
-        rootCommand.SetHandler((buildOptionValue,
+        rootCommand.SetHandler((buildOnlyOptionValue,
                                 configFileOptionValue,
-                                iterationsOptionValue,
-                                runOptionValue) =>
+                                iterationsOptionValue) =>
         {
             bank.Iterations = iterationsOptionValue;
-            bank.Build = buildOptionValue;
-            bank.Run = runOptionValue;
+            bank.BuildOnly = buildOnlyOptionValue;
             bank.ConfigFile = configFileOptionValue;
         },
-        buildOption, configFileOption, iterationsOption, runOption);
+        buildOnlyOption, configFileOption, iterationsOption);
 
         // All the heavy lifting is done by the System.CommandLine library.
         rootCommand.Invoke(args);
