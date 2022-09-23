@@ -11,6 +11,7 @@ public class BuildPhaseDescription
     // This Params list allows us to write in list forms the parameters in
     // the YAML file. This is required by YAMLDotNet, which we use to parse it.
     public List<string> Params { get; set; }
+    public string AssembliesSubset { get; set; }
 
     public bool FrameworkComposite { get; set; }
     public bool AspNetComposite { get; set; }
@@ -55,6 +56,7 @@ public class BuildPhaseDescription
     public BuildPhaseDescription()
     {
         Params = new List<string>();
+        AssembliesSubset = string.Empty;
 
         FrameworkComposite = false;
         AspNetComposite = false;
@@ -86,6 +88,11 @@ public class BuildPhaseDescription
         return FrameworkComposite || AspNetComposite;
     }
 
+    public bool IsPartialSubset()
+    {
+        return !string.IsNullOrEmpty(AssembliesSubset);
+    }
+
     public bool NeedsRecompilation()
     {
         return IsComposite() || UseAvx2;
@@ -107,8 +114,13 @@ public class BuildPhaseDescription
         strBuilder.AppendFormat("Build With AVX2 Enabled: {0}\n",
                                  UseAvx2.ToString());
 
-        strBuilder.AppendFormat("Build a Full Composite with the Runtime and App: {0}",
+        strBuilder.AppendFormat("Build a Full Composite with the Runtime and App: {0}\n",
                                  FullComposite.ToString());
+
+        strBuilder.AppendFormat("Assemblies to Build: {0}",
+                                IsPartialSubset()
+                                ? $"Listed in File {AssembliesSubset}"
+                                : "All Assemblies");
 
         return strBuilder.ToString();
     }

@@ -118,6 +118,7 @@ public partial class AssembliesWorkshop
             // won't have their engine to run. Windows has its coreclr as another
             // dll, and therefore it's already included in the composite build.
 
+            // TODO: This can be refactored into a single functionie.
             if (config.Os.Equals("linux"))
             {
                 // Copy all the .so files to the output folder.

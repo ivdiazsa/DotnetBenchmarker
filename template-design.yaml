@@ -66,6 +66,7 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      assembliesSubset: Path/To/File/With/List.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
@@ -92,6 +93,7 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      assembliesSubset: Path/To/File/With/List.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
@@ -118,6 +120,7 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
+      assembliesSubset: Path/To/File/With/List.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
