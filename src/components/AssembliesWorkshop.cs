@@ -113,38 +113,10 @@ public partial class AssembliesWorkshop
             _logger.Write($"\n{crossgenApp} {crossgenArgs}\n");
             RunCrossgen2(crossgenApp, crossgenArgs);
 
-            // Non-Windows platforms have their own libraries with their coreclr.
-            // We have to copy them to the output folder, otherwise our composites
-            // won't have their engine to run. Windows has its coreclr as another
-            // dll, and therefore it's already included in the composite build.
-
-            // TODO: This can be refactored into a single functionie.
-            if (config.Os.Equals("linux"))
-            {
-                // Copy all the .so files to the output folder.
-                string[] soFiles = Directory.GetFiles(fxPath, "*.so",
-                                                      SearchOption.TopDirectoryOnly);
-
-                foreach (string so in soFiles)
-                {
-                    string soName = Path.GetFileName(so);
-                    _logger.Write($"Copying {soName}...\n");
-                    File.Copy(so, Path.Combine(outputFolder, soName));
-                }
-            }
-            else if (config.Os.Equals("macos"))
-            {
-                // Copy all the .dylib files to the output folder.
-                string[] dylibFiles = Directory.GetFiles(fxPath, "*.dylib",
-                                                         SearchOption.TopDirectoryOnly);
-
-                foreach (string dylib in dylibFiles)
-                {
-                    string dylibName = Path.GetFileName(dylib);
-                    _logger.Write($"Copying {dylibName}...\n");
-                    File.Copy(dylib, Path.Combine(outputFolder, dylibName));
-                }
-            }
+            // Our resulting build also needs the *.so/*.dylib libraries in the
+            // cases of Linux/MacOS respectively, as well as any other untouched
+            // binaries from the used runtime build.
+            CopyRemainingFiles(config.Os, fxPath, aspNetPath, outputFolder);
 
             // Set the configuration's processed assemblies path to the
             // output folder we just used.
@@ -188,26 +160,19 @@ public partial class AssembliesWorkshop
                                 "StandardOptimizationData.mibc"));
         }
 
-        // TODO: Refactor the partial composites handling into a single functionie.
-
         // Framework Composites!
         if (buildParams.FrameworkComposite)
         {
-            _logger.Write("Compiling Framework Composites...\n");
+            _logger.Write("\nCompiling Framework Composites...\n");
             compositeResultName += "framework";
 
             if (buildParams.IsFxPartial())
             {
-                string[] asmsToCompile = File.ReadAllLines(buildParams.FxAssembliesSubset);
-                compositeResultName += "-partial";
-                _logger.Write("\nRequested Partial Framework Composites:\n");
-
-                foreach (string asm in asmsToCompile)
-                {
-                    _logger.Write($"{asm}\n");
-                    cmdSb.AppendFormat(" {0}", Path.Combine(fxPath, asm));
-                }
-                cmdSb.AppendFormat(" --reference={0}", Path.Combine(fxPath, "*.dll"));
+                // Framework Partial Composites!
+                DealWithAssembliesSubsets(cmdSb,
+                                          buildParams.FxAssembliesSubset,
+                                          fxPath,
+                                          ref compositeResultName);
             }
             else
             {
@@ -217,21 +182,16 @@ public partial class AssembliesWorkshop
             // Bundle ASP.NET for the Fx+Asp Composite!
             if (buildParams.BundleAspNet)
             {
-                _logger.Write("ASP.NET will be bundled into the composite image...\n");
+                _logger.Write("\nASP.NET will be bundled into the composite image...\n");
                 compositeResultName += "-aspnet";
 
                 if (buildParams.IsAspPartial())
                 {
-                    string[] asmsToCompile = File.ReadAllLines(buildParams.AspAssembliesSubset);
-                    compositeResultName += "-partial";
-                    _logger.Write("\nRequested Partial ASP.NET Composites:\n");
-
-                    foreach (string asm in asmsToCompile)
-                    {
-                        _logger.Write($"{asm}\n");
-                        cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, asm));
-                    }
-                    cmdSb.AppendFormat(" --reference={0}", Path.Combine(aspNetPath, "*.dll"));
+                    // Bundled ASP.NET Partial Composites!
+                    DealWithAssembliesSubsets(cmdSb,
+                                              buildParams.AspAssembliesSubset,
+                                              aspNetPath,
+                                              ref compositeResultName);
                 }
                 else
                 {
@@ -246,20 +206,15 @@ public partial class AssembliesWorkshop
         if (buildParams.AspNetComposite)
         {
             compositeResultName += "aspnetcore";
-            _logger.Write("Compiling ASP.NET Composites...\n");
+            _logger.Write("\nCompiling ASP.NET Composites...\n");
 
             if (buildParams.IsAspPartial())
             {
-                string[] asmsToCompile = File.ReadAllLines(buildParams.AspAssembliesSubset);
-                compositeResultName += "-partial";
-                _logger.Write("\nRequested Partial ASP.NET Composites:\n");
-
-                foreach (string asm in asmsToCompile)
-                {
-                    _logger.Write($"{asm}\n");
-                    cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, asm));
-                }
-                cmdSb.AppendFormat(" --reference={0}", Path.Combine(aspNetPath, "*.dll"));
+                // ASP.NET Partial Composites!
+                DealWithAssembliesSubsets(cmdSb,
+                                          buildParams.AspAssembliesSubset,
+                                          aspNetPath,
+                                          ref compositeResultName);
             }
             else
             {
@@ -272,6 +227,28 @@ public partial class AssembliesWorkshop
         cmdSb.AppendFormat(" --out={0}.r2r.dll",
                            Path.Combine(outputPath, compositeResultName));
         return cmdSb.ToString();
+    }
+
+    private void DealWithAssembliesSubsets(StringBuilder cmdSb,
+                                           string subsetFile,
+                                           string asmsPath,
+                                           ref string compositeResultName)
+    {
+        // Read the provided file with the list of assemblies to process.
+        string[] asmsToCompile = File.ReadAllLines(subsetFile);
+
+        compositeResultName += "-partial";
+        _logger.Write("\nRequested Partial Composites:\n");
+
+        // Add each assembly from the file as an argument to Crossgen2. Then,
+        // add a reference flag to the rest of the dll's, since they still have
+        // to know about each other.
+        foreach (string asm in asmsToCompile)
+        {
+            _logger.Write($"{asm}\n");
+            cmdSb.AppendFormat(" {0}", Path.Combine(asmsPath, asm));
+        }
+        cmdSb.AppendFormat(" --reference={0}", Path.Combine(asmsPath, "*.dll"));
     }
 
     private void RunCrossgen2(string app, string args)
@@ -297,6 +274,37 @@ public partial class AssembliesWorkshop
                 _logger.Write($"{line}\n");
             }
             crossgen2.WaitForExit();
+        }
+    }
+
+    private void CopyRemainingFiles(string configOs, string fxPath, string aspPath,
+                                    string outputPath)
+    {
+        // Experimenting with C#'s SQL-like syntax for listy programming :)
+        // Find all the dll's that were not added to the output folder when doing
+        // the crossgen'ing. When doing full composites, this list is expected
+        // to be empty.
+        List<string> filesToCopy =
+            (from dll in Directory.GetFiles(fxPath, "*.dll")
+                                 .Concat(Directory.GetFiles(aspPath, "*.dll"))
+             where !File.Exists(Path.Combine(outputPath, Path.GetFileName(dll)))
+             select dll).ToList();
+
+        // Non-Windows platforms have their own libraries with their coreclr.
+        // We have to copy them to the output folder, otherwise our composites
+        // won't have their engine to run. Windows has its coreclr as another
+        // dll, and therefore it's already included in the composite build.
+
+        if (configOs.Equals("linux"))
+            filesToCopy.AddRange(Directory.GetFiles(fxPath, "*.so"));
+        else if (configOs.Equals("macos"))
+            filesToCopy.AddRange(Directory.GetFiles(fxPath, "*.dylib"));
+
+        foreach (string missing in filesToCopy)
+        {
+            string missingName = Path.GetFileName(missing);
+            _logger.Write($"Copying {missingName}...\n");
+            File.Copy(missing, Path.Combine(outputPath, missingName));
         }
     }
 }
