@@ -66,7 +66,8 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
-      assembliesSubset: Path/To/File/With/List.txt
+      fxAssembliesSubset: Path/To/File/With/FxList.txt
+      aspAssembliesSubset: Path/To/File/With/AspList.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
@@ -93,7 +94,8 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
-      assembliesSubset: Path/To/File/With/List.txt
+      fxAssembliesSubset: Path/To/File/With/FxList.txt
+      aspAssembliesSubset: Path/To/File/With/AspList.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.
@@ -120,7 +122,8 @@ configurations:
     scenariosFile: Scenario File or Link
     scenario: Scenario
     buildPhase: # Will choose the given 'processed' instead if any, or run normally otherwise.
-      assembliesSubset: Path/To/File/With/List.txt
+      fxAssembliesSubset: Path/To/File/With/FxList.txt
+      aspAssembliesSubset: Path/To/File/With/AspList.txt
       params:
         - frameworkcomposite
         - aspnetcomposite # Mutually exclusive with 'bundleaspnet'.

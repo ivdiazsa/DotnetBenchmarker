@@ -188,19 +188,55 @@ public partial class AssembliesWorkshop
                                 "StandardOptimizationData.mibc"));
         }
 
+        // TODO: Refactor the partial composites handling into a single functionie.
+
         // Framework Composites!
         if (buildParams.FrameworkComposite)
         {
             _logger.Write("Compiling Framework Composites...\n");
             compositeResultName += "framework";
-            cmdSb.AppendFormat(" {0}", Path.Combine(fxPath, "*.dll"));
 
-            // Bundle ASP.NET for the full Fx+Asp Composite!
+            if (buildParams.IsFxPartial())
+            {
+                string[] asmsToCompile = File.ReadAllLines(buildParams.FxAssembliesSubset);
+                compositeResultName += "-partial";
+                _logger.Write("\nRequested Partial Framework Composites:\n");
+
+                foreach (string asm in asmsToCompile)
+                {
+                    _logger.Write($"{asm}\n");
+                    cmdSb.AppendFormat(" {0}", Path.Combine(fxPath, asm));
+                }
+                cmdSb.AppendFormat(" --reference={0}", Path.Combine(fxPath, "*.dll"));
+            }
+            else
+            {
+                cmdSb.AppendFormat(" {0}", Path.Combine(fxPath, "*.dll"));
+            }
+
+            // Bundle ASP.NET for the Fx+Asp Composite!
             if (buildParams.BundleAspNet)
             {
                 _logger.Write("ASP.NET will be bundled into the composite image...\n");
                 compositeResultName += "-aspnet";
-                cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
+
+                if (buildParams.IsAspPartial())
+                {
+                    string[] asmsToCompile = File.ReadAllLines(buildParams.AspAssembliesSubset);
+                    compositeResultName += "-partial";
+                    _logger.Write("\nRequested Partial ASP.NET Composites:\n");
+
+                    foreach (string asm in asmsToCompile)
+                    {
+                        _logger.Write($"{asm}\n");
+                        cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, asm));
+                    }
+                    cmdSb.AppendFormat(" --reference={0}", Path.Combine(aspNetPath, "*.dll"));
+                }
+                else
+                {
+                    cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
+                }
             }
         }
 
@@ -211,7 +247,24 @@ public partial class AssembliesWorkshop
         {
             compositeResultName += "aspnetcore";
             _logger.Write("Compiling ASP.NET Composites...\n");
-            cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
+
+            if (buildParams.IsAspPartial())
+            {
+                string[] asmsToCompile = File.ReadAllLines(buildParams.AspAssembliesSubset);
+                compositeResultName += "-partial";
+                _logger.Write("\nRequested Partial ASP.NET Composites:\n");
+
+                foreach (string asm in asmsToCompile)
+                {
+                    _logger.Write($"{asm}\n");
+                    cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, asm));
+                }
+                cmdSb.AppendFormat(" --reference={0}", Path.Combine(aspNetPath, "*.dll"));
+            }
+            else
+            {
+                cmdSb.AppendFormat(" {0}", Path.Combine(aspNetPath, "*.dll"));
+            }
             cmdSb.AppendFormat(" --reference={0}", Path.Combine(fxPath, "*.dll"));
         }
 

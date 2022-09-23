@@ -11,7 +11,8 @@ public class BuildPhaseDescription
     // This Params list allows us to write in list forms the parameters in
     // the YAML file. This is required by YAMLDotNet, which we use to parse it.
     public List<string> Params { get; set; }
-    public string AssembliesSubset { get; set; }
+    public string FxAssembliesSubset { get; set; }
+    public string AspAssembliesSubset { get; set; }
 
     public bool FrameworkComposite { get; set; }
     public bool AspNetComposite { get; set; }
@@ -56,7 +57,8 @@ public class BuildPhaseDescription
     public BuildPhaseDescription()
     {
         Params = new List<string>();
-        AssembliesSubset = string.Empty;
+        FxAssembliesSubset = string.Empty;
+        AspAssembliesSubset = string.Empty;
 
         FrameworkComposite = false;
         AspNetComposite = false;
@@ -88,14 +90,24 @@ public class BuildPhaseDescription
         return FrameworkComposite || AspNetComposite;
     }
 
-    public bool IsPartialSubset()
+    public bool IsFxPartial()
     {
-        return !string.IsNullOrEmpty(AssembliesSubset);
+        return !string.IsNullOrEmpty(FxAssembliesSubset);
+    }
+
+    public bool IsAspPartial()
+    {
+        return !string.IsNullOrEmpty(AspAssembliesSubset);
+    }
+
+    public bool IsPartial()
+    {
+        return IsFxPartial() || IsAspPartial();
     }
 
     public bool NeedsRecompilation()
     {
-        return IsComposite() || UseAvx2;
+        return IsComposite() || IsPartial() || UseAvx2;
     }
 
     public override string ToString()
@@ -117,11 +129,7 @@ public class BuildPhaseDescription
         strBuilder.AppendFormat("Build a Full Composite with the Runtime and App: {0}\n",
                                  FullComposite.ToString());
 
-        strBuilder.AppendFormat("Assemblies to Build: {0}",
-                                IsPartialSubset()
-                                ? $"Listed in File {AssembliesSubset}"
-                                : "All Assemblies");
-
+        // TODO: Add the partials to this ToString() method.
         return strBuilder.ToString();
     }
 }
