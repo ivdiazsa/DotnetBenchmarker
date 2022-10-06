@@ -156,6 +156,7 @@ Simply call the corresponding script at the root of the repo with the appropriat
 * `--config-file`: The only mandatory flag. With this one, you tell the benchmarker where your `yaml` file is.
 * `--iterations`: How many times you want to run each configuration with crank. Defaults to '1' if omitted. Might be obvious but this does not include building since there's no need to build more than once :)
 * `--build-only`: If you only want to generate the composites, but not run anything with crank, pass this flag to the benchmarker script. Defaults to 'false' if omitted.
+* `--rebuild`: Build and process again each configuration's assemblies, regardless of whether they were already there or not.
 
 If you need any reminder about these flags, you can always run the benchmarker with the `--help` flag.
 
