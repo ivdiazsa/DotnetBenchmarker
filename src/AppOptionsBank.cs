@@ -10,6 +10,7 @@ public class AppOptionsBank
     public bool BuildOnly { get; set; }
     public string ConfigFile { get; set; }
     public int Iterations { get; set; }
+    public bool Rebuild { get; set; }
 
     public AppDescription AppDesc { get; set; }
 
@@ -18,6 +19,7 @@ public class AppOptionsBank
         BuildOnly = false;
         ConfigFile = string.Empty;
         Iterations = 1;
+        Rebuild = false;
         AppDesc = new AppDescription();
     }
 

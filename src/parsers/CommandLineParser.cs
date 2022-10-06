@@ -29,24 +29,34 @@ public static class CommandLineParser
             getDefaultValue: () => 1
         );
 
+        var rebuildOption = new Option<bool>(
+            name: "--rebuild",
+            description: "Build all the processed assemblies regardless of whether"
+                        + " they are already there or not.",
+            getDefaultValue: () => false
+        );
+
         // Add them to the handler.
         // My Ruby side might want to try out using Reflection if this list
         // gets too big in the future.
         var rootCommand = new RootCommand();
-        rootCommand.Add(iterationsOption);
         rootCommand.Add(buildOnlyOption);
         rootCommand.Add(configFileOption);
+        rootCommand.Add(iterationsOption);
+        rootCommand.Add(rebuildOption);
 
         // Store the provided values into our AppOptionsBank :)
         rootCommand.SetHandler((buildOnlyOptionValue,
                                 configFileOptionValue,
-                                iterationsOptionValue) =>
+                                iterationsOptionValue,
+                                rebuildOptionValue) =>
         {
-            bank.Iterations = iterationsOptionValue;
             bank.BuildOnly = buildOnlyOptionValue;
             bank.ConfigFile = configFileOptionValue;
+            bank.Iterations = iterationsOptionValue;
+            bank.Rebuild = rebuildOptionValue;
         },
-        buildOnlyOption, configFileOption, iterationsOption);
+        buildOnlyOption, configFileOption, iterationsOption, rebuildOption);
 
         // All the heavy lifting is done by the System.CommandLine library.
         rootCommand.Invoke(args);

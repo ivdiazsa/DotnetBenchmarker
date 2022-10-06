@@ -23,21 +23,22 @@ public partial class AssembliesWorkshop
                                   + $"build-log-{Constants.Timestamp}.txt");
     }
 
-    public void Run()
+    public void Run(bool rebuildFlag = false)
     {
         var retriever = new MaterialsRetriever();
         retriever.SearchAndFetch(_assemblies, _configurations, _logger);
-        BuildReadyToRunImages();
+        BuildReadyToRunImages(rebuildFlag);
     }
 
-    private void BuildReadyToRunImages()
+    private void BuildReadyToRunImages(bool rebuild)
     {
         for (int i = 0, total = _configurations.Count; i < total; i++)
         {
             var config = _configurations[i];
             var buildParams = config.BuildPhase;
 
-            _logger.Write($"\n\nSetting up for configuration {config.Name} ({i+1}/{total})...\n");
+            _logger.Write($"\n\nSetting up for configuration {config.Name}"
+                        + $" ({i+1}/{total})...\n");
 
             if (buildParams is null)
             {
@@ -46,24 +47,37 @@ public partial class AssembliesWorkshop
                 continue;
             }
 
-            // These configuration's binaries are already there, presumably
-            // from a previous run. We just let the user know and move on to
-            // the next configuration.
             string outputFolder = Path.Combine(Constants.Paths.Resources,
                                                config.Os, "processed",
                                                $"{config.Name}-processed");
 
             if (Directory.Exists(outputFolder))
             {
-                _logger.Write($"INFO: Configuration {config.Name} output binaries"
-                            + $" found in {outputFolder}. Moving on to the next...\n");
-                config.ProcessedAssembliesPath = outputFolder;
-                continue;
+                if (rebuild)
+                {
+                    // The user requested to build the configuration's binaries
+                    // again, so we delete the existing ones (if any) and proceed
+                    // normally.
+
+                    _logger.Write("INFO: Binaries found for configuration"
+                                + $" {config.Name}, and --rebuild flag was passed."
+                                + " Deleting and processing again...\n");
+                    Directory.Delete(outputFolder, true);
+                }
+                else
+                {
+                    // These configuration's binaries are already there, presumably
+                    // from a previous run. We just let the user know and move on
+                    // to the next configuration.
+
+                    _logger.Write($"INFO: Configuration {config.Name} output"
+                                + $" binaries found in {outputFolder}. Moving on"
+                                + " to the next...\n");
+                    config.ProcessedAssembliesPath = outputFolder;
+                    continue;
+                }
             }
-            else
-            {
-                Directory.CreateDirectory(outputFolder);
-            }
+            Directory.CreateDirectory(outputFolder);
 
             // Remember that the runtime binaries must match the target configuration,
             // while the crossgen2 binaries must match the running platform.

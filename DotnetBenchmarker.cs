@@ -33,7 +33,7 @@ internal class BenchmarkerCore
         // to depend on double redirection.
         var workshop = new AssembliesWorkshop(optsBank.AppDesc.Assemblies,
                                               optsBank.AppDesc.Configurations);
-        workshop.Run();
+        workshop.Run(optsBank.Rebuild);
         System.Console.WriteLine("\nAll builds finished successfully!\n");
 
         if (optsBank.BuildOnly)
