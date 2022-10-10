@@ -57,12 +57,6 @@ public partial class AssembliesWorkshop
                 FetchRuntimeAssemblies(assemblies[config.Os].Runtimes,
                                        asmsLinks.Runtime, config.Os, logger);
 
-                // TODO: This is a little hacky. Will leave it for now but if
-                // there's a way to address this during the final validation
-                // stages before actually running the app, then it would be
-                // better to handle it there.
-                //                            |
-                //                            V
                 // If by this point, the 'Runtime' assemblies link of this
                 // configuration is empty, then we know it's going to use
                 // a nightly build for sure.

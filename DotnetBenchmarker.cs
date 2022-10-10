@@ -5,7 +5,6 @@
 
 // WORK ITEMS:
 //
-// - Check the TODO and NOTE notes throughout the app.
 // - OS Compatibility Matrix.
 // - Add more safety to builds failing, so that we don't continue executing
 //   when failure is basically guaranteed.
@@ -29,10 +28,10 @@ internal class BenchmarkerCore
         optsBank.Init(args);
         PrepareResourcesTree();
 
-        // TODO: Add AppDesc getters to the App Options Bank, rather than having
-        // to depend on double redirection.
-        var workshop = new AssembliesWorkshop(optsBank.AppDesc.Assemblies,
-                                              optsBank.AppDesc.Configurations);
+        // Download, copy, and build all the necessary stuff for our given
+        // configurations.
+        var workshop = new AssembliesWorkshop(optsBank.GetAssemblies(),
+                                              optsBank.GetConfigurations());
         workshop.Run(optsBank.Rebuild);
         System.Console.WriteLine("\nAll builds finished successfully!\n");
 

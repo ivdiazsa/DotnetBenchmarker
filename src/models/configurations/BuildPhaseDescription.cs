@@ -129,7 +129,16 @@ public class BuildPhaseDescription
         strBuilder.AppendFormat("Build a Full Composite with the Runtime and App: {0}\n",
                                  FullComposite.ToString());
 
-        // TODO: Add the partials to this ToString() method.
+        if (IsFxPartial())
+        {
+            strBuilder.AppendFormat("Fx Assemblies for Partial Listed in: {0}\n",
+                                    FxAssembliesSubset);
+        }
+        if (IsAspPartial())
+        {
+            strBuilder.AppendFormat("Aspnet Assemblies for Partial Listed in: {0}\n",
+                                    AspAssembliesSubset);
+        }
         return strBuilder.ToString();
     }
 }

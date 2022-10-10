@@ -1,5 +1,6 @@
 // File: src/Models/AppDescription.cs
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DotnetBenchmarker;
@@ -20,6 +21,40 @@ public class AppDescription
     {
         Assemblies = new Dictionary<string, AssembliesCollection>();
         Configurations = new List<Configuration>();
+    }
+
+    internal void MatchAssembliesToConfigs()
+    {
+        foreach (Configuration item in Configurations)
+        {
+            AssembliesNameLinks links = item.AssembliesToUse;
+
+            // In one of the simplest cases, we will have a configuration
+            // targeting a different OS than the one we are running on, and
+            // requesting a latest SDK build by omission. In this scenario,
+            // there won't be assemblies specified for this configuration's
+            // target OS, and that's perfectly fine.
+
+            if (Assemblies.ContainsKey(item.Os))
+            {
+                AssembliesCollection asmsFromCfgOs = Assemblies[item.Os];
+                if (string.IsNullOrEmpty(links.Runtime))
+                {
+                    var firstGivenRuntime = asmsFromCfgOs.Runtimes.FirstOrDefault()!;
+                    if (firstGivenRuntime is null)
+                        links.Runtime = "Latest";
+                    else
+                        links.Runtime = firstGivenRuntime.Name;
+                }
+            }
+
+            if (string.IsNullOrEmpty(links.Crossgen2))
+            {
+                var asmsFromRunningOs = Assemblies[Constants.RunningOs];
+                var firstGivenCrossgen2 = asmsFromRunningOs.Crossgen2s.FirstOrDefault()!;
+                links.Crossgen2 = firstGivenCrossgen2.Name;
+            }
+        }
     }
 
     public override string ToString()

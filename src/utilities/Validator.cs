@@ -138,8 +138,6 @@ internal static class Validator
         {
             bool lol = false;
 
-            // TODO: Refactor this into a single validation function :)
-
             if (!string.IsNullOrEmpty(cfgMaterialLinks.Processed))
             {
                 cfgErrors.Add("AssembliesToUse: Processed Assemblies link was"

@@ -1,6 +1,6 @@
 // File: src/AppOptionsBank.cs
 using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace DotnetBenchmarker;
 
@@ -59,43 +59,18 @@ public class AppOptionsBank
             Environment.Exit(-2);
         }
 
-        MatchAssembliesToConfigs();
+        AppDesc.MatchAssembliesToConfigs();
     }
 
     public void ShowAppDescription() => Console.Write(AppDesc.ToString());
 
-    // TODO: Move this to the AppDescription class.
-    private void MatchAssembliesToConfigs()
+    public Dictionary<string, AssembliesCollection> GetAssemblies()
     {
-        foreach (Configuration item in AppDesc.Configurations)
-        {
-            AssembliesNameLinks links = item.AssembliesToUse;
+        return AppDesc.Assemblies;
+    }
 
-            // In one of the simplest cases, we will have a configuration
-            // targeting a different OS than the one we are running on, and
-            // requesting a latest SDK build by omission. In this scenario,
-            // there won't be assemblies specified for this configuration's
-            // target OS, and that's perfectly fine.
-
-            if (AppDesc.Assemblies.ContainsKey(item.Os))
-            {
-                AssembliesCollection asmsFromCfgOs = AppDesc.Assemblies[item.Os];
-                if (string.IsNullOrEmpty(links.Runtime))
-                {
-                    var firstGivenRuntime = asmsFromCfgOs.Runtimes.FirstOrDefault()!;
-                    if (firstGivenRuntime is null)
-                        links.Runtime = "Latest";
-                    else
-                        links.Runtime = firstGivenRuntime.Name;
-                }
-            }
-
-            if (string.IsNullOrEmpty(links.Crossgen2))
-            {
-                var asmsFromRunningOs = AppDesc.Assemblies[Constants.RunningOs];
-                var firstGivenCrossgen2 = asmsFromRunningOs.Crossgen2s.FirstOrDefault()!;
-                links.Crossgen2 = firstGivenCrossgen2.Name;
-            }
-        }
+    public List<Configuration> GetConfigurations()
+    {
+        return AppDesc.Configurations;
     }
 }

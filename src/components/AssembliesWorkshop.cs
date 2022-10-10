@@ -138,9 +138,6 @@ public partial class AssembliesWorkshop
         }
     }
 
-    // TODO: This function is meant to do any sort of Crossgen2 processing, but
-    // currently, only composites are supported due to urgency. Making support
-    // more general is one of the highest priority work items at the moment.
     private string GenerateCrossgenArgs(Configuration config, string outputPath,
                                         string fxPath, string aspNetPath,
                                         string crossgen2Path)
