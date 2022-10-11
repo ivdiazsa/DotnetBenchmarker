@@ -82,6 +82,7 @@ internal static class Validator
 
             if (item.BuildPhase is not null)
             {
+                ValidateSourceAndTargetOS(item, configErrors);
                 ValidateProcessingMaterials(appDesc.Assemblies, item, configErrors);
                 ValidateBuildPhase(item, configErrors);
 
@@ -109,6 +110,24 @@ internal static class Validator
 
             if (!configErrors.IsEmpty())
                 errorsFound.Add($"Configuration {item.Name}", configErrors);
+        }
+    }
+
+    private static void ValidateSourceAndTargetOS(Configuration config,
+                                                  List<string> cfgErrors)
+    {
+        // From Windows, you can target any platform with crossgen2, so we have
+        // no further checking left to do.
+        if (Constants.RunningOs.Equals("windows"))
+            return ;
+
+        // As flexible as Windows is to target, it is super picky to be targeted.
+        // If we're going to be building Windows composites/assemblies, then
+        // we can't do it from any other platform.
+        if (config.Os.Equals("windows"))
+        {
+            cfgErrors.Add($"OS: Can't target Windows OS from {config.Os.Capitalize()}.");
+            _totalErrors++;
         }
     }
 

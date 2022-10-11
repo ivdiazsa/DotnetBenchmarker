@@ -4,9 +4,6 @@ using System.IO;
 
 namespace DotnetBenchmarker;
 
-// TODO: Try to use this enum for all OS-related data. If keeping the other
-// hard-coded values proves to be the better and clearer choice, then this
-// work item can be considered done :)
 enum SupportedOS { Windows, Macos, Linux }
 
 readonly struct AppPaths
