@@ -5,7 +5,6 @@
 
 // WORK ITEMS:
 //
-// - OS Compatibility Matrix.
 // - Add more safety to builds failing, so that we don't continue executing
 //   when failure is basically guaranteed.
 // - Add support to run unprocessed builds.
