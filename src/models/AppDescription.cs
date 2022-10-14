@@ -48,7 +48,7 @@ public class AppDescription
                 }
             }
 
-            if (string.IsNullOrEmpty(links.Crossgen2))
+            if (item.BuildPhase is not null && string.IsNullOrEmpty(links.Crossgen2))
             {
                 var asmsFromRunningOs = Assemblies[Constants.RunningOs];
                 var firstGivenCrossgen2 = asmsFromRunningOs.Crossgen2s.FirstOrDefault()!;

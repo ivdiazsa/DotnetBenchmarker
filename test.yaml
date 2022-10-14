@@ -1,0 +1,9 @@
+configurations:
+  - name: Testy
+    os: linux
+    assembliesToUse:
+      runtime: Latest
+    runPhase:
+      params:
+        - appr2r
+        - envreadytorun

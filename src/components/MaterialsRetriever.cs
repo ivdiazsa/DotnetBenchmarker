@@ -67,10 +67,15 @@ public partial class AssembliesWorkshop
 
                 // Find and copy the crossgen2 assemblies for this configuration.
                 // Note that these ones depend on the OS the app is running on,
-                // not on the configuration's target OS.
-                FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
-                                         asmsLinks.Crossgen2, Constants.RunningOs,
-                                         logger);
+                // not on the configuration's target OS. Skip if the current
+                // configuration has no Build Phase.
+                if (config.BuildPhase is not null)
+                {
+                    FetchCrossgen2Assemblies(assemblies[Constants.RunningOs].Crossgen2s,
+                                             asmsLinks.Crossgen2,
+                                             Constants.RunningOs,
+                                             logger);
+                }
             }
         }
 

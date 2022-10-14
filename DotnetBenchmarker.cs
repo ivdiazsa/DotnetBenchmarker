@@ -3,17 +3,14 @@
 // Class: DotnetBenchmarker
 // This is our little script :)
 
-// WORK ITEMS:
-//
-// - Add more safety to builds failing, so that we don't continue executing
-//   when failure is basically guaranteed.
-// - Add support to run unprocessed builds.
-//
-
 // WARNING: FOR EXTERNALLY SUPPLIED FILES, ENSURE THEY ARE WRITTEN WITH THE LF
 //          LINE TERMINATOR! I DON'T WANT TO SPEND OVER AN HOUR AGAIN DEALING
 //          WITH A FILE NOT FOUND ERROR IN BASH, ALL BECAUSE OF THE ADDITIONAL
 //          CLRF CHARACTER SCREWING UP ALL THE NON-HARD-CODED TEXT.
+
+// Funny Note: When running tests without a build phase, we are uploading the
+// files at the root of this repo instead LOL. I don't even know how this tool
+// is supposed to work anymore :')
 
 namespace DotnetBenchmarker;
 
