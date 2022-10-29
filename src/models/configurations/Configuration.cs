@@ -11,6 +11,7 @@ public class Configuration
     public string Scenario { get; set; }
 
     public string ProcessedAssembliesPath { get; set; }
+    public long ProcessedAssembliesSize { get; set; }
 
     public DotnetVersions Versions { get; set; }
     public AssembliesNameLinks AssembliesToUse { get; set; }
@@ -26,6 +27,7 @@ public class Configuration
         Scenario = "plaintext";
 
         ProcessedAssembliesPath = string.Empty;
+        ProcessedAssembliesSize = 0;
         Versions = new DotnetVersions();
         AssembliesToUse = new AssembliesNameLinks();
     }

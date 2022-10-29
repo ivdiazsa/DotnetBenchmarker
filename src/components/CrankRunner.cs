@@ -34,7 +34,9 @@ public class CrankRunner
         {
             var config = _configurations[i];
             string cmdArgs = GenerateCrankArgs(config);
+
             resultsHandler.ConfigName = config.Name;
+            resultsHandler.ConfigAssembliesSize = config.ProcessedAssembliesSize;
 
             _logger.Write($"\nRunning configuration {config.Name} ({i+1}/{total})...\n");
 

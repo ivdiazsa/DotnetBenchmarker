@@ -18,6 +18,7 @@ public class ResultsHandler
 {
     public string ResultsFileName { get; }
     public string ConfigName { get; set; }
+    public long ConfigAssembliesSize { get; set; }
 
     private RunStats _currentRunStats;
     private GlobalStats _allStats;
@@ -27,6 +28,7 @@ public class ResultsHandler
         ResultsFileName = Path.Combine(Constants.Paths.Results,
                                       $"results-{Constants.Timestamp}.json");
         ConfigName = string.Empty;
+        ConfigAssembliesSize = 0;
         _currentRunStats = new RunStats();
         _allStats = new GlobalStats();
     }
@@ -51,6 +53,8 @@ public class ResultsHandler
         {
             iterStats.Add(row[1].Trim(), row[2].Trim());
         }
+
+        iterStats.Add("Assemblies Total Size (KB)", ConfigAssembliesSize.ToString());
 
         // Add this iteration's dictionary to the list of this configuration's
         // runs.

@@ -135,6 +135,11 @@ public partial class AssembliesWorkshop
             // Set the configuration's processed assemblies path to the
             // output folder we just used.
             config.ProcessedAssembliesPath = outputFolder;
+
+            // Calculate the total size of the processed assemblies, and store
+            // it to later save it to the results json file.
+            config.ProcessedAssembliesSize = CalculateResultingCompositeSize(outputFolder);
+
         }
     }
 
@@ -317,5 +322,12 @@ public partial class AssembliesWorkshop
             _logger.Write($"Copying {missingName}...\n");
             File.Copy(missing, Path.Combine(outputPath, missingName));
         }
+    }
+
+    private long CalculateResultingCompositeSize(string outputPath)
+    {
+        DirectoryInfo outputDi = new DirectoryInfo(outputPath);
+        FileInfo[] outputDllsFis = outputDi.GetFiles("*.dll");
+        return outputDllsFis.Sum(dll => dll.Length) / 1024;
     }
 }
